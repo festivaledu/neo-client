@@ -1,18 +1,30 @@
-<template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
-</template>
-
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 
-export default {
-  name: 'home',
-  components: {
-    HelloWorld
-  }
-}
+    export default {
+        name: "home",
+        components: { },
+        data: function() {
+            return {
+                inputMessage: "",
+            };
+        },
+        methods: {
+            sendMessage: function() {
+                this.$store.state.socket.send(this.inputMessage);
+            },
+        },
+        mounted: function() {
+            this.$store.commit("connectSocket", "ws://localhost:42421/neo");
+        },
+    }
+
 </script>
+
+<template>
+
+    <div class="home">
+        <input v-model="inputMessage" type="text" />
+        <button @click="sendMessage()">Absenden</button>
+    </div>
+
+</template>

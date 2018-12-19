@@ -1,16 +1,18 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {
+    state: {
+        socket: {}
+    },
+    mutations: {
+        connectSocket(state, url) {
+            state.socket = new WebSocket(url);
+        }
+    },
+    actions: {
 
-  },
-  mutations: {
-
-  },
-  actions: {
-
-  }
-})
+    }
+});
