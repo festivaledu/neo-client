@@ -5,11 +5,15 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        socket: {}
+        officialServer: false,
+        socket: {},
     },
     mutations: {
         connectSocket(state, url) {
             state.socket = new WebSocket(url);
+        },
+        isOfficialServer(state) {
+            state.officialServer = true;
         }
     },
     actions: {
