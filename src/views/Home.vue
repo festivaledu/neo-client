@@ -1,4 +1,5 @@
 <script>
+    import { SocketService } from "@/socketservice";
 
     export default {
         name: "home",
@@ -6,15 +7,20 @@
         data: function() {
             return {
                 inputMessage: "",
+                receivedMessage: "",
             };
         },
         methods: {
-            sendMessage: function() {
-                this.$store.state.socket.send(this.inputMessage);
+            onPackage(p) {
+                this.receivedMessage = p.Content;
+            },
+            sendMessage() {
+                SocketService.send({ Content: this.inputMessage, Type: 0 });
             },
         },
         mounted: function() {
-            this.$store.commit("connectSocket", "ws://localhost:42421/neo");
+            SocketService.connect("ws://localhost:42420/neo");
+            SocketService.$on("onPackage", this.onPackage);
         },
     }
 
@@ -25,6 +31,7 @@
     <div class="home">
         <input v-model="inputMessage" type="text" />
         <button @click="sendMessage()">Absenden</button>
+        <p>{{ receivedMessage }}</p>
     </div>
 
 </template>
