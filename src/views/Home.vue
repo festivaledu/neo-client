@@ -17,6 +17,7 @@
             sendMessage() {
                 SocketService.sendAesParams();
                 //SocketService.send({ content: this.inputMessage, type: 0 });
+                this.receivedMessage = SocketService.encrypt("test");
             },
         },
         mounted: function() {

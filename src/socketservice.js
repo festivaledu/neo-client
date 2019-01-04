@@ -3,9 +3,9 @@ import CryptoJS from "crypto-js";
 
 export const SocketService = new Vue({
     data: {
-        iv: CryptoJS.enc.Hex.parse('000102030405060708090a0b0c0d0e0f'),
-        key: CryptoJS.enc.Hex.parse('101112131415161718191a1b1c1d1e1f'),
-        socket: '',
+        iv: [],
+        key: [],
+        socket: {},
     },
     methods: {
         generateAesParams() {
