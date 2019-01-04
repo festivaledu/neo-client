@@ -12,15 +12,17 @@
         },
         methods: {
             onPackage(p) {
-                this.receivedMessage = p.Content;
+                this.receivedMessage = p.content;
             },
             sendMessage() {
-                SocketService.send({ Content: this.inputMessage, Type: 0 });
+                SocketService.sendAesParams();
+                SocketService.send({ content: this.inputMessage, type: 0 });
             },
         },
         mounted: function() {
             SocketService.connect("ws://localhost:42420/neo");
             SocketService.$on("onPackage", this.onPackage);
+            SocketService.generateAesParams();
         },
     }
 
