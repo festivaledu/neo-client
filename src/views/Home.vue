@@ -12,12 +12,11 @@
         },
         methods: {
             onPackage(p) {
-                this.receivedMessage = p.Content;
+                this.receivedMessage = p.content;
             },
             sendMessage() {
                 SocketService.sendAesParams();
-                //SocketService.send({ content: this.inputMessage, type: 0 });
-                this.receivedMessage = SocketService.encrypt("test");
+                SocketService.send({ content: this.inputMessage, type: 0 });
             },
         },
         mounted: function() {

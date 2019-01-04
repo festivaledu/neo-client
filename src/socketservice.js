@@ -21,24 +21,32 @@ export const SocketService = new Vue({
 
             return encrypted;
         },
-        onMessage(socket, event) {
+        onMessage(event) {
             let container = JSON.parse(event.data);
 
             if (container.isEncrypted) {
-
+                this.$emit("onPackage", JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(container.payload, this.key, { iv: this.iv }))))
             } else {
                 this.$emit("onPackage", JSON.parse(container.payload));
             }
         },
-        send(data, encrypt) {            
-            if (encrypt) {
-
-            } else {
-                this.socket.send(JSON.stringify({ isEncrypted: false, payload: JSON.stringify(data) }));
-            }
+        send(data) {
+            this.socket.send(JSON.stringify({
+                isEncrypted: true,
+                payload: this.encrypt(JSON.stringify(data)),
+            }));
         },
         sendAesParams() {
-            this.socket.send(JSON.stringify({ isEncrypted: false, payload: JSON.stringify({ content: { aesKey: CryptoJS.enc.Base64.stringify(this.key), aesIV: CryptoJS.enc.Base64.stringify(this.iv) }, type: 1 }) }));
+            this.socket.send(JSON.stringify({
+                isEncrypted: false,
+                payload: JSON.stringify({
+                    content: {
+                        aesKey: CryptoJS.enc.Base64.stringify(this.key),
+                        aesIV: CryptoJS.enc.Base64.stringify(this.iv),
+                    },
+                    type: 1,
+                }),
+            }));
         },
     },
 });
