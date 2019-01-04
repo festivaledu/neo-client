@@ -6,7 +6,7 @@
 
 </template>
 
-<style lang="scss">
+<style lang="less">
 
     #app {
         -moz-osx-font-smoothing: grayscale;
