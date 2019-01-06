@@ -563,16 +563,15 @@ export default {
 	install(Vue, options) {
 		Vue.mixin({
 			components: {
-				"metro-switch": Switch,
-				"metro-slider": Slider,
-				"metro-progress-bar": ProgressBar,
-				"metro-list": List,
-				"metro-auto-suggest": AutoSuggestBox,
-				"metro-command-bar": CommandBar,
-				"metro-app-bar-button": AppBarButton,
-				"metro-person-picture": PersonPicture,
-				"metro-accent-color-selector": AccentColorSelector,
-				[Messages.name]: Messages
+				[Switch.name]: Switch,
+				[Slider.name]: Slider,
+				[ProgressBar.name]: ProgressBar,
+				[List.name]: List,
+				[AutoSuggestBox.name]: AutoSuggestBox,
+				[CommandBar.name]: CommandBar,
+				[AppBarButton.name]: AppBarButton,
+				[PersonPicture.name]: PersonPicture,
+				[AccentColorSelector.name]: AccentColorSelector,
 			}
 		});
 	}
