@@ -1,8 +1,8 @@
 <template>
 	<div class="views">
-		<div class="view view-active">
+		<div class="view" data-view-id="main-view">
 			<div class="pages">
-				<div class="page page-active">
+				<div class="page" data-page-id="controls">
 					<h4>ToggleSwitch</h4>
 					<metro-switch v-model="switchValue" ref="test"/>
 					<p>model["switchValue"] = {{ switchValue }}</p>
@@ -43,6 +43,9 @@
 					<h4>Accent Colors</h4>
 					<metro-accent-color-selector @accentSelect="AccentColor_Selected" />
 					<p>This is <span class="accent-color">colored text</span>.</p>
+				</div>
+				<div class="page" data-page-id="example">
+					<h4>Example</h4>
 				</div>
 			</div>
 		</div>

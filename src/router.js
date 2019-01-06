@@ -23,6 +23,11 @@ export default new Router({
 			path: '/messages',
 			name: 'messages',
 			component: () => import(/* webpackChunkName: "messages" */ './views/Messages.vue')
+		},
+		{
+			path: '/navigation-view',
+			name: 'NavigationView',
+			component: () => import(/* webpackChunkName: "navigation-view" */ './views/NavigationView.vue')
 		}
     ]
 })

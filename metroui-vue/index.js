@@ -33,6 +33,193 @@ var cumulativeOffset = (element) => {
 
 
 
+var metroUI = window.metroUI = {};
+metroUI.views = {};
+
+
+metroUI.View = class {
+	constructor(element, params) {
+		let view = this;
+		view.container = element;
+
+		view.params = {
+			isPrimaryView: false
+		};
+		for (var param in params) {
+			view.params[param] = params[param];
+		}
+
+		if (view.params.isPrimaryView) {
+			view.container.classList.add("view-active");
+		}
+
+		view._currentPage = null;
+		view.pages = {};
+		view._items = {};
+		view._history = [];
+
+		view.container.querySelectorAll(".pages > .page").forEach((item, index) => {
+			if (item.hasAttribute("data-page-id")) {
+				view.pages[item.getAttribute("data-page-id")] = new metroUI.Page(item, {
+					parentView: view,
+					isPrimaryPage: index == 0
+				});
+
+				if (index == 0) {
+					view._currentPage = view.pages[item.getAttribute("data-page-id")];
+					view._history.push(item.getAttribute("data-page-id"));
+				}
+			}
+		});
+	}
+
+	navigate(pageName, _options) {
+		const view = this;
+
+		var options = {
+			url: null,
+			addHistory: true
+		}
+		for (var option in _options) {
+			options[option] = _options[option];
+		}
+
+		let page = view.pages[pageName];
+		if (page) {
+			if (page.isVisible) return;
+			page.show();
+			view._currentPage = page;
+
+			if (options.addHistory) {
+				view._history.push(pageName);
+			}
+		}/* else if (options.url) {
+			_metroUIInstance.get(options.url, (responseText) => {
+				var parsedPage = (new DOMParser()).parseFromString(responseText, "text/html").body.children[0];
+				view.container.appendChild(parsedPage);
+				view.pages[pageName] = new metroUI.Page(parsedPage, {
+					parentView: view
+				});
+
+				view.pages[pageName].show();
+				view._currentPage = view.pages[pageName];
+
+				if (options.addHistory) {
+					view._history.push(pageName);
+				}
+			})
+		}*/
+	}
+
+	goBack() {
+		const view = this;
+		if (view._history.length > 1) {
+			view._currentPage.hide();
+
+			let lastPage = view.pages[view._history[view._history.length - 2]];
+			if (lastPage) {
+				lastPage.show();
+
+				view._history.pop();
+			}
+		}
+	}
+
+	show() {
+		let view = this;
+		document.querySelectorAll(".views .view").forEach((item) => {
+			if (item == view.container) {
+				item.classList.add("view-active");
+			} else {
+				item.classList.remove("view-active");
+			}
+		});
+	}
+
+	hide() {
+		this.container.classList.remove("view-active");
+	}
+
+	querySelector(query) {
+		return this.container.querySelector(query);
+	}
+	querySelectorAll(query) {
+		return this.container.querySelectorAll(query);
+	}
+}
+
+metroUI.Page = class {
+	constructor(element, params) {
+		let page = this;
+		page.container = element;
+
+		page.params = {
+			parentView: null,
+			parentPage: null,
+			isPrimaryPage: false,
+			title: null
+		};
+		for (var param in params) {
+			page.params[param] = params[param];
+		}
+		
+		if (page.params.isPrimaryPage) {
+			page.container.classList.add("page-active");
+		}
+		
+		page._scrollTop = null;
+	}
+	
+	show() {
+		let page = this;
+
+		if (page.params.parentPage) {
+			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
+				if (item == page.container) {
+					item.classList.add("page-active");
+				} else {
+					item.classList.remove("page-active");
+				}
+			});
+		} else if (page.params.parentView) {
+			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
+				if (item == page.container) {
+					item.classList.add("page-active");
+				} else {
+					item.classList.remove("page-active");
+				}
+			});
+		}
+	}
+
+	hide() {
+		this.container.classList.remove("page-active");
+	}
+
+	get isVisible() {
+		return this.container.classList.contains("page-active");
+	}
+	
+	get pageData() {
+		const page = this;
+		
+		return {
+			id: page.container.getAttribute("data-page-id"),
+			container: page.container,
+			view: page.params.parentView,
+			parentPage: page.params.parentPage,
+			title: page.params.title
+		}
+	}
+
+	querySelector(query) {
+		return this.container.querySelector(query);
+	}
+	querySelectorAll(query) {
+		return this.container.querySelectorAll(query);
+	}
+}
+
 var Switch = {
 	name: "metro-switch",
 	props: ["value", "onContent", "offContent"],
@@ -557,6 +744,242 @@ var Messages = {
 	}
 }
 
+var NavigationView = {
+	name: "metro-navigation-view",
+	props: ["title", "history"],
+	data() {
+		return {
+			_currentPage: null,
+			_pages: {},
+			_items: {},
+			_history: []
+		}
+	},
+	render(h) {
+		return (
+			<div class="navigation-view">
+				<div class="navigation-view-menu" ref="menu">
+					<div class="toggle-pane-button" ref="toggleButton" onClick={this.toggle}></div>
+					
+					{this.$props.history != false && 
+						<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
+					}
+
+					<div class="navigation-view-items">
+						{this.$slots["navigation-items"]}
+					</div>
+				</div>
+				
+				<div class="frame-header" ref="frameHeader">
+					<div class="navigation-view-back-button" ref="backButton"></div>
+					<div class="toggle-pane-button" onClick={this.toggle}></div>
+					<p class="title" ref="frameTitle">{this.$props.title}</p>
+				</div>
+				
+				<div class="frame" ref="frame">
+					<div class="frame-content" ref="frameContent">
+						{this.$slots["pages"]}
+					</div>
+				</div>
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+			if (page.hasAttribute("data-page-id")) {
+				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+					parentPage: this,
+					title: page.getAttribute("data-page-title")
+				});
+			}
+		});
+		
+		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		
+		this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
+			if (item.hasAttribute("data-page")) {
+				this.$data._items[item.getAttribute("data-page")] = item;
+
+				item.addEventListener("click", () => {
+					this.navigate(item.getAttribute("data-page"));
+					
+					if (window.innerWidth < 1008) {
+						this.$refs["menu"].classList.remove("expanded");
+					}
+				});
+			}
+		});
+	},
+	destroyed() {
+		this.$refs["frame"].removeEventListener("scroll", this._frameScrolled)
+	},
+	methods: {
+		_frameScrolled() {
+			if (this.$data._currentPage) {
+				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
+			}
+		},
+		toggle() {
+			const nav = this;
+			if (window.innerWidth < 1008) {
+				this.$refs["menu"].classList.toggle("expanded");
+			} else {
+				this.$refs["menu"].classList.toggle("retracted");
+			}
+		},
+		navigate(pageName, _options) {
+			var options = {
+				url: null,
+				addHistory: true
+			}
+			for (var option in _options) {
+				options[option] = _options[option];
+			}
+
+			let page = this.$data._pages[pageName];
+			if (page) {
+				if (page.isVisible) return;
+				
+				page.show();
+				this.$data._currentPage = page;
+				this.setTitle(page.params.title);
+
+				if (this.$data._items[pageName]) {
+					if (this.$refs["menu"].querySelector(".selected")) {
+						this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+					}
+					this.$data._items[pageName].classList.add("selected");
+				} else if (page.container.hasAttribute("data-nav-item")) {
+					let navItem = page.container.getAttribute("data-nav-item");
+					if (this.$data._items[navItem]) {
+						if (this.$refs["menu"].querySelector(".selected")) {
+							this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+						}
+						this.$data._items[navItem].classList.add("selected");
+					}
+				}
+
+				this.$refs["frame"].scrollTo(0, 0);
+
+				// if (nav.params.internalHistory && options.addHistory) {
+				if (this.$props.history != false) {
+					this.$data._history.push(pageName);
+				}
+				// }
+				// if (nav._history.length > 1) {
+				// 	nav.backButton.classList.remove("disabled");
+					
+				// 	if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
+				// 		nav.frameHeader.querySelector(".navigation-view-back-button").classList.remove("disabled");
+				// 	}
+				// }
+			}/* else if (options.url) {
+				_metroUIInstance.get(options.url, (responseText) => {
+					var parsedPage = (new DOMParser()).parseFromString(responseText, "text/html").body.children[0];
+					nav.frameContent.appendChild(parsedPage);
+					nav._pages[pageName] = new metroUI.Page(parsedPage, {
+						parentPage: nav.params.parentPage,
+						parentView: nav,
+						title: parsedPage.getAttribute("data-page-title")
+					});
+					_metroUIInstance.pluginHook("pageBeforeShow", nav._pages[pageName].pageData);
+
+					nav._pages[pageName].show();
+					nav._currentPage = nav._pages[pageName];
+					nav.setTitle(parsedPage.getAttribute("data-page-title"));
+					_metroUIInstance.pluginHook("pageShow", nav._pages[pageName].pageData);
+
+					if (nav._items[pageName]) {
+						if (nav.menu.querySelector(".selected")) {
+							nav.menu.querySelector(".selected").classList.remove("selected");
+						}
+						nav._items[pageName].classList.add("selected");
+					} else if (parsedPage.hasAttribute("data-nav-item")) {
+						let navItem = parsedPage.getAttribute("data-nav-item");
+						if (nav._items[navItem]) {
+							if (nav.menu.querySelector(".selected")) {
+								nav.menu.querySelector(".selected").classList.remove("selected");
+							}
+							nav._items[navItem].classList.add("selected");
+						}
+					}
+					
+					nav.frame.scrollTo(0, 0);
+
+					if (nav.params.internalHistory && options.addHistory) {
+						nav._history.push(pageName);
+					}
+					if (nav._history.length > 1) {
+						nav.backButton.classList.remove("disabled");
+						
+						if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
+							nav.frameHeader.querySelector(".navigation-view-back-button").classList.remove("disabled");
+						}
+					}
+					
+					_metroUIInstance.pluginHook("pageAfterShow", nav._pages[pageName].pageData);
+				});
+			}*/
+		},
+		goBack() {
+			if (this.$data._history.length > 1) {
+				this.$data._currentPage.hide();
+	
+				let lastPage = this.$data._pages[this.$data._history[this.$data._history.length - 2]];
+				if (lastPage) {
+					lastPage.show();
+					this.$data._currentPage = lastPage;
+					this.setTitle(lastPage.params.title);
+	
+					let pageName = lastPage.container.getAttribute("data-page-id");
+					let itemName = lastPage.container.getAttribute("data-nav-item");
+					if (this.$data._items[pageName]) {
+						if (this.$refs["menu"].querySelector(".selected")) {
+							this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+						}
+						this.$data._items[pageName].classList.add("selected");
+					} else if (this.$data._items[itemName]) {
+						if (this.$refs["menu"].querySelector(".selected")) {
+							this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+						}
+						this.$data._items[itemName].classList.add("selected");
+					}
+					
+					if (lastPage._scrollTop !== null) {
+						this.$refs["frame"].scrollTo(0, lastPage._scrollTop);
+					} else {
+						this.$refs["frame"].scrollTo(0, 0);
+					}
+	
+					this.$data._history.pop();
+					// if (this.$data._history.length <= 1) {
+					// 	nav.backButton.classList.add("disabled");
+						
+					// 	if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
+					// 		nav.frameHeader.querySelector(".navigation-view-back-button").classList.add("disabled");
+					// 	}
+					// }
+				}
+			}
+		},
+		setTitle(title) {
+			if (title && title.length) {
+				this.$refs["frameTitle"].innerText = title;
+				this.$refs["frameTitle"].parentElement.classList.remove("hidden");
+			} else {
+				this.$refs["frameTitle"].innerText = "";
+				this.$refs["frameTitle"].parentElement.classList.add("hidden");
+			}
+		},
+		querySelector(query) {
+			return this.$el.querySelector(query);
+		},
+		querySelectorAll(query) {
+			return this.$el.querySelectorAll(query);
+		}
+	}
+}
+
 
 
 export default {
@@ -572,6 +995,19 @@ export default {
 				[AppBarButton.name]: AppBarButton,
 				[PersonPicture.name]: PersonPicture,
 				[AccentColorSelector.name]: AccentColorSelector,
+				[Messages.name]: Messages,
+				[NavigationView.name]: NavigationView
+			},
+			mounted() {
+				if (this.$el.querySelector(".view")) {
+					this.$el.querySelectorAll(".view").forEach((item, index) => {
+						if (item.hasAttribute("data-view-id")) {
+							metroUI.views[item.getAttribute("data-view-id")] = new metroUI.View(item, {
+								isPrimaryView: index == 0
+							})
+						}
+					})
+				}
 			}
 		});
 	}
