@@ -31,6 +31,12 @@ var cumulativeOffset = (element) => {
 	};
 };
 
+let ContentDialogResult = {
+	None: 0,
+	Primary: 1,
+	Secondary: 2
+};
+
 
 
 var metroUI = window.metroUI = {};
@@ -217,6 +223,100 @@ metroUI.Page = class {
 	}
 	querySelectorAll(query) {
 		return this.container.querySelectorAll(query);
+	}
+}
+
+metroUI.ContentDialog = class {
+	constructor(_title, _content, buttons) {
+		const dialog = this;
+		
+		dialog.background = document.createElement("div");
+		dialog.background.className = "content-dialog-background";
+		
+		dialog.container = document.createElement("div");
+		dialog.container.className = "content-dialog";
+		
+		let content = document.createElement("div");
+		content.className = "content";
+		dialog.container.appendChild(content);
+		
+		if (_title.length) {
+			let title = document.createElement("h4");
+			title.innerHTML = _title;
+			content.appendChild(title);
+		}
+		
+		if (_content.length) {
+			let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+			if (parsedHTML.body.children.length) {
+				for (var i=0; i<parsedHTML.body.children.length; i++) {
+					content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+				}
+			} else {
+				let contentText = document.createElement("p");
+				contentText.innerHTML = _content;
+				content.appendChild(contentText);
+			}
+		}
+		
+		if (buttons.length) {
+			let commands = document.createElement("div");
+			commands.className = "commands";
+			dialog.container.appendChild(commands);
+			
+			buttons.forEach((_button, index) => {
+				let button = document.createElement("button");
+				button.innerHTML = _button.text;
+				button.className = _button.primary ? "primary" : "";
+				// TODO: Add event listener
+				
+				button.addEventListener("click", () => {
+					if (dialog._promiseResolve) {
+						//dialog._promise.resolve(1);
+						if (_button.primary) {
+							dialog._promiseResolve(ContentDialogResult.Primary);
+						} else if (index == buttons.length - 1) {
+							dialog._promiseResolve(ContentDialogResult.None);
+						} else {
+							dialog._promiseResolve(ContentDialogResult.Secondary);
+						}
+					}
+					
+					dialog.hide();
+				});
+				
+				commands.appendChild(button);
+			});
+		}
+	}
+	
+	async showAsync() {
+		const dialog = this;
+		if (!document.querySelector("div.content-dialog-background")) {
+			document.body.appendChild(dialog.background);
+		}
+		
+		document.body.appendChild(dialog.container);
+		
+		let promise = new Promise((resolve, reject) => {
+			dialog._promiseResolve = resolve;
+		});
+		return promise;
+	}
+	
+	hide() {
+		const dialog = this;
+		
+		dialog.container.classList.add("animate-out");
+		if (document.querySelectorAll(".content-dialog").length < 2) {
+			document.querySelector(".content-dialog-background").classList.add("animate-out");
+		}
+		setTimeout(() => {
+			document.body.removeChild(dialog.container);
+			if (!document.querySelector(".content-dialog")) {
+				document.body.removeChild(document.querySelector(".content-dialog-background"));
+			}
+		}, 400);
 	}
 }
 
