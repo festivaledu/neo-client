@@ -5,14 +5,14 @@
 				<div class="page" data-page-id="navigation-view">
 					<metro-navigation-view title="This is header text" :history="false" ref="navView">
 						<template slot="navigation-items">
-							<metro-navigation-view-menu-item page="test1" icon="play">Menu Item 1</metro-navigation-view-menu-item>
+							<metro-navigation-view-menu-item page="test1" icon="play" title="Menu Item 1" />
 
 							<div class="navigation-view-item-separator">
 								<p>Actions</p>
 							</div>
 
-							<metro-navigation-view-menu-item page="test2" icon="save">Menu Item 2</metro-navigation-view-menu-item>
-							<metro-navigation-view-menu-item page="test3" icon="refresh">Menu Item 3</metro-navigation-view-menu-item>
+							<metro-navigation-view-menu-item page="test2" icon="save" title="Menu Item 2" />
+							<metro-navigation-view-menu-item page="test3" icon="refresh" title="Menu Item 3" />
 						</template>
 						<template slot="pages">
 							<div class="page" data-page-id="test1" data-page-title="Example page 1">

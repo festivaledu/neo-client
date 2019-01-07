@@ -877,13 +877,13 @@ var NavigationView = {
 
 var NavigationViewMenuItem = {
 	name: "metro-navigation-view-menu-item",
-	props: ["page", "icon"],
+	props: ["page", "icon", "title"],
 	render(h) {
 		return (
 			<div class="navigation-view-item" data-page={this.$props.page}>
 				<div class="navigation-view-item-inner">
 					<div class="navigation-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
-					<p class="navigation-view-item-content">{this.$slots.default}</p>
+					<p class="navigation-view-item-content">{this.$props.title}</p>
 				</div>
 			</div>
 		)
