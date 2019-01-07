@@ -21,8 +21,8 @@ export default {
 	},
 	mounted() {
 		SocketService.connect("ws://localhost:42420/neo");
-		SocketService.$on("onOpen", this.onOpen);
-		SocketService.$on("onPackage", this.onPackage);
+		SocketService.$on("open", this.onOpen);
+		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		onOpen() {
