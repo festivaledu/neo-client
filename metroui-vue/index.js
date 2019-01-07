@@ -449,7 +449,7 @@ var Checkbox = {
 	render(h) {
 		return (
 			<div class="checkbox">
-				<input type="checkbox" id={this.$data.id} />
+				<input type="checkbox" id={this.$data.id} onChange={this.onChange} />
 				<label for={this.$data.id}>
 					<p class="item-label">{this.$slots.default}</p>
 				</label>
