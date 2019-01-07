@@ -718,7 +718,7 @@ var NavigationView = {
 					<div class="toggle-pane-button" ref="toggleButton" onClick={this.toggle}></div>
 					
 					{this.$props.history != false && 
-						<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
+					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
 					}
 
 					<div class="navigation-view-items">
@@ -727,7 +727,9 @@ var NavigationView = {
 				</div>
 				
 				<div class="frame-header" ref="frameHeader">
+					{this.$props.history != false && 
 					<div class="navigation-view-back-button" ref="backButton"></div>
+					}
 					<div class="toggle-pane-button" onClick={this.toggle}></div>
 					<p class="title" ref="frameTitle">{this.$props.title}</p>
 				</div>
