@@ -4,7 +4,7 @@
 			<div class="pages">
 				<div class="page" data-page-id="controls">
 					<h4>ToggleSwitch</h4>
-					<metro-switch v-model="switchValue" ref="test"/>
+					<metro-toggle-switch v-model="switchValue" ref="test"/>
 					<p>model["switchValue"] = {{ switchValue }}</p>
 					
 					<h4>Slider</h4>
@@ -14,15 +14,15 @@
 					<h4>Progress Bar</h4>
 					<metro-progress-bar v-model="sliderValue" />
 					
-					<h4>List</h4>
-					<metro-list v-model="listValue">
+					<h4>ComboBox</h4>
+					<metro-combo-box v-model="listValue">
 						<select v-model="listValue">
 							<option value="blue">Blue</option>
 							<option value="green" disabled>Green</option>
 							<option value="red">Red</option>
 							<option value="yellow">Yellow</option>
 						</select>
-					</metro-list>
+					</metro-combo-box>
 					<p>model["listValue"] = {{ listValue }}</p>
 					
 					<h4>AutoSuggest</h4>

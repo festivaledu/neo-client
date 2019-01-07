@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 Array.prototype.firstObject = function() {
 	return this[0];
 }
@@ -29,6 +31,12 @@ var cumulativeOffset = (element) => {
 		top: top,
 		left: left
 	};
+};
+
+let ContentDialogResult = {
+	None: 0,
+	Primary: 1,
+	Secondary: 2
 };
 
 
@@ -93,22 +101,7 @@ metroUI.View = class {
 			if (options.addHistory) {
 				view._history.push(pageName);
 			}
-		}/* else if (options.url) {
-			_metroUIInstance.get(options.url, (responseText) => {
-				var parsedPage = (new DOMParser()).parseFromString(responseText, "text/html").body.children[0];
-				view.container.appendChild(parsedPage);
-				view.pages[pageName] = new metroUI.Page(parsedPage, {
-					parentView: view
-				});
-
-				view.pages[pageName].show();
-				view._currentPage = view.pages[pageName];
-
-				if (options.addHistory) {
-					view._history.push(pageName);
-				}
-			})
-		}*/
+		}
 	}
 
 	goBack() {
@@ -220,139 +213,259 @@ metroUI.Page = class {
 	}
 }
 
-var Switch = {
-	name: "metro-switch",
-	props: ["value", "onContent", "offContent"],
+metroUI.ContentDialog = class {
+	constructor(_title, _content, buttons) {
+		const dialog = this;
+		
+		dialog.background = document.createElement("div");
+		dialog.background.className = "content-dialog-background";
+		
+		dialog.container = document.createElement("div");
+		dialog.container.className = "content-dialog";
+		
+		let content = document.createElement("div");
+		content.className = "content";
+		dialog.container.appendChild(content);
+		
+		if (_title.length) {
+			let title = document.createElement("h4");
+			title.innerHTML = _title;
+			content.appendChild(title);
+		}
+		
+		if (_content.length) {
+			let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+			if (parsedHTML.body.children.length) {
+				for (var i=0; i<parsedHTML.body.children.length; i++) {
+					content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+				}
+			} else {
+				let contentText = document.createElement("p");
+				contentText.innerHTML = _content;
+				content.appendChild(contentText);
+			}
+		}
+		
+		if (buttons.length) {
+			let commands = document.createElement("div");
+			commands.className = "commands";
+			dialog.container.appendChild(commands);
+			
+			buttons.forEach((_button, index) => {
+				let button = document.createElement("button");
+				button.innerHTML = _button.text;
+				button.className = _button.primary ? "primary" : "";
+				// TODO: Add event listener
+				
+				button.addEventListener("click", () => {
+					if (dialog._promiseResolve) {
+						//dialog._promise.resolve(1);
+						if (_button.primary) {
+							dialog._promiseResolve(ContentDialogResult.Primary);
+						} else if (index == buttons.length - 1) {
+							dialog._promiseResolve(ContentDialogResult.None);
+						} else {
+							dialog._promiseResolve(ContentDialogResult.Secondary);
+						}
+					}
+					
+					dialog.hide();
+				});
+				
+				commands.appendChild(button);
+			});
+		}
+	}
+	
+	async showAsync() {
+		const dialog = this;
+		if (!document.querySelector("div.content-dialog-background")) {
+			document.body.appendChild(dialog.background);
+		}
+		
+		document.body.appendChild(dialog.container);
+		
+		let promise = new Promise((resolve, reject) => {
+			dialog._promiseResolve = resolve;
+		});
+		return promise;
+	}
+	
+	hide() {
+		const dialog = this;
+		
+		dialog.container.classList.add("animate-out");
+		if (document.querySelectorAll(".content-dialog").length < 2) {
+			document.querySelector(".content-dialog-background").classList.add("animate-out");
+		}
+		setTimeout(() => {
+			document.body.removeChild(dialog.container);
+			if (!document.querySelector(".content-dialog")) {
+				document.body.removeChild(document.querySelector(".content-dialog-background"));
+			}
+		}, 400);
+	}
+}
+
+
+
+var AccentColorSelector = {
+	name: "metro-accent-color-selector",
+	render(h) {
+		const accents = [];
+		
+		for (var i=0; i<48; i++) {
+			accents.push(
+				<div class="accent-color-item" onClick={this.selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
+			)
+		}
+		
+		return (
+			<div class="accent-color-selector">
+				{accents}
+			</div>
+		)
+	},
+	methods: {
+		selectAccent(e) {
+			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
+			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+		}
+	}
+};
+
+var AppBarButton = {
+	name: "metro-app-bar-button",
+	props: ["disabled", "icon", "title"],
+	render(h) {
+		return (
+			<div class={{'app-bar-button': true, 'disabled': this.$props.disabled}}>
+				<div class="app-bar-button-icon">
+					<i class={`icon ${this.$props.icon}`}></i>
+				</div>
+				<p class="app-bar-button-content">{this.$slots.default}</p>
+			</div>
+		)
+	}
+};
+
+var AutoSuggestBox = {
+	name: "metro-auto-suggest",
+	props: ["value", "placeholder", "data", "maxResults"],
 	data() {
 		return {
-			_checked: this.$props.value,
-			_onContent: this.$props.onContent ? this.$props.onContent : "On",
-			_offContent: this.$props.offContent ? this.$props.offContent : "Off",
+			_value: this.$props.value,
+			_data: this.$props.data ? this.$props.data : [],
+			_maxResults: this.$props.maxResults ? this.$props.maxResults : 4,
+			
+			results: []
 		}
 	},
 	render(h) {
 		return (
-			<div class="toggle-switch">
-				<input type="checkbox" checked={this.$data._checked} id={'randomString'} onChange={this.onChange} ref="input"></input>
-				<label for={'randomString'}>
-					<p class="item-label" ref="itemLabel"></p>
-				</label>
+			<div class="auto-suggest">
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this.onInput}></input>
+				<div class="items" ref="items">
+				{this.$data.results.map(item => {
+					return (
+						<div class="item" onClick={this._itemClicked}>{item}</div>
+					)
+				})}
+				</div>
 			</div>
 		)
 	},
 	mounted() {
-		if (this.$refs["input"].checked) {
-			this.$refs["itemLabel"].innerHTML = this.$data._onContent;
-		} else {
-			this.$refs["itemLabel"].innerHTML = this.$data._offContent;
+		window.addEventListener("click", this._windowClickHandler);
+	},
+	destroyed() {
+		window.removeEventListener("click", this._windowClickHandler);
+	},
+	methods: {
+		onInput(e) {
+			this.$data._value = e.target.value;
+			this.$emit('input', this.$data._value);
+			this.$emit('textChanged', {
+				sender: this,
+				reason: "userInput"
+			});
+			
+			this._suggestItems();
+			setTimeout(() => {
+				var node = this.$el;
+				while (node) {
+					if (node.scrollTop > 0) break;
+					node = node.parentNode;
+				}
+
+				let absolutePosTop = cumulativeOffset(this.$refs["items"]).top - (node ? node.scrollTop : 0) + this.$refs["items"].offsetHeight;
+				if (absolutePosTop >= window.innerHeight) {
+					this.$refs["items"].classList.add("top");
+				} else {
+					this.$refs["items"].classList.remove("top");
+				}
+			}, 20);
+		},
+		setDataSource(source) {
+			this.$data._data = source;
+		},
+		_windowClickHandler(e) {
+			if (!this.$el.contains(e.target)) {
+				this.$refs["items"].classList.remove("visible");
+			}
+		},
+		_suggestItems() {
+			if (!this.$data._data) return;
+			
+			this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			if (this.$data.results.length) {
+				this.$refs["items"].classList.add("visible");
+			} else {
+				this.$refs["items"].classList.remove("visible");
+			}
+		},
+		_itemClicked(e) {
+			this.$refs["items"].classList.remove("visible");
+			this.$data._value = e.target.innerText;
+			
+			this.$emit('input', this.$data._value);
+			this.$emit('suggestionChosen', {
+				sender: this,
+				selectedItem: e.target.innerText
+			});
 		}
+	}
+};
+
+var Checkbox = {
+	name: "metro-checkbox",
+	props: ["value"],
+	data() {
+		return {
+			id: crypto.randomBytes(20).toString("hex"),
+			_checked: this.$props.value,
+		}
+	},
+	render(h) {
+		return (
+			<div class="checkbox">
+				<input type="checkbox" id={this.$data.id} />
+				<label for={this.$data.id}>
+					<p class="item-label">{this.$slots.default}</p>
+				</label>
+			</div>
+		)
 	},
 	methods: {
 		onChange(e) {
 			this.$data._checked = e.target.checked;
-			
-			if (e.target.checked) {
-				this.$refs["itemLabel"].innerHTML = this.$data._onContent;
-			} else {
-				this.$refs["itemLabel"].innerHTML = this.$data._offContent;
-			}
-			
 			this.$emit('input', this.$data._checked);
 		}
 	}
 };
 
-var Slider = {
-	name: "metro-slider",
-	props: ["value", "min", "max", "step", "title"],
-	data() {
-		return {
-			_value: this.$props.value,
-			_min: this.$props.min ? this.$props.min : 0,
-			_max: this.$props.max ? this.$props.max : 100,
-			_step: this.$props.step ? this.$props.step : 1,
-			_title: this.$props.title
-		}
-	},
-	render(h) {
-		return (
-			<div class="slider">
-				{this.$props.title &&
-					<p class="item-header">{this.$props.title}</p>
-				}
-				<div class="background">
-					<div class="fill" ref="fill"></div>
-				</div>
-				<input type="range" min={this.$data._min} max={this.$data._max} value={this.$data._value} step={this.$data._step} ref="input" onInput={this.onInput} onMousedown={this.onMouseDown} onMouseup={this.onMouseUp}></input>
-				<div class="value" ref="value"></div>
-			</div>
-		)
-	},
-	mounted() {
-		this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
-	},
-	methods: {
-		onInput(e) {
-			this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
-			
-			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
-			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
-			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
-			
-			this.$data._value = this.$refs["input"].value;
-			this.$emit('input', this.$data._value);
-		},
-		onMouseDown() {
-			this.$refs["value"].classList.add("visible");
-			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
-			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
-			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
-		},
-		onMouseUp() {
-			this.$refs["value"].classList.remove("visible");
-		},
-		getValue() {
-			let input = this.$refs["input"];
-			return (input.value - input.min) / (input.max - input.min);
-		}
-	}
-};
-
-var ProgressBar = {
-	name: "metro-progress-bar",
-	props: ["value", "min", "max"],
-	data() {
-		return {
-			_value: this.$props.value,
-			_min: this.$props.min ? this.$props.min : 0,
-			_max: this.$props.max ? this.$props.max : 100,
-		}
-	},
-	render(h) {
-		return (
-			<div class="progress">
-				<div class="background">
-					<div class="fill" ref="fill"></div>
-				</div>
-				<progress value={this.$data._value} min={this.$data._min} max={this.$data._max} ref="bar" />
-			</div>
-		)
-	},
-	mounted() {
-		this.$refs["fill"].style.width = `${this.$data._value}%`;
-	},
-	updated() {
-		this.$refs["fill"].style.width = `${this.$data._value}%`;
-	},
-	watch: {
-		value(val) {
-			this.$data._value = val;
-		}
-	}
-};
-
-var List = {
-	name: "metro-list",
+var ComboBox = {
+	name: "metro-combo-box",
 	props: ["value"],
 	data() {
 		return {
@@ -450,99 +563,8 @@ var List = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
-			/*var absolutePosTop = (cumulativeOffset(list.list).top - shift) - node.scrollTop + list.list.offsetHeight;
-			var top = Math.max(absolutePosTop - (window.innerHeight - 10), 0);
-			list.list.style.top = `${top}px`;*/
 
 			e.stopPropagation();
-		}
-	}
-};
-
-var AutoSuggestBox = {
-	name: "metro-auto-suggest",
-	props: ["value", "placeholder", "data", "maxResults"],
-	data() {
-		return {
-			_value: this.$props.value,
-			_data: this.$props.data ? this.$props.data : [],
-			_maxResults: this.$props.maxResults ? this.$props.maxResults : 4,
-			
-			results: []
-		}
-	},
-	render(h) {
-		return (
-			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this.onInput}></input>
-				<div class="items" ref="items">
-				{this.$data.results.map(item => {
-					return (
-						<div class="item" onClick={this._itemClicked}>{item}</div>
-					)
-				})}
-				</div>
-			</div>
-		)
-	},
-	mounted() {
-		window.addEventListener("click", this._windowClickHandler);
-	},
-	destroyed() {
-		window.removeEventListener("click", this._windowClickHandler);
-	},
-	methods: {
-		onInput(e) {
-			this.$data._value = e.target.value;
-			this.$emit('input', this.$data._value);
-			this.$emit('textChanged', {
-				sender: this,
-				reason: "userInput"
-			});
-			
-			this._suggestItems();
-			setTimeout(() => {
-				var node = this.$el;
-				while (node) {
-					if (node.scrollTop > 0) break;
-					node = node.parentNode;
-				}
-
-				let absolutePosTop = cumulativeOffset(this.$refs["items"]).top - (node ? node.scrollTop : 0) + this.$refs["items"].offsetHeight;
-				if (absolutePosTop >= window.innerHeight) {
-					this.$refs["items"].classList.add("top");
-				} else {
-					this.$refs["items"].classList.remove("top");
-				}
-			}, 20);
-		},
-		setDataSource(source) {
-			this.$data._data = source;
-		},
-		_windowClickHandler(e) {
-			if (!this.$el.contains(e.target)) {
-				this.$refs["items"].classList.remove("visible");
-			}
-		},
-		_suggestItems() {
-			if (!this.$data._data) return;
-			
-			this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
-			if (this.$data.results.length) {
-				this.$refs["items"].classList.add("visible");
-			} else {
-				this.$refs["items"].classList.remove("visible");
-			}
-		},
-		_itemClicked(e) {
-			this.$refs["items"].classList.remove("visible");
-			this.$data._value = e.target.innerText;
-			
-			this.$emit('input', this.$data._value);
-			this.$emit('suggestionChosen', {
-				sender: this,
-				selectedItem: e.target.innerText
-			});
 		}
 	}
 };
@@ -578,74 +600,6 @@ var CommandBar = {
 		},
 		toggle() {
 			this.$el.classList.toggle("expanded")
-		}
-	}
-};
-
-var AppBarButton = {
-	name: "metro-app-bar-button",
-	props: ["disabled", "icon", "title"],
-	render(h) {
-		return (
-			<div class={{'app-bar-button': true, 'disabled': this.$props.disabled}}>
-				<div class="app-bar-button-icon">
-					<i class={`icon ${this.$props.icon}`}></i>
-				</div>
-				<p class="app-bar-button-content">{this.$slots.default}</p>
-			</div>
-		)
-	}
-};
-
-var PersonPicture = {
-	name: "metro-person-picture",
-	props: ["profilePicture", "displayName", "initials"],
-	data() {
-		return {
-			_initials: null
-		}
-	},
-	render(h) {
-		return (
-			<div class="person-picture">
-				{this.$data._initials &&
-					<p class="initials" ref="initials">{this.$data._initials}</p>
-				}
-			</div>
-		)
-	},
-	mounted() {
-		if (this.$props.initials) {
-			this.$data._initials = this.$props.initials.toUpperCase();
-		} else if (this.$props.displayName) {
-			this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
-		} else if (this.$props.profilePicture) {
-			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
-		}
-	}
-};
-
-var AccentColorSelector = {
-	name: "metro-accent-color-selector",
-	render(h) {
-		const accents = [];
-		
-		for (var i=0; i<48; i++) {
-			accents.push(
-				<div class="accent-color-item" onClick={this.selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
-			)
-		}
-		
-		return (
-			<div class="accent-color-selector">
-				{accents}
-			</div>
-		)
-	},
-	methods: {
-		selectAccent(e) {
-			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
-			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
 		}
 	}
 };
@@ -712,7 +666,6 @@ var Messages = {
 			this.$data.messageText = "";
 		},
 		addMessage(message) {
-			// TODO: update previous messages (hasTail, isFirst)
 			if (this.$data.messages.lastObject()) {
 				const lastMessage = this.$data.messages.lastObject();
 				
@@ -734,6 +687,9 @@ var Messages = {
 						message.hasTail = false;
 					}
 				}
+			} else {
+				message.hasTail = true;
+				message.isFirst = true;
 			}
 			
 			this.$data.messages.push(message);
@@ -742,7 +698,7 @@ var Messages = {
 			this.$data.messages.push({ type: "system", text: text })
 		}
 	}
-}
+};
 
 var NavigationView = {
 	name: "metro-navigation-view",
@@ -762,7 +718,7 @@ var NavigationView = {
 					<div class="toggle-pane-button" ref="toggleButton" onClick={this.toggle}></div>
 					
 					{this.$props.history != false && 
-						<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
+					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
 					}
 
 					<div class="navigation-view-items">
@@ -771,7 +727,9 @@ var NavigationView = {
 				</div>
 				
 				<div class="frame-header" ref="frameHeader">
+					{this.$props.history != false && 
 					<div class="navigation-view-back-button" ref="backButton"></div>
+					}
 					<div class="toggle-pane-button" onClick={this.toggle}></div>
 					<p class="title" ref="frameTitle">{this.$props.title}</p>
 				</div>
@@ -809,9 +767,6 @@ var NavigationView = {
 				});
 			}
 		});
-	},
-	destroyed() {
-		this.$refs["frame"].removeEventListener("scroll", this._frameScrolled)
 	},
 	methods: {
 		_frameScrolled() {
@@ -861,65 +816,10 @@ var NavigationView = {
 
 				this.$refs["frame"].scrollTo(0, 0);
 
-				// if (nav.params.internalHistory && options.addHistory) {
 				if (this.$props.history != false) {
 					this.$data._history.push(pageName);
 				}
-				// }
-				// if (nav._history.length > 1) {
-				// 	nav.backButton.classList.remove("disabled");
-					
-				// 	if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
-				// 		nav.frameHeader.querySelector(".navigation-view-back-button").classList.remove("disabled");
-				// 	}
-				// }
-			}/* else if (options.url) {
-				_metroUIInstance.get(options.url, (responseText) => {
-					var parsedPage = (new DOMParser()).parseFromString(responseText, "text/html").body.children[0];
-					nav.frameContent.appendChild(parsedPage);
-					nav._pages[pageName] = new metroUI.Page(parsedPage, {
-						parentPage: nav.params.parentPage,
-						parentView: nav,
-						title: parsedPage.getAttribute("data-page-title")
-					});
-					_metroUIInstance.pluginHook("pageBeforeShow", nav._pages[pageName].pageData);
-
-					nav._pages[pageName].show();
-					nav._currentPage = nav._pages[pageName];
-					nav.setTitle(parsedPage.getAttribute("data-page-title"));
-					_metroUIInstance.pluginHook("pageShow", nav._pages[pageName].pageData);
-
-					if (nav._items[pageName]) {
-						if (nav.menu.querySelector(".selected")) {
-							nav.menu.querySelector(".selected").classList.remove("selected");
-						}
-						nav._items[pageName].classList.add("selected");
-					} else if (parsedPage.hasAttribute("data-nav-item")) {
-						let navItem = parsedPage.getAttribute("data-nav-item");
-						if (nav._items[navItem]) {
-							if (nav.menu.querySelector(".selected")) {
-								nav.menu.querySelector(".selected").classList.remove("selected");
-							}
-							nav._items[navItem].classList.add("selected");
-						}
-					}
-					
-					nav.frame.scrollTo(0, 0);
-
-					if (nav.params.internalHistory && options.addHistory) {
-						nav._history.push(pageName);
-					}
-					if (nav._history.length > 1) {
-						nav.backButton.classList.remove("disabled");
-						
-						if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
-							nav.frameHeader.querySelector(".navigation-view-back-button").classList.remove("disabled");
-						}
-					}
-					
-					_metroUIInstance.pluginHook("pageAfterShow", nav._pages[pageName].pageData);
-				});
-			}*/
+			}
 		},
 		goBack() {
 			if (this.$data._history.length > 1) {
@@ -951,14 +851,9 @@ var NavigationView = {
 						this.$refs["frame"].scrollTo(0, 0);
 					}
 	
-					this.$data._history.pop();
-					// if (this.$data._history.length <= 1) {
-					// 	nav.backButton.classList.add("disabled");
-						
-					// 	if (nav.frameHeader && nav.frameHeader.querySelector(".navigation-view-back-button")) {
-					// 		nav.frameHeader.querySelector(".navigation-view-back-button").classList.add("disabled");
-					// 	}
-					// }
+					if (this.$props.history != false) {
+						this.$data._history.pop();
+					}
 				}
 			}
 		},
@@ -978,7 +873,182 @@ var NavigationView = {
 			return this.$el.querySelectorAll(query);
 		}
 	}
-}
+};
+
+var NavigationViewMenuItem = {
+	name: "metro-navigation-view-menu-item",
+	props: ["page", "icon"],
+	render(h) {
+		return (
+			<div class="navigation-view-item" data-page={this.$props.page}>
+				<div class="navigation-view-item-inner">
+					<div class="navigation-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+					<p class="navigation-view-item-content">{this.$slots.default}</p>
+				</div>
+			</div>
+		)
+	}
+};
+
+var PersonPicture = {
+	name: "metro-person-picture",
+	props: ["profilePicture", "displayName", "initials"],
+	data() {
+		return {
+			_initials: null
+		}
+	},
+	render(h) {
+		return (
+			<div class="person-picture">
+				{this.$data._initials &&
+					<p class="initials" ref="initials">{this.$data._initials}</p>
+				}
+			</div>
+		)
+	},
+	mounted() {
+		if (this.$props.initials) {
+			this.$data._initials = this.$props.initials.toUpperCase();
+		} else if (this.$props.displayName) {
+			this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
+		} else if (this.$props.profilePicture) {
+			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
+		}
+	}
+};
+
+var ProgressBar = {
+	name: "metro-progress-bar",
+	props: ["value", "min", "max"],
+	data() {
+		return {
+			_value: this.$props.value,
+			_min: this.$props.min ? this.$props.min : 0,
+			_max: this.$props.max ? this.$props.max : 100,
+		}
+	},
+	render(h) {
+		return (
+			<div class="progress">
+				<div class="background">
+					<div class="fill" ref="fill"></div>
+				</div>
+				<progress value={this.$data._value} min={this.$data._min} max={this.$data._max} ref="bar" />
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs["fill"].style.width = `${this.$data._value}%`;
+	},
+	updated() {
+		this.$refs["fill"].style.width = `${this.$data._value}%`;
+	},
+	watch: {
+		value(val) {
+			this.$data._value = val;
+		}
+	}
+};
+
+var Slider = {
+	name: "metro-slider",
+	props: ["value", "min", "max", "step", "title"],
+	data() {
+		return {
+			_value: this.$props.value,
+			_min: this.$props.min ? this.$props.min : 0,
+			_max: this.$props.max ? this.$props.max : 100,
+			_step: this.$props.step ? this.$props.step : 1,
+			_title: this.$props.title
+		}
+	},
+	render(h) {
+		return (
+			<div class="slider">
+				{this.$props.title &&
+					<p class="item-header">{this.$props.title}</p>
+				}
+				<div class="background">
+					<div class="fill" ref="fill"></div>
+				</div>
+				<input type="range" min={this.$data._min} max={this.$data._max} value={this.$data._value} step={this.$data._step} ref="input" onInput={this.onInput} onMousedown={this.onMouseDown} onMouseup={this.onMouseUp}></input>
+				<div class="value" ref="value"></div>
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
+	},
+	methods: {
+		onInput(e) {
+			this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
+			
+			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
+			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
+			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
+			
+			this.$data._value = this.$refs["input"].value;
+			this.$emit('input', this.$data._value);
+		},
+		onMouseDown() {
+			this.$refs["value"].classList.add("visible");
+			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
+			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
+			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
+		},
+		onMouseUp() {
+			this.$refs["value"].classList.remove("visible");
+		},
+		getValue() {
+			let input = this.$refs["input"];
+			return (input.value - input.min) / (input.max - input.min);
+		}
+	}
+};
+
+var ToggleSwitch = {
+	name: "metro-toggle-switch",
+	props: ["value", "onContent", "offContent"],
+	data() {
+		return {
+			id: crypto.randomBytes(20).toString("hex"),
+			_checked: this.$props.value,
+			_onContent: this.$props.onContent ? this.$props.onContent : "On",
+			_offContent: this.$props.offContent ? this.$props.offContent : "Off",
+		}
+	},
+	render(h) {
+		return (
+			<div class="toggle-switch">
+				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this.onChange} ref="input"></input>
+				<label for={this.$data.id}>
+					<p class="item-label" ref="itemLabel"></p>
+				</label>
+			</div>
+		)
+	},
+	mounted() {
+		if (this.$refs["input"].checked) {
+			this.$refs["itemLabel"].innerHTML = this.$data._onContent;
+		} else {
+			this.$refs["itemLabel"].innerHTML = this.$data._offContent;
+		}
+	},
+	methods: {
+		onChange(e) {
+			this.$data._checked = e.target.checked;
+			
+			if (e.target.checked) {
+				this.$refs["itemLabel"].innerHTML = this.$data._onContent;
+			} else {
+				this.$refs["itemLabel"].innerHTML = this.$data._offContent;
+			}
+			
+			this.$emit('input', this.$data._checked);
+		}
+	}
+};
 
 
 
@@ -986,17 +1056,19 @@ export default {
 	install(Vue, options) {
 		Vue.mixin({
 			components: {
-				[Switch.name]: Switch,
-				[Slider.name]: Slider,
-				[ProgressBar.name]: ProgressBar,
-				[List.name]: List,
-				[AutoSuggestBox.name]: AutoSuggestBox,
-				[CommandBar.name]: CommandBar,
-				[AppBarButton.name]: AppBarButton,
-				[PersonPicture.name]: PersonPicture,
 				[AccentColorSelector.name]: AccentColorSelector,
+				[AppBarButton.name]: AppBarButton,
+				[AutoSuggestBox.name]: AutoSuggestBox,
+				[Checkbox.name]: Checkbox,
+				[ComboBox.name]: ComboBox,
+				[CommandBar.name]: CommandBar,
 				[Messages.name]: Messages,
-				[NavigationView.name]: NavigationView
+				[NavigationView.name]: NavigationView,
+				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
+				[PersonPicture.name]: PersonPicture,
+				[ProgressBar.name]: ProgressBar,
+				[Slider.name]: Slider,
+				[ToggleSwitch.name]: ToggleSwitch
 			},
 			mounted() {
 				if (this.$el.querySelector(".view")) {
@@ -1004,9 +1076,9 @@ export default {
 						if (item.hasAttribute("data-view-id")) {
 							metroUI.views[item.getAttribute("data-view-id")] = new metroUI.View(item, {
 								isPrimaryView: index == 0
-							})
+							});
 						}
-					})
+					});
 				}
 			}
 		});
