@@ -830,6 +830,10 @@ var Messages = {
 			}
 			
 			this.$data.messages.push(message);
+			
+			setTimeout(() => {
+				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+			});
 		},
 		/**
 		 * Adds a system message to the conversation
@@ -837,6 +841,10 @@ var Messages = {
 		 */
 		addSystemMessage(text) {
 			this.$data.messages.push({ type: "system", text: text });
+			
+			setTimeout(() => {
+				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+			});
 		}
 	}
 };
