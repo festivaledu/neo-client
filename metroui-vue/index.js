@@ -101,7 +101,7 @@ metroUI.View = class {
 			if (options.addHistory) {
 				view._history.push(pageName);
 			}
-				}
+		}
 	}
 
 	goBack() {
@@ -817,7 +817,7 @@ var NavigationView = {
 				if (this.$props.history != false) {
 					this.$data._history.push(pageName);
 				}
-						}
+			}
 		},
 		goBack() {
 			if (this.$data._history.length > 1) {
@@ -850,7 +850,7 @@ var NavigationView = {
 					}
 	
 					if (this.$props.history != false) {
-					this.$data._history.pop();
+						this.$data._history.pop();
 					}
 				}
 			}
@@ -870,6 +870,21 @@ var NavigationView = {
 		querySelectorAll(query) {
 			return this.$el.querySelectorAll(query);
 		}
+	}
+};
+
+var NavigationViewMenuItem = {
+	name: "metro-navigation-view-menu-item",
+	props: ["page", "icon"],
+	render(h) {
+		return (
+			<div class="navigation-view-item" data-page={this.$props.page}>
+				<div class="navigation-view-item-inner">
+					<div class="navigation-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+					<p class="navigation-view-item-content">{this.$slots.default}</p>
+				</div>
+			</div>
+		)
 	}
 };
 
@@ -1047,6 +1062,7 @@ export default {
 				[CommandBar.name]: CommandBar,
 				[Messages.name]: Messages,
 				[NavigationView.name]: NavigationView,
+				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
 				[PersonPicture.name]: PersonPicture,
 				[ProgressBar.name]: ProgressBar,
 				[Slider.name]: Slider,
