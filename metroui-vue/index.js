@@ -834,6 +834,9 @@ var Messages = {
 						message.hasTail = false;
 					}
 				}
+			} else {
+				message.hasTail = true;
+				message.isFirst = true;
 			}
 			
 			this.$data.messages.push(message);
