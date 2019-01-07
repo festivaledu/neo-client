@@ -11,14 +11,23 @@ export default new Router({
             name: "home",
             component: Home
 		},
-		// Keep this, we might need this later on
-		// {
-		// 	path: '/about',
-		// 	name: 'about',
-		// 	// route level code-splitting
-		// 	// this generates a separate chunk (about.[hash].js) for this route
-		// 	// which is lazy-loaded when the route is visited.
-		// 	component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-		// }
+		{
+			path: '/controls',
+			name: 'controls',
+			// route level code-splitting
+			// this generates a separate chunk (about.[hash].js) for this route
+			// which is lazy-loaded when the route is visited.
+			component: () => import(/* webpackChunkName: "controls" */ './views/Controls.vue')
+		},
+		{
+			path: '/messages',
+			name: 'messages',
+			component: () => import(/* webpackChunkName: "messages" */ './views/Messages.vue')
+		},
+		{
+			path: '/navigation-view',
+			name: 'NavigationView',
+			component: () => import(/* webpackChunkName: "navigation-view" */ './views/NavigationView.vue')
+		}
     ]
 })
