@@ -787,7 +787,7 @@ var Messages = {
 		},
 		_onKeyDown(e) {
 			if (e.keyCode == 13) {
-				this.sendMessage();
+				this._sendMessage();
 			}
 		},
 		_sendMessage() {
