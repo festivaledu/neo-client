@@ -1,5 +1,8 @@
 import crypto from "crypto";
 
+/**
+ * Helper methods to get the first and last objects in an array
+ */
 Array.prototype.firstObject = function() {
 	return this[0];
 }
@@ -9,7 +12,10 @@ Array.prototype.lastObject = function() {
 
 
 
-
+/**
+ * Returns the index of a node in a parent node
+ * @param {HTMLElement} node The node to get the index for
+ */
 var findInRow = (node) => {
 	var i = 0;
 	while (node = node.previousSibling) {
@@ -19,6 +25,10 @@ var findInRow = (node) => {
 	return i;
 }
 
+/**
+ * Gets the absolute position of an element on the current page
+ * @param {HTMLElement} element The node to get the absolute position for
+ */
 var cumulativeOffset = (element) => {
 	var top = 0, left = 0;
 	do {
@@ -33,6 +43,9 @@ var cumulativeOffset = (element) => {
 	};
 };
 
+/**
+ * Enum containing possible ContentDialogResult values
+ */
 let ContentDialogResult = {
 	None: 0,
 	Primary: 1,
@@ -41,10 +54,21 @@ let ContentDialogResult = {
 
 
 
+/**
+ * Our global metroUI object
+ * We're also adding it to the window object to access it from anywhere
+ */
 var metroUI = window.metroUI = {};
+
+// Store all views in here
 metroUI.views = {};
 
 
+
+/**
+ * The 'View' class contains references to Pages, allows
+ * navigating between them and its visibility can be toggled
+ */
 metroUI.View = class {
 	constructor(element, params) {
 		let view = this;
@@ -81,11 +105,16 @@ metroUI.View = class {
 		});
 	}
 
+	/**
+	 * Navigate to a page this view references
+	 * @param {String} pageName The name of the page you want to navigate to. Must be referenced by this view
+	 * @param {Object} _options An object containing the 'addHistory' flag to specify the use of history
+	 */
 	navigate(pageName, _options) {
 		const view = this;
 
 		var options = {
-			url: null,
+			//url: null,
 			addHistory: true
 		}
 		for (var option in _options) {
@@ -104,6 +133,9 @@ metroUI.View = class {
 		}
 	}
 
+	/**
+	 * Show the last page stored in the hitory array
+	 */
 	goBack() {
 		const view = this;
 		if (view._history.length > 1) {
@@ -118,6 +150,9 @@ metroUI.View = class {
 		}
 	}
 
+	/**
+	 * Show this view while hiding any other view
+	 */
 	show() {
 		let view = this;
 		document.querySelectorAll(".views .view").forEach((item) => {
@@ -129,10 +164,17 @@ metroUI.View = class {
 		});
 	}
 
+	/**
+	 * Hide this view
+	 */
 	hide() {
 		this.container.classList.remove("view-active");
 	}
 
+	/**
+	 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
+	 * @param {String} query The CSS-like query to select
+	 */
 	querySelector(query) {
 		return this.container.querySelector(query);
 	}
@@ -141,6 +183,10 @@ metroUI.View = class {
 	}
 }
 
+/**
+ * The 'Page' class references DOM pages (.page) and
+ * its visibility can be toggled
+ */
 metroUI.Page = class {
 	constructor(element, params) {
 		let page = this;
@@ -163,6 +209,11 @@ metroUI.Page = class {
 		page._scrollTop = null;
 	}
 	
+	/**
+	 * Show this page while hiding any other page in
+	 * a) the parent page (eg. NavigatioView)
+	 * b) the parent view
+	 */
 	show() {
 		let page = this;
 
@@ -185,14 +236,23 @@ metroUI.Page = class {
 		}
 	}
 
+	/**
+	 * Hide this page
+	 */
 	hide() {
 		this.container.classList.remove("page-active");
 	}
 
+	/**
+	 * Returns true if this page is currently visible, otherwise false
+	 */
 	get isVisible() {
 		return this.container.classList.contains("page-active");
 	}
 	
+	/**
+	 * Get this page's data, mainly used for navigation
+	 */
 	get pageData() {
 		const page = this;
 		
@@ -205,6 +265,10 @@ metroUI.Page = class {
 		}
 	}
 
+	/**
+	 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
+	 * @param {String} query The CSS-like query to select
+	 */
 	querySelector(query) {
 		return this.container.querySelector(query);
 	}
@@ -213,6 +277,14 @@ metroUI.Page = class {
 	}
 }
 
+/**
+ * The 'ContentDialog' class can be used as a replacement for
+ * alert() and confirm(). prompt() is not supported
+ * 
+ * @param {String} _title The title of the of the dialog
+ * @param {String} _content The message of the dialog
+ * @param {Array} buttons An array containing the buttons. Buttons have a title and a 'primary' flag
+ */
 metroUI.ContentDialog = class {
 	constructor(_title, _content, buttons) {
 		const dialog = this;
@@ -277,6 +349,11 @@ metroUI.ContentDialog = class {
 		}
 	}
 	
+	/**
+	 * Shows a dialog asynchroneously and returns a promise,
+	 * which later returns a ContentDialogResult value
+	 * @returns {Promise} A promise which will return the value of the clicked button
+	 */
 	async showAsync() {
 		const dialog = this;
 		if (!document.querySelector("div.content-dialog-background")) {
@@ -291,6 +368,10 @@ metroUI.ContentDialog = class {
 		return promise;
 	}
 	
+	/**
+	 * Hides the dialog. Mainly used for the buttons, 
+	 * but can also be used externally
+	 */
 	hide() {
 		const dialog = this;
 		
@@ -308,7 +389,10 @@ metroUI.ContentDialog = class {
 }
 
 
-
+/**
+ * Select the current accent color
+ * @fires accentSelect Fired when the user selects an accent color. Contains the current accent color name
+ */
 var AccentColorSelector = {
 	name: "metro-accent-color-selector",
 	render(h) {
@@ -316,7 +400,7 @@ var AccentColorSelector = {
 		
 		for (var i=0; i<48; i++) {
 			accents.push(
-				<div class="accent-color-item" onClick={this.selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
+				<div class="accent-color-item" onClick={this._selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
 			)
 		}
 		
@@ -327,13 +411,19 @@ var AccentColorSelector = {
 		)
 	},
 	methods: {
-		selectAccent(e) {
+		_selectAccent(e) {
 			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
 			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
 		}
 	}
 };
 
+/**
+ * A button that's styled for use in a CommandBar.
+ * @param {Boolean} disabled Specifies if this button is disabled
+ * @param {String} icon Sets the icon next to the title
+ * @param {String} title Sets the title of the button
+ */
 var AppBarButton = {
 	name: "metro-app-bar-button",
 	props: ["disabled", "icon", "title"],
@@ -349,6 +439,16 @@ var AppBarButton = {
 	}
 };
 
+/**
+ * A control to provide suggestions as a user is typing.
+ * @param {Any} value Represents the bound v-model
+ * @param {String} placeholder The placeholder text to show inside the input field
+ * @param {Array} data The initial data set
+ * @param {Number} maxResults Specifies the maximum number of results to show (default 4)
+ * @fires input Fired when the user enters text or selects a suggested item
+ * @fires textChanged Fired only if the user enters text
+ * @fires suggestionChosen Fired if the user selected a suggested item
+ */
 var AutoSuggestBox = {
 	name: "metro-auto-suggest",
 	props: ["value", "placeholder", "data", "maxResults"],
@@ -364,7 +464,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this.onInput}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput}></input>
 				<div class="items" ref="items">
 				{this.$data.results.map(item => {
 					return (
@@ -382,7 +482,7 @@ var AutoSuggestBox = {
 		window.removeEventListener("click", this._windowClickHandler);
 	},
 	methods: {
-		onInput(e) {
+		_onInput(e) {
 			this.$data._value = e.target.value;
 			this.$emit('input', this.$data._value);
 			this.$emit('textChanged', {
@@ -405,9 +505,6 @@ var AutoSuggestBox = {
 					this.$refs["items"].classList.remove("top");
 				}
 			}, 20);
-		},
-		setDataSource(source) {
-			this.$data._data = source;
 		},
 		_windowClickHandler(e) {
 			if (!this.$el.contains(e.target)) {
@@ -433,10 +530,23 @@ var AutoSuggestBox = {
 				sender: this,
 				selectedItem: e.target.innerText
 			});
+		},
+		
+		/**
+		 * Sets a new data source
+		 * @param {Array} source The new data source to use
+		 */
+		setDataSource(source) {
+			this.$data._data = source;
 		}
 	}
 };
 
+/**
+ * A control that a user can select or clear.
+ * @param {Any} value Represents the bound v-model
+ * @fires input Fired if the checkbox state changed to update the model
+ */
 var Checkbox = {
 	name: "metro-checkbox",
 	props: ["value"],
@@ -449,7 +559,7 @@ var Checkbox = {
 	render(h) {
 		return (
 			<div class="checkbox">
-				<input type="checkbox" id={this.$data.id} onChange={this.onChange} />
+				<input type="checkbox" id={this.$data.id} onChange={this._onChange} />
 				<label for={this.$data.id}>
 					<p class="item-label">{this.$slots.default}</p>
 				</label>
@@ -457,13 +567,18 @@ var Checkbox = {
 		)
 	},
 	methods: {
-		onChange(e) {
+		_onChange(e) {
 			this.$data._checked = e.target.checked;
 			this.$emit('input', this.$data._checked);
 		}
 	}
 };
 
+/**
+ * A drop-down list of items a user can select from.
+ * @param {Any} value Represents the bound v-model
+ * @fires input Fired if the user selected a list item to update the model
+ */
 var ComboBox = {
 	name: "metro-combo-box",
 	props: ["value"],
@@ -474,7 +589,7 @@ var ComboBox = {
 	},
 	render(h) {
 		return (
-			<div class="list" onClick={this.onClick}>
+			<div class="list" onClick={this._onClick}>
 				{this.$slots.default}
 				<div class="list-inner" ref="list"></div>
 			</div>
@@ -536,7 +651,7 @@ var ComboBox = {
 		});
 	},
 	methods: {
-		onClick(e) {
+		_onClick(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
 			} else {
@@ -569,6 +684,9 @@ var ComboBox = {
 	}
 };
 
+/**
+ * A toolbar for displaying application-specific commands that handles layout and resizing of its contents.
+ */
 var CommandBar = {
 	name: "metro-command-bar",
 	render(h) {
@@ -592,18 +710,31 @@ var CommandBar = {
 		)
 	},
 	methods: {
+		/**
+		 * Open this CommandBar
+		 */
 		open() {
 			this.$el.classList.add("expanded")
 		},
+		/**
+		 * Close this CommandBar
+		 */
 		close() {
 			this.$el.classList.remove("expanded")
 		},
+		/**
+		 * Toggle this CommandBar's open state
+		 */
 		toggle() {
 			this.$el.classList.toggle("expanded")
 		}
 	}
 };
 
+/**
+ * Displays a conversation between two or more people
+ * @fires messageSent Fired if the current user sends a message. Contains the sent message's text
+ */
 var Messages = {
 	name: "metro-messages",
 	data() {
@@ -641,8 +772,8 @@ var Messages = {
 				
 				<div class="messages-input">
 					<button class="emoji-selector" disabled><i class="icon emoji2"></i></button>
-					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this.onInput} onKeydown={this.onKeyDown} />
-					<button class="send-message" onClick={this.sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
+					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} />
+					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
 				</div>
 			</div>
 		)
@@ -651,20 +782,26 @@ var Messages = {
 		_formatTime(date) {
 			return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 		},
-		onInput(e) {
+		_onInput(e) {
 			this.$data.messageText = e.target.value;
 		},
-		onKeyDown(e) {
+		_onKeyDown(e) {
 			if (e.keyCode == 13) {
 				this.sendMessage();
 			}
 		},
-		sendMessage() {
+		_sendMessage() {
 			if (!this.$data.messageText.length) return;
 			
 			this.$emit("messageSent", this.$data.messageText);
 			this.$data.messageText = "";
 		},
+		
+		/**
+		 * Adds a new message to the conversation.
+		 * Previous messages may be updated to respect the kind of message added
+		 * @param {*} message The message to add
+		 */
 		addMessage(message) {
 			if (this.$data.messages.lastObject()) {
 				const lastMessage = this.$data.messages.lastObject();
@@ -694,12 +831,21 @@ var Messages = {
 			
 			this.$data.messages.push(message);
 		},
+		/**
+		 * Adds a system message to the conversation
+		 * @param {*} text The text to add to the conversation
+		 */
 		addSystemMessage(text) {
-			this.$data.messages.push({ type: "system", text: text })
+			this.$data.messages.push({ type: "system", text: text });
 		}
 	}
 };
 
+/**
+ * Common vertical layout for top-level areas of your app via a collapsible navigation menu
+ * @param {String} title Sets the title of the NavigationView
+ * @param {Boolean} history If false, disable the use of history in this NavigationView
+ */
 var NavigationView = {
 	name: "metro-navigation-view",
 	props: ["title", "history"],
@@ -774,6 +920,10 @@ var NavigationView = {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
 			}
 		},
+		
+		/**
+		 * Toggles this NavigationView's open state
+		 */
 		toggle() {
 			const nav = this;
 			if (window.innerWidth < 1008) {
@@ -782,6 +932,11 @@ var NavigationView = {
 				this.$refs["menu"].classList.toggle("retracted");
 			}
 		},
+		/**
+		 * Navigate to a page this view references
+		 * @param {String} pageName The name of the page you want to navigate to. Must be referenced by this NavigationView
+		 * @param {*} _options -- NOT IN USE
+		 */
 		navigate(pageName, _options) {
 			var options = {
 				url: null,
@@ -821,6 +976,9 @@ var NavigationView = {
 				}
 			}
 		},
+		/**
+		 * Show the last page stored in the hitory array
+		 */
 		goBack() {
 			if (this.$data._history.length > 1) {
 				this.$data._currentPage.hide();
@@ -857,6 +1015,10 @@ var NavigationView = {
 				}
 			}
 		},
+		/**
+		 * Set the title of this NavigationView
+		 * @param {String} title The title to set. Can be empty
+		 */
 		setTitle(title) {
 			if (title && title.length) {
 				this.$refs["frameTitle"].innerText = title;
@@ -866,6 +1028,11 @@ var NavigationView = {
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
 		},
+		
+		/**
+		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
+		 * @param {String} query The CSS-like query to select
+		 */
 		querySelector(query) {
 			return this.$el.querySelector(query);
 		},
@@ -875,6 +1042,12 @@ var NavigationView = {
 	}
 };
 
+/**
+ * Represents a item for use in a NavigationView
+ * @param {String} page The page to navigate to. Must be referenced by the parent NavigationView
+ * @param {String} icon The icon to show next to the title
+ * @param {String} title The title of this item
+ */
 var NavigationViewMenuItem = {
 	name: "metro-navigation-view-menu-item",
 	props: ["page", "icon", "title"],
@@ -890,6 +1063,13 @@ var NavigationViewMenuItem = {
 	}
 };
 
+/**
+ * Displays the picture of a person/contact.
+ * Use either of the attributes to display a person/contact
+ * @param {String} profilePicture A URL to an image (eg. profile image)
+ * @param {String} displayName Full name of a person/contact which gets broken down to initials
+ * @param {String} initials The initials of a person/contact to show
+ */
 var PersonPicture = {
 	name: "metro-person-picture",
 	props: ["profilePicture", "displayName", "initials"],
@@ -918,6 +1098,12 @@ var PersonPicture = {
 	}
 };
 
+/**
+ * Shows the apps progress on a task, or that the app is performing ongoing work that doesn't block user interaction.
+ * @param {Any} value Represents the bound v-model
+ * @param {Number} min The minimum value of this ProgressBar
+ * @param {Number} max The maximum value of this ProgressBar
+ */
 var ProgressBar = {
 	name: "metro-progress-bar",
 	props: ["value", "min", "max"],
@@ -951,6 +1137,15 @@ var ProgressBar = {
 	}
 };
 
+/**
+ * A control that lets the user select from a range of values by moving a Thumb control along a track
+ * @param {Any} value Represents the bound v-model
+ * @param {Number} min The minimum value of this Slider
+ * @param {Number} max The maximum value of this Slider
+ * @param {Number} step The step size of this Slider
+ * @param {String} title The text of the control header above the slider. Can be empty
+ * @fires input Fired if the slider value changed to update the model
+ */
 var Slider = {
 	name: "metro-slider",
 	props: ["value", "min", "max", "step", "title"],
@@ -972,41 +1167,48 @@ var Slider = {
 				<div class="background">
 					<div class="fill" ref="fill"></div>
 				</div>
-				<input type="range" min={this.$data._min} max={this.$data._max} value={this.$data._value} step={this.$data._step} ref="input" onInput={this.onInput} onMousedown={this.onMouseDown} onMouseup={this.onMouseUp}></input>
+				<input type="range" min={this.$data._min} max={this.$data._max} value={this.$data._value} step={this.$data._step} ref="input" onInput={this._onInput} onMousedown={this._onMouseDown} onMouseup={this._onMouseUp}></input>
 				<div class="value" ref="value"></div>
 			</div>
 		)
 	},
 	mounted() {
-		this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
+		this.$refs["fill"].style.width = `${this._getValue() * 100}%`;
 	},
 	methods: {
-		onInput(e) {
-			this.$refs["fill"].style.width = `${this.getValue() * 100}%`;
+		_onInput(e) {
+			this.$refs["fill"].style.width = `${this._getValue() * 100}%`;
 			
-			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
-			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
+			this.$refs["value"].style.left = `${this._getValue() * 100}%`;
+			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this._getValue() * 8}px), 0, 0)`;
 			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
 			
 			this.$data._value = this.$refs["input"].value;
 			this.$emit('input', this.$data._value);
 		},
-		onMouseDown() {
+		_onMouseDown() {
 			this.$refs["value"].classList.add("visible");
-			this.$refs["value"].style.left = `${this.getValue() * 100}%`;
-			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this.getValue() * 8}px), 0, 0)`;
+			this.$refs["value"].style.left = `${this._getValue() * 100}%`;
+			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this._getValue() * 8}px), 0, 0)`;
 			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
 		},
-		onMouseUp() {
+		_onMouseUp() {
 			this.$refs["value"].classList.remove("visible");
 		},
-		getValue() {
+		_getValue() {
 			let input = this.$refs["input"];
 			return (input.value - input.min) / (input.max - input.min);
 		}
 	}
 };
 
+/**
+ * A switch that can be toggled between 2 states.
+ * @param {Any} value Represents the bound v-model
+ * @param {String} onContent The text to show next to the ToggleSwitch in it 'on' state (default: "On")
+ * @param {String} offContent The text to show next to the ToggleSwitch in it 'off' state (default: "Off")
+ * @fires input Fired if the ToggleSwitch state changed to update the model
+ */
 var ToggleSwitch = {
 	name: "metro-toggle-switch",
 	props: ["value", "onContent", "offContent"],
@@ -1021,7 +1223,7 @@ var ToggleSwitch = {
 	render(h) {
 		return (
 			<div class="toggle-switch">
-				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this.onChange} ref="input"></input>
+				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this._onChange} ref="input"></input>
 				<label for={this.$data.id}>
 					<p class="item-label" ref="itemLabel"></p>
 				</label>
@@ -1036,7 +1238,7 @@ var ToggleSwitch = {
 		}
 	},
 	methods: {
-		onChange(e) {
+		_onChange(e) {
 			this.$data._checked = e.target.checked;
 			
 			if (e.target.checked) {
