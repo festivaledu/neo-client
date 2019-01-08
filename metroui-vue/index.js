@@ -1281,7 +1281,7 @@ export default {
 				[ToggleSwitch.name]: ToggleSwitch
 			},
 			mounted() {
-				if (this.$el.querySelector(".view")) {
+				if (this.$el.querySelector && this.$el.querySelector(".view")) {
 					this.$el.querySelectorAll(".view").forEach((item, index) => {
 						if (item.hasAttribute("data-view-id")) {
 							metroUI.views[item.getAttribute("data-view-id")] = new metroUI.View(item, {

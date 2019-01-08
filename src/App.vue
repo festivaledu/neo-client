@@ -24,5 +24,15 @@
             box-sizing: border-box;
         }
     }
+	
+	.text-left {
+		text-align: left;
+	}
+	.text-center {
+		text-align: center;
+	}
+	.text-right {
+		text-align: right;
+	}
 
 </style>
