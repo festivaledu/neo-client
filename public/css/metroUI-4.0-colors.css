@@ -13,6 +13,15 @@ body[data-theme="light"] a[disabled] {
 body[data-theme="light"] .views {
   background-color: #ffffff;
 }
+body[data-theme="light"] .acrylic.acrylic-60 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+body[data-theme="light"] .acrylic.acrylic-70 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+body[data-theme="light"] .acrylic.acrylic-80 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
 body[data-theme="light"] button {
   background-color: rgba(0, 0, 0, 0.2);
   color: #000000;
@@ -352,6 +361,15 @@ body[data-theme="dark"] a[disabled] {
 }
 body[data-theme="dark"] .views {
   background-color: #000000;
+}
+body[data-theme="dark"] .acrylic.acrylic-60 {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+body[data-theme="dark"] .acrylic.acrylic-70 {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+body[data-theme="dark"] .acrylic.acrylic-80 {
+  background-color: rgba(0, 0, 0, 0.8);
 }
 body[data-theme="dark"] button {
   background-color: rgba(255, 255, 255, 0.2);
