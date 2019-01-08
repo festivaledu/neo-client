@@ -261,6 +261,13 @@ body[data-theme="light"] .auto-suggest .items {
 body[data-theme="light"] .auto-suggest .items .item:active {
   background-color: rgba(0, 0, 0, 0.2);
 }
+body[data-theme="light"] .auto-suggest[disabled] input {
+  background-color: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 2px #CCCCCC !important;
+}
+body[data-theme="light"] .auto-suggest[disabled] input::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
 body[data-theme="light"] .command-bar {
   background-color: #E6E6E6;
 }
@@ -609,6 +616,13 @@ body[data-theme="dark"] .auto-suggest .items {
 }
 body[data-theme="dark"] .auto-suggest .items .item:active {
   background-color: rgba(255, 255, 255, 0.2);
+}
+body[data-theme="dark"] .auto-suggest[disabled] input {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 0 2px #333333 !important;
+}
+body[data-theme="dark"] .auto-suggest[disabled] input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
 }
 body[data-theme="dark"] .command-bar {
   background-color: #1F1F1F;
