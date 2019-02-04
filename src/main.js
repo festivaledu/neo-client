@@ -14,6 +14,23 @@ Vue.component("vue-headful", vueHeadful);
 
 Vue.config.productionTip = false;
 
+router.beforeEach((to, from, next) => {
+	to.matched.some(record => {
+		if (record.name != "login") {
+			if (!store.state.identity) {
+				next({
+					path: "/",
+					replace: true
+				})
+			} else {
+				next();
+			}
+		} else {
+			next();
+		}
+	})
+});
+
 new Vue({
     router,
     store,

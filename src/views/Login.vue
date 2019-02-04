@@ -44,8 +44,12 @@
 					</form>
 					
 					<div class="row mt-3 d-none d-md-flex">
-						<div class="col col-auto">
-							<button class="btn btn-primary d-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
+						<div class="col col-6 text-left">
+							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
+						</div>
+						
+						<div class="col col-6 text-right">
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Connect as guest</button>
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
@@ -59,6 +63,10 @@
 					<div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">
 							<button class="col-12" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
+						</div>
+						
+						<div class="col col-12" v-show="!isWorking">
+							<button class="col-12" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Connect as guest</button>
 						</div>
 						
 						<div class="col col-12 mt-3 text-center" v-show="!isWorking">
@@ -113,13 +121,14 @@ input[type="url"] {
 
 <script>
 import { SocketService } from "@/scripts/SocketService";
-import { required } from 'vuelidate/lib/validators'
+import { required } from 'vuelidate/lib/validators';
 
 export default {
 	name: 'home',
 	data() {
 		return {
-			serverAddress: location.hostname,
+			//serverAddress: location.hostname,
+			serverAddress: "192.168.0.106",
 			socket: null,
 			knownServers: JSON.parse(localStorage.getItem("known-servers")) || [],
 			
@@ -140,40 +149,32 @@ export default {
 		}
 	},
 	mounted() {
-		// SocketService.connect(`ws://localhost:42420/neo`);
 		SocketService.$on("open", this.onOpen);
 		SocketService.$on("close", this.onClose);
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		onOpen() {
-			this.socket = SocketService.socket
+			this.socket = SocketService.socket;
 			//this.status = "Connected";
 			//this.$refs["messages"].addSystemMessage("Connected")
 		},
 		onClose() {
-			this.socket = null
+			this.socket = null;
+			this.$router.replace("/");
 			//this.$refs["messages"].addSystemMessage("Disconnected")
 		},
 		onPackage(packageObj) {
-			//this.receivedMessage = packageObj.content;
-			// this.$refs["messages"].addMessage({
-			// 	author: "server",
-			// 	displayName: "Server",
-			// 	date: new Date(),
-			// 	text: packageObj.content,
-			// 	type: "received"
-			// });
-		},
-		Messages_MessageSent(text) {
-			SocketService.send({ content: text, type: 0 });
-			this.$refs["messages"].addMessage({
-				author: "client",
-				displayName: "Client",
-				date: new Date(),
-				text: text,
-				type: "sent"
-			});
+			switch (packageObj.type) {
+				case 8:
+					if (packageObj.content.status == 0) {
+						this.isWorking = false;
+						this.$store.commit("setIdentity", packageObj.content.identity);
+						this.$router.replace("/messages");
+					}
+					break;
+				default: break;
+			}
 		},
 		
 		keyUp(e) {
@@ -184,8 +185,18 @@ export default {
 		connect() {
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
+		
 		login() {
-			
+			this.isWorking = true;
+		},
+		connectAsGuest() {
+			this.isWorking = true;
+			SocketService.send({
+				type: 7,
+				content: {
+					name: this.user.username
+				}
+			});
 		}
 	}
 }

@@ -8,7 +8,7 @@ export const SocketService = new Vue({
 		key: [],
 		rsaE: "",
 		rsaM: "",
-		socket: {},
+		socket: null,
 	},
 	methods: {
 		generateAesParams() {
@@ -18,14 +18,21 @@ export const SocketService = new Vue({
 		connect(url) {
 			this.generateAesParams();
 			this.socket = new WebSocket(url);
-			this.socket.onmessage = this.onMessage;
 			this.socket.onopen = this.onOpen;
 			this.socket.onclose = this.onClose;
+			this.socket.onmessage = this.onMessage;
 		},
 		encrypt(data) {
 			let encrypted = CryptoJS.AES.encrypt(data, this.key, { iv: this.iv }).toString();
 
 			return encrypted;
+		},
+		onOpen(event) {
+			this.sendAesParams();
+			this.$emit("open", event);
+		},
+		onClose(event) {
+			this.$emit("close");
 		},
 		onMessage(event) {
 			let container = JSON.parse(event.data);
@@ -46,13 +53,6 @@ export const SocketService = new Vue({
 			}
 
 			this.$emit("package", packageObj);
-		},
-		onOpen(event) {
-			this.sendAesParams();
-			this.$emit("open");
-		},
-		onClose(event) {
-			this.$emit("close");
 		},
 		send(data) {
 			this.socket.send(JSON.stringify({
