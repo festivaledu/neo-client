@@ -83,10 +83,6 @@
 </template>
 
 <style lang="less">
-body {
-	background-image: url(https://images.pexels.com/photos/443446/pexels-photo-443446.jpeg?cs=srgb&dl=baume-berge-draussen-443446.jpg&fm=jpg);
-	background-size: cover;
-}
 input[type="email"],
 input[type="number"],
 input[type="password"],
