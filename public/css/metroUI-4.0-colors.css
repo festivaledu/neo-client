@@ -237,9 +237,6 @@ body[data-theme="light"] .accent-color-selector .accent-color-item:before {
   box-shadow: inset 0 0 0 2px #000000;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D'44px'%20height%3D'44px'%20viewBox%3D'0%200%2044%2044'%20version%3D'1.1'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Crect%20x%3D'20'%20y%3D'2'%20width%3D'22'%20height%3D'22'%20fill%3D'%23000000'%2F%3E%3Cpolygon%20fill-rule%3D'nonzero'%20points%3D'38%207%2038.8789062%207.87890625%2028.4394531%2018.328125%2023%2012.8789062%2023.8789062%2012%2028.4394531%2016.5507812'%20fill%3D'%23ffffff'%2F%3E%3C%2Fsvg%3E");
 }
-body[data-theme="light"] .navigation-view .navigation-view-menu {
-  background-color: rgba(255, 255, 255, 0.6);
-}
 body[data-theme="light"] .navigation-view .navigation-view-menu .navigation-view-back-button:active,
 body[data-theme="light"] .navigation-view .navigation-view-menu .toggle-pane-button:active,
 body[data-theme="light"] .navigation-view .navigation-view-menu .navigation-view-item:active,
@@ -250,8 +247,8 @@ body[data-theme="light"] .navigation-view .frame-header .navigation-view-back-bu
 body[data-theme="light"] .navigation-view .frame-header .toggle-pane-button:active {
   background-color: rgba(0, 0, 0, 0.3);
 }
-body[data-theme="light"] .navigation-view .frame-header,
-body[data-theme="light"] .navigation-view .frame {
+body[data-theme="light"] .navigation-view:not(.transparent) .frame-header,
+body[data-theme="light"] .navigation-view:not(.transparent) .frame {
   background-color: #ffffff;
 }
 body[data-theme="light"] .auto-suggest .items {
@@ -593,9 +590,6 @@ body[data-theme="dark"] .accent-color-selector .accent-color-item:before {
   box-shadow: inset 0 0 0 2px #ffffff;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D'44px'%20height%3D'44px'%20viewBox%3D'0%200%2044%2044'%20version%3D'1.1'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Crect%20x%3D'20'%20y%3D'2'%20width%3D'22'%20height%3D'22'%20fill%3D'%23ffffff'%2F%3E%3Cpolygon%20fill-rule%3D'nonzero'%20points%3D'38%207%2038.8789062%207.87890625%2028.4394531%2018.328125%2023%2012.8789062%2023.8789062%2012%2028.4394531%2016.5507812'%20fill%3D'%23000000'%2F%3E%3C%2Fsvg%3E");
 }
-body[data-theme="dark"] .navigation-view .navigation-view-menu {
-  background-color: rgba(0, 0, 0, 0.6);
-}
 body[data-theme="dark"] .navigation-view .navigation-view-menu .navigation-view-back-button:active,
 body[data-theme="dark"] .navigation-view .navigation-view-menu .toggle-pane-button:active,
 body[data-theme="dark"] .navigation-view .navigation-view-menu .navigation-view-item:active,
@@ -606,8 +600,8 @@ body[data-theme="dark"] .navigation-view .frame-header .navigation-view-back-but
 body[data-theme="dark"] .navigation-view .frame-header .toggle-pane-button:active {
   background-color: rgba(255, 255, 255, 0.3);
 }
-body[data-theme="dark"] .navigation-view .frame-header,
-body[data-theme="dark"] .navigation-view .frame {
+body[data-theme="dark"] .navigation-view:not(.transparent) .frame-header,
+body[data-theme="dark"] .navigation-view:not(.transparent) .frame {
   background-color: #000000;
 }
 body[data-theme="dark"] .auto-suggest .items {
