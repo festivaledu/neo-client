@@ -1113,7 +1113,11 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
+			if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
 			this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
+			} else {
+				this.$data._initials = this.$props.displayName.slice(0,1);
+			}
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}
