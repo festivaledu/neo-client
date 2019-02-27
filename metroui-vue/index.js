@@ -1086,6 +1086,22 @@ var NavigationViewMenuItem = {
 };
 
 /**
+ * Represents a separator in a NavigationView
+ * @param {String} title The title of this item
+ */
+var NavigationViewMenuSeparator = {
+	name: "metro-navigation-view-menu-separator",
+	props: ["title"],
+	render(h) {
+		return (
+			<div class="navigation-view-item-separator">
+				<p>{this.$props.title}</p>
+			</div>
+		)
+	}
+};
+
+/**
  * Displays the picture of a person/contact.
  * Use either of the attributes to display a person/contact
  * @param {String} profilePicture A URL to an image (eg. profile image)
@@ -1293,6 +1309,7 @@ export default {
 				[Messages.name]: Messages,
 				[NavigationView.name]: NavigationView,
 				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
+				[NavigationViewMenuSeparator.name]: NavigationViewMenuSeparator,
 				[PersonPicture.name]: PersonPicture,
 				[ProgressBar.name]: ProgressBar,
 				[Slider.name]: Slider,
