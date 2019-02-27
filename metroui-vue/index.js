@@ -853,13 +853,20 @@ var Messages = {
  * Common vertical layout for top-level areas of your app via a collapsible navigation menu
  * @param {String} title Sets the title of the NavigationView
  * @param {Boolean} history If false, disable the use of history in this NavigationView
+ * @param {String} menuTitle Sets the title that is displayed next to the Menu Button
+ * @param {String} acrylic Sets the acrylic background variant (60%, 70%, 80%)
+ * @param {Boolean} startExpanded Expands the navigation view on load (< 768 px)
+ * @param {Boolean} startRetracted Retracts the navigation view on load (>= 768 px)
  */
 var NavigationView = {
 	name: "metro-navigation-view",
-	props: ["title", "history", "acrylic"],
+	props: ["title", "history", "menuTitle", "acrylic", "startExpanded", "startRetracted"],
 	data() {
 		return {
 			_acrylic: this.$props.acrylic || "acrylic-60",
+			_menuTitle: this.$props.menuTitle,
+			_startExpanded: this.$props.startExpanded || false,
+			_startRetracted: this.$props.startRetracted || false,
 			_currentPage: null,
 			_pages: {},
 			_items: {},
@@ -869,8 +876,10 @@ var NavigationView = {
 	render(h) {
 		return (
 			<div class="navigation-view">
-				<div class={`navigation-view-menu acrylic ${this.$data._acrylic}`} ref="menu">
-					<div class="toggle-pane-button" ref="toggleButton" onClick={this.toggle}></div>
+				<div class={{[`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted}} ref="menu">
+					<div class={{"toggle-pane-button": true, "title": this.$data._menuTitle != null}} ref="toggleButton" onClick={this.toggle}>
+						<p>{this.$data._menuTitle}</p>
+					</div>
 					
 					{this.$props.history != false && 
 					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
