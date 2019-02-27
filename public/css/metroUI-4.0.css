@@ -3933,7 +3933,12 @@ input[type="url"]:focus {
   flex: 1;
   overflow-x: hidden;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item {
+.navigation-view .navigation-view-menu .navigation-view-items,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items {
+  margin-bottom: 8px;
+}
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item {
   position: relative;
   width: 100%;
   height: 40px;
@@ -3943,7 +3948,8 @@ input[type="url"]:focus {
   -moz-user-select: none;
   cursor: default;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-content {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-content,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item .navigation-view-item-content {
   position: absolute;
   top: 10px;
   left: 0px;
@@ -3951,62 +3957,34 @@ input[type="url"]:focus {
   bottom: 10px;
   padding-left: 16px;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item .navigation-view-item-icon {
   position: absolute;
   width: 48px;
   height: 40px;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon i.icon {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon i.icon,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item .navigation-view-item-icon i.icon {
   margin: 10px 14px;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon + .navigation-view-item-content {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item .navigation-view-item-icon + .navigation-view-item-content,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item .navigation-view-item-icon + .navigation-view-item-content {
   left: 48px;
   padding-left: 0;
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item:active .navigation-view-item-inner {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item:active .navigation-view-item-inner,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item:active .navigation-view-item-inner {
   transform: scale(0.99);
 }
-.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item.selected:after {
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item.selected:after,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item.selected:after {
   content: '';
   position: absolute;
-  top: 8px;
+  top: 50%;
   left: 0;
-  bottom: 8px;
   width: 6px;
-}
-.navigation-view .navigation-view-menu .settings-button {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  min-width: 320px;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  cursor: default;
-  padding: 10px 0 10px 48px;
-  margin-bottom: 8px;
-}
-.navigation-view .navigation-view-menu .settings-button:before {
-  content: '\E713';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  font-family: "Segoe MDL2 Assets";
-  font-size: 15px;
-  text-align: center;
-  text-transform: none;
-  margin: 10px 14px;
-}
-.navigation-view .navigation-view-menu .settings-button.selected:after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 0;
-  bottom: 8px;
-  width: 6px;
+  height: 24px;
+  transform: translate3d(0, -50%, 0);
 }
 .navigation-view .navigation-view-menu .navigation-view-item-separator {
   height: 20px;

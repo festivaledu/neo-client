@@ -880,9 +880,9 @@ var NavigationView = {
 						{this.$slots["navigation-items"]}
 					</div>
 					
-					{this.$slots["settings-button"] != null &&
-					this.$slots["settings-button"]
-					}
+					<div class="navigation-view-bottom-items">
+						{this.$slots["bottom-items"]}
+					</div>
 				</div>
 				
 				<div class="frame-header" ref="frameHeader">
@@ -1072,21 +1072,6 @@ var NavigationViewMenuItem = {
 					<p class="navigation-view-item-content">{this.$props.title}</p>
 				</div>
 			</div>
-		)
-	}
-};
-
-/**
- * Represents a settings button at the bottom of a NavigationView
- * @param {String} page The page to navigate to. Must be referenced by the parent NavigationView
- * @param {String} title The title of this item
- */
-var NavigationViewSettingsButton = {
-	name: "metro-navigation-view-settings-button",
-	props: ["page", "title"],
-	render(h) {
-		return (
-			<div class="settings-button" data-page={this.$props.page}>{this.$props.title}</div>
 		)
 	}
 };
@@ -1295,7 +1280,6 @@ export default {
 				[Messages.name]: Messages,
 				[NavigationView.name]: NavigationView,
 				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
-				[NavigationViewSettingsButton.name]: NavigationViewSettingsButton,
 				[PersonPicture.name]: PersonPicture,
 				[ProgressBar.name]: ProgressBar,
 				[Slider.name]: Slider,
