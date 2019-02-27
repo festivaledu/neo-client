@@ -221,7 +221,7 @@ metroUI.Page = class {
 			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else {
+				} else if (!(page.container.contains(item) && page.container != item)) {
 					item.classList.remove("page-active");
 				}
 			});
@@ -229,7 +229,7 @@ metroUI.Page = class {
 			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else {
+				} else if (!(page.container.contains(item) && page.container != item)) {
 					item.classList.remove("page-active");
 				}
 			});
