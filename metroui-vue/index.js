@@ -1153,6 +1153,8 @@ var NavigationView = {
 					
 					if (window.innerWidth < 1008) {
 						this.$refs["menu"].classList.remove("expanded");
+					} else if (this.$props.startRetracted) {
+						this.$refs["menu"].classList.add("retracted");
 					}
 				});
 			}
