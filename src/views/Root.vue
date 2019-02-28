@@ -25,6 +25,9 @@
 							<NeoChannelPage :channelData="this.channels" />
 							
 							<!-- Pages provided by plugins -->
+							
+							<!-- The settings page is only available if the user is permitted -->
+							<NeoSettingsPage />
 						</template>
 					</metro-navigation-view>
 				</div>
@@ -39,7 +42,8 @@
 	background-image: url("data:image/svg+xml;charset=utf-8,@{url}");
 }
 
-.navigation-view {
+.navigation-view,
+.list-view {
 	&.fixed-width > .frame {
 		width: calc(~"100vw - 48px");
 	}
@@ -62,18 +66,20 @@ i.icon{
 
 <script>
 import NeoChannelPage from "@/components/NeoChannelPage"
+import NeoSettingsPage from "@/components/NeoSettingsPage"
 
 export default {
 	name: "Root",
 	components: {
-		NeoChannelPage
+		NeoChannelPage,
+		NeoSettingsPage
 	},
 	data() {
 		return {
 			channels: [
 				{
-					id: "channel1",
-					status: "Status Message",
+					id: "%channel_name%",
+					status: "%status%",
 					channelArtwork: "https://via.placeholder.com/32x32"
 				}
 			]
