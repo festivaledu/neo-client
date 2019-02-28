@@ -239,8 +239,7 @@ body[data-theme="light"] .accent-color-selector .accent-color-item:before {
 }
 body[data-theme="light"] .navigation-view .navigation-view-menu .navigation-view-back-button:active,
 body[data-theme="light"] .navigation-view .navigation-view-menu .toggle-pane-button:active,
-body[data-theme="light"] .navigation-view .navigation-view-menu .navigation-view-item:active,
-body[data-theme="light"] .navigation-view .navigation-view-menu .settings-button:active {
+body[data-theme="light"] .navigation-view .navigation-view-menu .navigation-view-item:active {
   background-color: rgba(0, 0, 0, 0.3);
 }
 body[data-theme="light"] .navigation-view .frame-header .navigation-view-back-button:active,
@@ -249,6 +248,18 @@ body[data-theme="light"] .navigation-view .frame-header .toggle-pane-button:acti
 }
 body[data-theme="light"] .navigation-view:not(.transparent) .frame-header,
 body[data-theme="light"] .navigation-view:not(.transparent) .frame {
+  background-color: #ffffff;
+}
+body[data-theme="light"] .list-view .list-view-action .detail-text-label,
+body[data-theme="light"] .list-view .list-view-item .detail-text-label {
+  color: rgba(0, 0, 0, 0.6);
+}
+body[data-theme="light"] .list-view .list-view-action:active,
+body[data-theme="light"] .list-view .list-view-item:active {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+body[data-theme="light"] .list-view:not(.transparent) .frame-header,
+body[data-theme="light"] .list-view:not(.transparent) .frame {
   background-color: #ffffff;
 }
 body[data-theme="light"] .auto-suggest .items {
@@ -328,12 +339,15 @@ body[data-theme="light"]:not(.touch) .accent-color-selector .accent-color-item:h
 }
 body[data-theme="light"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-back-button:hover:not(:active),
 body[data-theme="light"]:not(.touch) .navigation-view .navigation-view-menu .toggle-pane-button:hover:not(:active),
-body[data-theme="light"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-item:hover:not(:active),
-body[data-theme="light"]:not(.touch) .navigation-view .navigation-view-menu .settings-button:hover:not(:active) {
+body[data-theme="light"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-item:hover:not(:active) {
   background-color: rgba(0, 0, 0, 0.2);
 }
 body[data-theme="light"]:not(.touch) .navigation-view .frame-header .navigation-view-back-button:hover:not(:active),
 body[data-theme="light"]:not(.touch) .navigation-view .frame-header .toggle-pane-button:hover:not(:active) {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+body[data-theme="light"]:not(.touch) .list-view .list-view-action:hover:not(:active),
+body[data-theme="light"]:not(.touch) .list-view .list-view-item:hover:not(:active) {
   background-color: rgba(0, 0, 0, 0.2);
 }
 body[data-theme="light"]:not(.touch) .auto-suggest .items .item:hover:not(:active) {
@@ -592,8 +606,7 @@ body[data-theme="dark"] .accent-color-selector .accent-color-item:before {
 }
 body[data-theme="dark"] .navigation-view .navigation-view-menu .navigation-view-back-button:active,
 body[data-theme="dark"] .navigation-view .navigation-view-menu .toggle-pane-button:active,
-body[data-theme="dark"] .navigation-view .navigation-view-menu .navigation-view-item:active,
-body[data-theme="dark"] .navigation-view .navigation-view-menu .settings-button:active {
+body[data-theme="dark"] .navigation-view .navigation-view-menu .navigation-view-item:active {
   background-color: rgba(255, 255, 255, 0.3);
 }
 body[data-theme="dark"] .navigation-view .frame-header .navigation-view-back-button:active,
@@ -602,6 +615,18 @@ body[data-theme="dark"] .navigation-view .frame-header .toggle-pane-button:activ
 }
 body[data-theme="dark"] .navigation-view:not(.transparent) .frame-header,
 body[data-theme="dark"] .navigation-view:not(.transparent) .frame {
+  background-color: #000000;
+}
+body[data-theme="dark"] .list-view .list-view-action .detail-text-label,
+body[data-theme="dark"] .list-view .list-view-item .detail-text-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+body[data-theme="dark"] .list-view .list-view-action:active,
+body[data-theme="dark"] .list-view .list-view-item:active {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+body[data-theme="dark"] .list-view:not(.transparent) .frame-header,
+body[data-theme="dark"] .list-view:not(.transparent) .frame {
   background-color: #000000;
 }
 body[data-theme="dark"] .auto-suggest .items {
@@ -681,12 +706,15 @@ body[data-theme="dark"]:not(.touch) .accent-color-selector .accent-color-item:ho
 }
 body[data-theme="dark"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-back-button:hover:not(:active),
 body[data-theme="dark"]:not(.touch) .navigation-view .navigation-view-menu .toggle-pane-button:hover:not(:active),
-body[data-theme="dark"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-item:hover:not(:active),
-body[data-theme="dark"]:not(.touch) .navigation-view .navigation-view-menu .settings-button:hover:not(:active) {
+body[data-theme="dark"]:not(.touch) .navigation-view .navigation-view-menu .navigation-view-item:hover:not(:active) {
   background-color: rgba(255, 255, 255, 0.2);
 }
 body[data-theme="dark"]:not(.touch) .navigation-view .frame-header .navigation-view-back-button:hover:not(:active),
 body[data-theme="dark"]:not(.touch) .navigation-view .frame-header .toggle-pane-button:hover:not(:active) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+body[data-theme="dark"]:not(.touch) .list-view .list-view-action:hover:not(:active),
+body[data-theme="dark"]:not(.touch) .list-view .list-view-item:hover:not(:active) {
   background-color: rgba(255, 255, 255, 0.2);
 }
 body[data-theme="dark"]:not(.touch) .auto-suggest .items .item:hover:not(:active) {
@@ -769,8 +797,10 @@ body[data-accent="win10-01"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-01"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(255, 185, 0, 0.6);
 }
-body[data-accent="win10-01"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-01"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-01"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #FFB900;
+}
+body[data-accent="win10-01"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #FFB900;
 }
 body[data-accent="win10-01"] .content-dialog {
@@ -878,8 +908,10 @@ body[data-accent="win10-02"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-02"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(231, 72, 86, 0.6);
 }
-body[data-accent="win10-02"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-02"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-02"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #E74856;
+}
+body[data-accent="win10-02"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #E74856;
 }
 body[data-accent="win10-02"] .content-dialog {
@@ -987,8 +1019,10 @@ body[data-accent="win10-03"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-03"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 120, 215, 0.6);
 }
-body[data-accent="win10-03"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-03"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-03"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #0078D7;
+}
+body[data-accent="win10-03"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #0078D7;
 }
 body[data-accent="win10-03"] .content-dialog {
@@ -1096,8 +1130,10 @@ body[data-accent="win10-04"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-04"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 153, 188, 0.6);
 }
-body[data-accent="win10-04"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-04"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-04"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #0099BC;
+}
+body[data-accent="win10-04"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #0099BC;
 }
 body[data-accent="win10-04"] .content-dialog {
@@ -1205,8 +1241,10 @@ body[data-accent="win10-05"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-05"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(122, 117, 116, 0.6);
 }
-body[data-accent="win10-05"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-05"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-05"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #7A7574;
+}
+body[data-accent="win10-05"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #7A7574;
 }
 body[data-accent="win10-05"] .content-dialog {
@@ -1314,8 +1352,10 @@ body[data-accent="win10-06"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-06"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(118, 118, 118, 0.6);
 }
-body[data-accent="win10-06"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-06"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-06"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #767676;
+}
+body[data-accent="win10-06"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #767676;
 }
 body[data-accent="win10-06"] .content-dialog {
@@ -1423,8 +1463,10 @@ body[data-accent="win10-07"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-07"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(255, 140, 0, 0.6);
 }
-body[data-accent="win10-07"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-07"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-07"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #FF8C00;
+}
+body[data-accent="win10-07"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #FF8C00;
 }
 body[data-accent="win10-07"] .content-dialog {
@@ -1532,8 +1574,10 @@ body[data-accent="win10-08"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-08"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(232, 17, 35, 0.6);
 }
-body[data-accent="win10-08"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-08"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-08"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #E81123;
+}
+body[data-accent="win10-08"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #E81123;
 }
 body[data-accent="win10-08"] .content-dialog {
@@ -1641,8 +1685,10 @@ body[data-accent="win10-09"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-09"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 99, 177, 0.6);
 }
-body[data-accent="win10-09"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-09"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-09"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #0063B1;
+}
+body[data-accent="win10-09"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #0063B1;
 }
 body[data-accent="win10-09"] .content-dialog {
@@ -1750,8 +1796,10 @@ body[data-accent="win10-10"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-10"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(45, 125, 154, 0.6);
 }
-body[data-accent="win10-10"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-10"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-10"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #2D7D9A;
+}
+body[data-accent="win10-10"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #2D7D9A;
 }
 body[data-accent="win10-10"] .content-dialog {
@@ -1859,8 +1907,10 @@ body[data-accent="win10-11"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-11"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(93, 90, 88, 0.6);
 }
-body[data-accent="win10-11"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-11"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-11"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #5D5A58;
+}
+body[data-accent="win10-11"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #5D5A58;
 }
 body[data-accent="win10-11"] .content-dialog {
@@ -1968,8 +2018,10 @@ body[data-accent="win10-12"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-12"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(76, 74, 72, 0.6);
 }
-body[data-accent="win10-12"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-12"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-12"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #4C4A48;
+}
+body[data-accent="win10-12"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #4C4A48;
 }
 body[data-accent="win10-12"] .content-dialog {
@@ -2077,8 +2129,10 @@ body[data-accent="win10-13"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-13"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(247, 99, 12, 0.6);
 }
-body[data-accent="win10-13"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-13"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-13"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #F7630C;
+}
+body[data-accent="win10-13"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #F7630C;
 }
 body[data-accent="win10-13"] .content-dialog {
@@ -2186,8 +2240,10 @@ body[data-accent="win10-14"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-14"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(234, 0, 94, 0.6);
 }
-body[data-accent="win10-14"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-14"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-14"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #EA005E;
+}
+body[data-accent="win10-14"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #EA005E;
 }
 body[data-accent="win10-14"] .content-dialog {
@@ -2295,8 +2351,10 @@ body[data-accent="win10-15"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-15"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(142, 140, 216, 0.6);
 }
-body[data-accent="win10-15"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-15"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-15"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #8E8CD8;
+}
+body[data-accent="win10-15"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #8E8CD8;
 }
 body[data-accent="win10-15"] .content-dialog {
@@ -2404,8 +2462,10 @@ body[data-accent="win10-16"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-16"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 183, 195, 0.6);
 }
-body[data-accent="win10-16"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-16"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-16"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #00B7C3;
+}
+body[data-accent="win10-16"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #00B7C3;
 }
 body[data-accent="win10-16"] .content-dialog {
@@ -2513,8 +2573,10 @@ body[data-accent="win10-17"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-17"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(104, 118, 138, 0.6);
 }
-body[data-accent="win10-17"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-17"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-17"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #68768A;
+}
+body[data-accent="win10-17"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #68768A;
 }
 body[data-accent="win10-17"] .content-dialog {
@@ -2622,8 +2684,10 @@ body[data-accent="win10-18"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-18"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(105, 121, 126, 0.6);
 }
-body[data-accent="win10-18"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-18"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-18"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #69797E;
+}
+body[data-accent="win10-18"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #69797E;
 }
 body[data-accent="win10-18"] .content-dialog {
@@ -2731,8 +2795,10 @@ body[data-accent="win10-19"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-19"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(202, 80, 16, 0.6);
 }
-body[data-accent="win10-19"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-19"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-19"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #CA5010;
+}
+body[data-accent="win10-19"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #CA5010;
 }
 body[data-accent="win10-19"] .content-dialog {
@@ -2840,8 +2906,10 @@ body[data-accent="win10-20"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-20"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(195, 0, 82, 0.6);
 }
-body[data-accent="win10-20"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-20"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-20"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #C30052;
+}
+body[data-accent="win10-20"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #C30052;
 }
 body[data-accent="win10-20"] .content-dialog {
@@ -2949,8 +3017,10 @@ body[data-accent="win10-21"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-21"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(107, 105, 214, 0.6);
 }
-body[data-accent="win10-21"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-21"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-21"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #6B69D6;
+}
+body[data-accent="win10-21"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #6B69D6;
 }
 body[data-accent="win10-21"] .content-dialog {
@@ -3058,8 +3128,10 @@ body[data-accent="win10-22"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-22"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(3, 131, 135, 0.6);
 }
-body[data-accent="win10-22"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-22"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-22"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #038387;
+}
+body[data-accent="win10-22"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #038387;
 }
 body[data-accent="win10-22"] .content-dialog {
@@ -3167,8 +3239,10 @@ body[data-accent="win10-23"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-23"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(81, 92, 107, 0.6);
 }
-body[data-accent="win10-23"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-23"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-23"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #515C6B;
+}
+body[data-accent="win10-23"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #515C6B;
 }
 body[data-accent="win10-23"] .content-dialog {
@@ -3276,8 +3350,10 @@ body[data-accent="win10-24"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-24"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(74, 84, 89, 0.6);
 }
-body[data-accent="win10-24"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-24"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-24"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #4A5459;
+}
+body[data-accent="win10-24"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #4A5459;
 }
 body[data-accent="win10-24"] .content-dialog {
@@ -3385,8 +3461,10 @@ body[data-accent="win10-25"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-25"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(218, 59, 1, 0.6);
 }
-body[data-accent="win10-25"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-25"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-25"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #DA3B01;
+}
+body[data-accent="win10-25"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #DA3B01;
 }
 body[data-accent="win10-25"] .content-dialog {
@@ -3494,8 +3572,10 @@ body[data-accent="win10-26"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-26"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(227, 0, 140, 0.6);
 }
-body[data-accent="win10-26"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-26"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-26"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #E3008C;
+}
+body[data-accent="win10-26"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #E3008C;
 }
 body[data-accent="win10-26"] .content-dialog {
@@ -3603,8 +3683,10 @@ body[data-accent="win10-27"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-27"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(135, 100, 184, 0.6);
 }
-body[data-accent="win10-27"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-27"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-27"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #8764B8;
+}
+body[data-accent="win10-27"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #8764B8;
 }
 body[data-accent="win10-27"] .content-dialog {
@@ -3712,8 +3794,10 @@ body[data-accent="win10-28"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-28"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 178, 148, 0.6);
 }
-body[data-accent="win10-28"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-28"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-28"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #00B294;
+}
+body[data-accent="win10-28"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #00B294;
 }
 body[data-accent="win10-28"] .content-dialog {
@@ -3821,8 +3905,10 @@ body[data-accent="win10-29"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-29"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(86, 124, 115, 0.6);
 }
-body[data-accent="win10-29"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-29"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-29"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #567C73;
+}
+body[data-accent="win10-29"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #567C73;
 }
 body[data-accent="win10-29"] .content-dialog {
@@ -3930,8 +4016,10 @@ body[data-accent="win10-30"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-30"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(100, 124, 100, 0.6);
 }
-body[data-accent="win10-30"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-30"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-30"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #647C64;
+}
+body[data-accent="win10-30"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #647C64;
 }
 body[data-accent="win10-30"] .content-dialog {
@@ -4039,8 +4127,10 @@ body[data-accent="win10-31"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-31"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(239, 105, 80, 0.6);
 }
-body[data-accent="win10-31"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-31"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-31"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #EF6950;
+}
+body[data-accent="win10-31"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #EF6950;
 }
 body[data-accent="win10-31"] .content-dialog {
@@ -4148,8 +4238,10 @@ body[data-accent="win10-32"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-32"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(191, 0, 119, 0.6);
 }
-body[data-accent="win10-32"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-32"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-32"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #BF0077;
+}
+body[data-accent="win10-32"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #BF0077;
 }
 body[data-accent="win10-32"] .content-dialog {
@@ -4257,8 +4349,10 @@ body[data-accent="win10-33"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-33"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(116, 77, 169, 0.6);
 }
-body[data-accent="win10-33"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-33"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-33"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #744DA9;
+}
+body[data-accent="win10-33"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #744DA9;
 }
 body[data-accent="win10-33"] .content-dialog {
@@ -4366,8 +4460,10 @@ body[data-accent="win10-34"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-34"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(1, 133, 116, 0.6);
 }
-body[data-accent="win10-34"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-34"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-34"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #018574;
+}
+body[data-accent="win10-34"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #018574;
 }
 body[data-accent="win10-34"] .content-dialog {
@@ -4475,8 +4571,10 @@ body[data-accent="win10-35"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-35"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(72, 104, 96, 0.6);
 }
-body[data-accent="win10-35"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-35"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-35"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #486860;
+}
+body[data-accent="win10-35"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #486860;
 }
 body[data-accent="win10-35"] .content-dialog {
@@ -4584,8 +4682,10 @@ body[data-accent="win10-36"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-36"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(82, 94, 84, 0.6);
 }
-body[data-accent="win10-36"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-36"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-36"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #525E54;
+}
+body[data-accent="win10-36"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #525E54;
 }
 body[data-accent="win10-36"] .content-dialog {
@@ -4693,8 +4793,10 @@ body[data-accent="win10-37"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-37"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(209, 52, 56, 0.6);
 }
-body[data-accent="win10-37"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-37"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-37"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #D13438;
+}
+body[data-accent="win10-37"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #D13438;
 }
 body[data-accent="win10-37"] .content-dialog {
@@ -4802,8 +4904,10 @@ body[data-accent="win10-38"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-38"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(194, 57, 179, 0.6);
 }
-body[data-accent="win10-38"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-38"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-38"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #C239B3;
+}
+body[data-accent="win10-38"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #C239B3;
 }
 body[data-accent="win10-38"] .content-dialog {
@@ -4911,8 +5015,10 @@ body[data-accent="win10-39"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-39"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(177, 70, 194, 0.6);
 }
-body[data-accent="win10-39"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-39"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-39"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #B146C2;
+}
+body[data-accent="win10-39"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #B146C2;
 }
 body[data-accent="win10-39"] .content-dialog {
@@ -5020,8 +5126,10 @@ body[data-accent="win10-40"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-40"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(0, 204, 106, 0.6);
 }
-body[data-accent="win10-40"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-40"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-40"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #00CC6A;
+}
+body[data-accent="win10-40"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #00CC6A;
 }
 body[data-accent="win10-40"] .content-dialog {
@@ -5129,8 +5237,10 @@ body[data-accent="win10-41"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-41"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(73, 130, 5, 0.6);
 }
-body[data-accent="win10-41"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-41"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-41"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #498205;
+}
+body[data-accent="win10-41"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #498205;
 }
 body[data-accent="win10-41"] .content-dialog {
@@ -5238,8 +5348,10 @@ body[data-accent="win10-42"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-42"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(132, 117, 69, 0.6);
 }
-body[data-accent="win10-42"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-42"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-42"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #847545;
+}
+body[data-accent="win10-42"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #847545;
 }
 body[data-accent="win10-42"] .content-dialog {
@@ -5347,8 +5459,10 @@ body[data-accent="win10-43"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-43"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(255, 67, 67, 0.6);
 }
-body[data-accent="win10-43"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-43"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-43"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #FF4343;
+}
+body[data-accent="win10-43"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #FF4343;
 }
 body[data-accent="win10-43"] .content-dialog {
@@ -5456,8 +5570,10 @@ body[data-accent="win10-44"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-44"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(154, 0, 137, 0.6);
 }
-body[data-accent="win10-44"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-44"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-44"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #9A0089;
+}
+body[data-accent="win10-44"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #9A0089;
 }
 body[data-accent="win10-44"] .content-dialog {
@@ -5565,8 +5681,10 @@ body[data-accent="win10-45"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-45"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(136, 23, 152, 0.6);
 }
-body[data-accent="win10-45"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-45"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-45"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #881798;
+}
+body[data-accent="win10-45"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #881798;
 }
 body[data-accent="win10-45"] .content-dialog {
@@ -5674,8 +5792,10 @@ body[data-accent="win10-46"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-46"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(16, 137, 62, 0.6);
 }
-body[data-accent="win10-46"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-46"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-46"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #10893E;
+}
+body[data-accent="win10-46"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #10893E;
 }
 body[data-accent="win10-46"] .content-dialog {
@@ -5783,8 +5903,10 @@ body[data-accent="win10-47"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-47"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(16, 124, 16, 0.6);
 }
-body[data-accent="win10-47"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-47"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-47"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #107C10;
+}
+body[data-accent="win10-47"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #107C10;
 }
 body[data-accent="win10-47"] .content-dialog {
@@ -5892,8 +6014,10 @@ body[data-accent="win10-48"] .list.open .list-inner .list-item.selected {
 body[data-accent="win10-48"] .list.open .list-inner .list-item.selected:hover:not(:active) {
   background-color: rgba(126, 115, 95, 0.6);
 }
-body[data-accent="win10-48"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after,
-body[data-accent="win10-48"] .navigation-view .navigation-view-menu .settings-button.selected:after {
+body[data-accent="win10-48"] .navigation-view .navigation-view-menu .navigation-view-item.selected:after {
+  background-color: #7E735F;
+}
+body[data-accent="win10-48"] .list-view .list-view-menu .list-view-item.selected:after {
   background-color: #7E735F;
 }
 body[data-accent="win10-48"] .content-dialog {

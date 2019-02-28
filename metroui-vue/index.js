@@ -748,6 +748,212 @@ var CommandBar = {
 };
 
 /**
+ * Common vertical layout for top-level areas of your app via a collapsible navigation menu
+ * @param {String} title Sets the title of the NavigationView
+ * @param {String} menuTitle Sets the title that is displayed next to the Menu Button
+ * @param {String} acrylic Sets the acrylic background variant (60%, 70%, 80%)
+ */
+var ListView = {
+	name: "metro-list-view",
+	props: ["title", "menuTitle", "acrylic"],
+	data() {
+		return {
+			_acrylic: this.$props.acrylic || "acrylic-60",
+			_currentPage: null,
+			_pages: {},
+			_items: {},
+		}
+	},
+	render(h) {
+		return (
+			<div class="list-view">
+				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+					<div class="list-view-header">
+						<p class="list-view-title">{this.$props.menuTitle}</p>
+						
+						{this.$slots["actions"]}
+						{/* <div class="list-view-action">
+							<i class="icon more" />
+						</div> */}
+					</div>
+
+					<div class="list-view-items">
+						{this.$slots["list-items"]}
+					</div>
+					
+					<div class="list-view-bottom-items">
+						{this.$slots["bottom-items"]}
+					</div>
+				</div>
+				
+				{this.$slots["pages"] &&
+				<div class="frame-header" ref="frameHeader">
+					<p class="title" ref="frameTitle">{this.$props.title}</p>
+				</div>
+				}
+				
+				{this.$slots["pages"] &&
+				<div class="frame" ref="frame">
+					<div class="frame-content" ref="frameContent">
+						{this.$slots["pages"]}
+					</div>
+				</div>
+				}
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+			if (page.hasAttribute("data-page-id")) {
+				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+					parentPage: this,
+					title: page.getAttribute("data-page-title")
+				});
+			}
+		});
+		
+		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		
+		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
+			if (item.hasAttribute("data-page")) {
+				this.$data._items[item.getAttribute("data-page")] = item;
+
+				item.addEventListener("click", () => {
+					this.navigate(item.getAttribute("data-page"));
+				});
+			}
+		});
+	},
+	methods: {
+		_frameScrolled() {
+			if (this.$data._currentPage) {
+				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
+			}
+		},
+
+		/**
+		 * Navigate to a page this view references
+		 * @param {String} pageName The name of the page you want to navigate to. Must be referenced by this NavigationView
+		 * @param {*} _options -- NOT IN USE
+		 */
+		navigate(pageName, _options) {
+			var options = {
+				url: null,
+				addHistory: true
+			}
+			for (var option in _options) {
+				options[option] = _options[option];
+			}
+
+			let page = this.$data._pages[pageName];
+			if (page) {
+				if (page.isVisible) return;
+				
+				page.show();
+				this.$data._currentPage = page;
+				this.setTitle(page.params.title);
+
+				if (this.$data._items[pageName]) {
+					if (this.$refs["menu"].querySelector(".selected")) {
+						this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+					}
+					this.$data._items[pageName].classList.add("selected");
+				} else if (page.container.hasAttribute("data-nav-item")) {
+					let navItem = page.container.getAttribute("data-nav-item");
+					if (this.$data._items[navItem]) {
+						if (this.$refs["menu"].querySelector(".selected")) {
+							this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+						}
+						this.$data._items[navItem].classList.add("selected");
+					}
+				}
+
+				this.$refs["frame"].scrollTo(0, 0);
+			}
+		},
+		/**
+		 * Set the title of this NavigationView
+		 * @param {String} title The title to set. Can be empty
+		 */
+		setTitle(title) {
+			if (title && title.length) {
+				this.$refs["frameTitle"].innerText = title;
+				this.$refs["frameTitle"].parentElement.classList.remove("hidden");
+			} else {
+				this.$refs["frameTitle"].innerText = "";
+				this.$refs["frameTitle"].parentElement.classList.add("hidden");
+			}
+		},
+		
+		/**
+		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
+		 * @param {String} query The CSS-like query to select
+		 */
+		querySelector(query) {
+			return this.$el.querySelector(query);
+		},
+		querySelectorAll(query) {
+			return this.$el.querySelectorAll(query);
+		}
+	}
+};
+
+/**
+ * Represents an action located in a ListView header
+ * @param {String} icon The icon to show next to the title
+ */
+var ListViewAction = {
+	name: "metro-list-view-action",
+	props: ["icon"],
+	render(h) {
+		return (
+			<div class="list-view-action">
+				<i class={`icon ${this.$props.icon}`}></i>
+			</div>
+		)
+	}
+};
+
+/**
+ * Represents a item for use in a ListView
+ * @param {String} page The page to navigate to. Must be referenced by the parent ListView
+ * @param {String} icon The icon to show next to the title
+ * @param {String} title The title of this item
+ */
+var ListViewMenuItem = {
+	name: "metro-list-view-menu-item",
+	props: ["page", "icon", "title"],
+	render(h) {
+		return (
+			<div class="list-view-item" data-page={this.$props.page}>
+				<div class="list-view-item-inner">
+					{this.$props.icon &&
+					<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+					}
+					<p class="list-view-item-content">{this.$props.title}</p>
+				</div>
+			</div>
+		)
+	}
+};
+
+/**
+ * Represents a separator in a ListView
+ * @param {String} title The title of this item
+ */
+var ListViewMenuSeparator = {
+	name: "metro-list-view-menu-separator",
+	props: ["title"],
+	render(h) {
+		return (
+			<div class="list-view-item-separator">
+				<p>{this.$props.title}</p>
+			</div>
+		)
+	}
+};
+
+/**
  * Displays a conversation between two or more people
  * @fires messageSent Fired if the current user sends a message. Contains the sent message's text
  */
@@ -1322,6 +1528,10 @@ export default {
 				[Checkbox.name]: Checkbox,
 				[ComboBox.name]: ComboBox,
 				[CommandBar.name]: CommandBar,
+				[ListView.name]: ListView,
+				[ListViewAction.name]: ListViewAction,
+				[ListViewMenuItem.name]: ListViewMenuItem,
+				[ListViewMenuSeparator.name]: ListViewMenuSeparator,
 				[Messages.name]: Messages,
 				[NavigationView.name]: NavigationView,
 				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
