@@ -44,6 +44,22 @@ var cumulativeOffset = (element) => {
 };
 
 /**
+ * 
+ */
+HTMLElement.prototype.parentNodeOfClass = function(className) {
+	var node = this.parentNode;
+	while (node) {
+		// console.log(node);
+		if (node.classList.contains(className)) {
+			return node;
+		}
+		node = node.parentNode
+	}
+	
+	return null;
+}
+
+/**
  * Enum containing possible ContentDialogResult values
  */
 let ContentDialogResult = {
@@ -221,7 +237,7 @@ metroUI.Page = class {
 			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (!(page.container.contains(item) && page.container != item)) {
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
 					item.classList.remove("page-active");
 				}
 			});
@@ -229,7 +245,7 @@ metroUI.Page = class {
 			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (!(page.container.contains(item) && page.container != item)) {
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
 					item.classList.remove("page-active");
 				}
 			});
