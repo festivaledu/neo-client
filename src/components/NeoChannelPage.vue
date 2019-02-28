@@ -18,14 +18,35 @@
 			
 			<template slot="pages">
 				<!-- One messages page to rule them all -->
-				<div class="page" data-page-id="messages" data-page-title="#channel1">
+				<div class="page" data-page-id="messages" data-page-title="%channel_name%">
 					<metro-messages ref="messageContainer" @messageSent="Messages_MessageSent" />
 					
 					
 				</div>
 				
-				<div class="user-list acrylic acrylic-80">
+				<div class="list-view user-list acrylic acrylic-80">
+					<div class="list-view-menu">
+						<div class="list-view-items">
+							<!-- Render a list of groups and their members -->
+							<div class="list-view-item-separator">
+								<p>%group_name%</p>
+							</div>
+							
+							<div class="list-view-item double-line">
+								<div class="list-view-item-icon">
+									<metro-person-picture displayName="Test" />
+								</div>
+								<p class="list-view-item-content">
+									<span class="text-label">%username%</span>
+									<span class="detail-text-label">%status%</span>
+								</p>
+							</div>
+						</div>
+					</div>
+					
+					<div class="frame">
 						
+					</div>
 				</div>
 			</template>
 		</metro-navigation-view>
@@ -106,11 +127,8 @@
 }
 
 .user-list {
-	position: absolute;
-	top: 0;
+	left: auto;
 	right: 0;
-	bottom: 0;
-	width: 320px;
 }
 </style>
 
