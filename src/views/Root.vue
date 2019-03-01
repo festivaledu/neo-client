@@ -45,7 +45,7 @@
 .navigation-view,
 .list-view {
 	&.fixed-width > .frame {
-		width: calc(~"100vw - 48px");
+		width: calc(~"100% - 48px");
 	}
 }
 

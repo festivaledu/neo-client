@@ -81,7 +81,7 @@
 		}
 		
 		.navigation-view-item-content {
-			left: 64px;
+			left: 48px;
 			
 			span {
 				display: block;
