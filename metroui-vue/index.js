@@ -402,6 +402,24 @@ metroUI.ContentDialog = class {
 			}
 		}, 400);
 	}
+	
+	get text() {
+		const dialog = this;
+		
+		if (dialog.container.querySelectorAll("input").length > 1) {
+			var output = [];
+			
+			dialog.container.querySelectorAll("input").forEach(item => {
+				output.push(item.value);
+			});
+			
+			return output;
+		} else if (dialog.container.querySelector("input")) {
+			return dialog.container.querySelector("input").value;
+		}
+		
+		return null;
+	}
 }
 
 
