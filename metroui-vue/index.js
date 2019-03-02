@@ -423,16 +423,16 @@ metroUI.ContentDialog = class {
 	get text() {
 		const dialog = this;
 		
-		if (dialog.container.querySelectorAll("input").length > 1) {
+		if (dialog.container.querySelectorAll("input, select").length > 1) {
 			var output = [];
 			
-			dialog.container.querySelectorAll("input").forEach(item => {
+			dialog.container.querySelectorAll("input, select").forEach(item => {
 				output.push(item.value);
 			});
 			
 			return output;
-		} else if (dialog.container.querySelector("input")) {
-			return dialog.container.querySelector("input").value;
+		} else if (dialog.container.querySelector("input, select")) {
+			return dialog.container.querySelector("input, select").value;
 		}
 		
 		return null;
@@ -697,6 +697,8 @@ var ComboBox = {
 				} else {
 					this.$data.value = null;
 				}
+				
+				select.elm.value = this.$data.value;
 				this.$emit('input', this.$data.value);
 			});
 		});
