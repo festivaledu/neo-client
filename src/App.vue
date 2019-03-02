@@ -1,13 +1,10 @@
 <template>
-
     <div id="app">
         <router-view/>
     </div>
-
 </template>
 
 <style lang="less">
-
     #app {
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
@@ -39,5 +36,4 @@
 	.text-right {
 		text-align: right;
 	}
-
 </style>
