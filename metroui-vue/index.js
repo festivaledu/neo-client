@@ -790,9 +790,6 @@ var ListView = {
 						<p class="list-view-title">{this.$props.menuTitle}</p>
 						
 						{this.$slots["actions"]}
-						{/* <div class="list-view-action">
-							<i class="icon more" />
-						</div> */}
 					</div>
 
 					<div class="list-view-items">
@@ -1495,7 +1492,7 @@ var Slider = {
  */
 var ToggleSwitch = {
 	name: "metro-toggle-switch",
-	props: ["value", "onContent", "offContent"],
+	props: ["value", "itemHeader", "onContent", "offContent"],
 	data() {
 		return {
 			id: crypto.randomBytes(20).toString("hex"),
@@ -1507,6 +1504,9 @@ var ToggleSwitch = {
 	render(h) {
 		return (
 			<div class="toggle-switch">
+				{this.$props.itemHeader &&
+				<p class="item-header">{this.$props.itemHeader}</p>
+				}
 				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this._onChange} ref="input"></input>
 				<label for={this.$data.id}>
 					<p class="item-label" ref="itemLabel"></p>
