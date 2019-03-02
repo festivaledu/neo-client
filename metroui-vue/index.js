@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import Vue from "vue";
 
 /**
  * Helper methods to get the first and last objects in an array
@@ -321,17 +322,33 @@ metroUI.ContentDialog = class {
 			content.appendChild(title);
 		}
 		
-		if (_content.length) {
-			let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
-			if (parsedHTML.body.children.length) {
-				for (var i=0; i<parsedHTML.body.children.length; i++) {
-					content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		// if (_content.length) {
+		// 	let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+		// 	if (parsedHTML.body.children.length) {
+		// 		for (var i=0; i<parsedHTML.body.children.length; i++) {
+		// 			content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		// 		}
+		// 	} else {
+		// 		let contentText = document.createElement("p");
+		// 		contentText.innerHTML = _content;
+		// 		content.appendChild(contentText);
+		// 	}
+		// }
+		if (_content) {
+			const NodeConstructor = Vue.extend({
+				props: ['node'],
+				render(h, context) {
+					return this.node ? this.node : ''
 				}
-			} else {
-				let contentText = document.createElement("p");
-				contentText.innerHTML = _content;
-				content.appendChild(contentText);
+			});
+			
+			const nodeRenderer = new NodeConstructor({
+				propsData: {
+					node: _content
 			}
+			});
+			nodeRenderer.$mount();
+			content.appendChild(nodeRenderer.$el);
 		}
 		
 		if (buttons.length) {
