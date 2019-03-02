@@ -1,13 +1,10 @@
 <template>
-
     <div id="app">
         <router-view/>
     </div>
-
 </template>
 
 <style lang="less">
-
     #app {
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
@@ -39,5 +36,50 @@
 	.text-right {
 		text-align: right;
 	}
-
+	
+	/* Electron Additions */
+	html.electron {
+		background-image: none;
+		background-color: var(--alt-high);
+	
+	
+		body[data-theme="light"] {
+			.acrylic-80 {
+				background-color: darken(#FFF, 5%) !important;
+			}
+			.acrylic-70 {
+				background-color: darken(#FFF, 10%) !important;
+			}
+			.acrylic-60 {
+				background-color: darken(#FFF, 15%) !important;
+			}
+		}
+		
+		body[data-theme="dark"] {
+			.acrylic-80 {
+				background-color: lighten(#000, 5%) !important;
+			}
+			.acrylic-70 {
+				background-color: lighten(#000, 10%) !important;
+			}
+			.acrylic-60 {
+				background-color: lighten(#000, 15%) !important;
+			}
+		}
+		
+		button {
+			outline: none;
+		}
+	}
 </style>
+
+<script>
+export default {
+	name: "neo",
+	created() {
+		if (window && window.process && window.process.type) {
+			document.documentElement.classList.add("electron")
+		}
+	}
+}
+</script>
