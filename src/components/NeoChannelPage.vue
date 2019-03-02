@@ -101,7 +101,7 @@
 .page[data-page-id="channels"] {
 	.frame-header {
 		right: 320px;
-		background-color: #fff;
+		background-color: var(--alt-high);
 		
 		p.title {
 			font-size: 32px;
@@ -111,7 +111,7 @@
 	
 	.frame-content {
 		width: calc(~"100% - 320px");
-		background-color: #fff;
+		background-color: var(--alt-high);
 	}
 }
 

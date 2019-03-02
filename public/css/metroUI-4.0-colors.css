@@ -1,4 +1,27 @@
 body[data-theme="light"] {
+  --base-low: rgba(0, 0, 0, 0.2);
+  --base-medium-low: rgba(0, 0, 0, 0.4);
+  --base-medium: rgba(0, 0, 0, 0.6);
+  --base-medium-high: rgba(0, 0, 0, 0.8);
+  --base-high: #000000;
+  --alt-low: rgba(255, 255, 255, 0.2);
+  --alt-medium-low: rgba(255, 255, 255, 0.4);
+  --alt-medium: rgba(255, 255, 255, 0.6);
+  --alt-medium-high: rgba(255, 255, 255, 0.8);
+  --alt-high: #ffffff;
+  --list-low: rgba(0, 0, 0, 0.1);
+  --list-medium-low: rgba(0, 0, 0, 0.2);
+  --chrome-low: #F2F2F2;
+  --chrome-medium-low: #F2F2F2;
+  --chrome-medium: #E6E6E6;
+  --chrome-high: #CCCCCC;
+  --chrome-alt-low: #171717;
+  --chrome-disabled-low: #7A7A7A;
+  --chrome-disabled-high: #CCCCCC;
+  --chrome-black-low: rgba(0, 0, 0, 0.2);
+  --chrome-black-medium-low: rgba(0, 0, 0, 0.4);
+  --chrome-black-medium: rgba(0, 0, 0, 0.8);
+  --chrome-black-high: #000000;
   color: #000000;
 }
 body[data-theme="light"] a:hover:not(:active) {
@@ -366,6 +389,29 @@ body[data-theme="light"]:not(.touch) .content-dialog {
   background-color: #ffffff;
 }
 body[data-theme="dark"] {
+  --base-low: rgba(255, 255, 255, 0.2);
+  --base-medium-low: rgba(255, 255, 255, 0.4);
+  --base-medium: rgba(255, 255, 255, 0.6);
+  --base-medium-high: rgba(255, 255, 255, 0.8);
+  --base-high: #ffffff;
+  --alt-low: rgba(0, 0, 0, 0.2);
+  --alt-medium-low: rgba(0, 0, 0, 0.4);
+  --alt-medium: rgba(0, 0, 0, 0.6);
+  --alt-medium-high: rgba(0, 0, 0, 0.8);
+  --alt-high: #000000;
+  --list-low: rgba(255, 255, 255, 0.1);
+  --list-medium-low: rgba(255, 255, 255, 0.2);
+  --chrome-low: #171717;
+  --chrome-medium-low: #2B2B2B;
+  --chrome-medium: #1F1F1F;
+  --chrome-high: #767676;
+  --chrome-alt-low: #F2F2F2;
+  --chrome-disabled-low: #858585;
+  --chrome-disabled-high: #333333;
+  --chrome-black-low: rgba(0, 0, 0, 0.2);
+  --chrome-black-medium-low: rgba(0, 0, 0, 0.4);
+  --chrome-black-medium: rgba(0, 0, 0, 0.8);
+  --chrome-black-high: #000000;
   color: #ffffff;
 }
 body[data-theme="dark"] a:hover:not(:active) {
