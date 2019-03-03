@@ -464,10 +464,10 @@ var AccentColorSelector = {
 	methods: {
 		_selectAccent(e) {
 			if (document.body.getAttribute("data-accent") != e.target.getAttribute("data-accent")) {
-			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
-			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+				document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
+				this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+			}
 		}
-	}
 	}
 };
 
@@ -1426,11 +1426,15 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
-			this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
-			} else {
-				this.$data._initials = this.$props.displayName.slice(0,1);
-			}
+			let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
+			initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			
+			this.$data._initials = initials;
+			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
+			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
+			// } else {
+			// 	this.$data._initials = this.$props.displayName.slice(0,1);
+			// }
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}
