@@ -83,14 +83,16 @@
 </template>
 
 <style lang="less">
-input[type="email"],
-input[type="number"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="text"],
-input[type="url"] {
-	max-width: initial;
+.form-group {
+	input[type="email"],
+	input[type="number"],
+	input[type="password"],
+	input[type="search"],
+	input[type="tel"],
+	input[type="text"],
+	input[type="url"] {
+		max-width: initial;
+	}
 }
 
 @media all and (max-width: 576px) {
