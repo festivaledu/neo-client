@@ -26,6 +26,8 @@
 							
 							<!-- Pages provided by plugins -->
 							
+							<NeoProfilePage />
+							
 							<!-- The settings page is only available if the user is permitted -->
 							<NeoSettingsPage />
 						</template>
@@ -68,12 +70,14 @@ i.icon{
 <script>
 import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
+import NeoProfilePage from "@/components/NeoProfilePage"
 
 export default {
 	name: "Root",
 	components: {
 		NeoChannelPage,
-		NeoSettingsPage
+		NeoSettingsPage,
+		NeoProfilePage
 	},
 	data() {
 		return {
