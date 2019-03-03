@@ -463,9 +463,11 @@ var AccentColorSelector = {
 	},
 	methods: {
 		_selectAccent(e) {
+			if (document.body.getAttribute("data-accent") != e.target.getAttribute("data-accent")) {
 			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
 			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
 		}
+	}
 	}
 };
 
@@ -592,6 +594,43 @@ var AutoSuggestBox = {
 		}
 	}
 };
+
+/**
+ * 
+ */
+var BackgroundThemeSelector = {
+	name: "metro-background-theme-selector",
+	props: ["lightName", "darkName"],
+	render(h) {
+		return (
+			<div class="control-group">
+				<div class="radio">
+					<input type="radio" id="theme-light" data-theme="light" name="theme" ref="theme-light" onChange={this._selectTheme} />
+					<label for="theme-light">
+						<p class="item-label">{this.$props.lightName || "Light"}</p>
+					</label>
+				</div>
+				<div class="radio">
+					<input type="radio" id="theme-dark" data-theme="dark" name="theme" ref="theme-dark" onChange={this._selectTheme} />
+					<label for="theme-dark">
+						<p class="item-label">{this.$props.darkName || "Dark"}</p>
+					</label>
+				</div>
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs[`theme-${document.body.getAttribute("data-theme")}`].checked = true;
+	},
+	methods: {
+		_selectTheme(e) {
+			if (e.target.checked) {
+				document.body.setAttribute("data-theme", e.target.getAttribute("data-theme"));
+				this.$emit("themeSelect", e.target.getAttribute("data-theme"));
+			}
+		}
+	}
+}
 
 /**
  * A control that a user can select or clear.
@@ -1564,6 +1603,7 @@ export default {
 				[AccentColorSelector.name]: AccentColorSelector,
 				[AppBarButton.name]: AppBarButton,
 				[AutoSuggestBox.name]: AutoSuggestBox,
+				[BackgroundThemeSelector.name]: BackgroundThemeSelector,
 				[Checkbox.name]: Checkbox,
 				[ComboBox.name]: ComboBox,
 				[CommandBar.name]: CommandBar,
