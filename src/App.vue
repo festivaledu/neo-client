@@ -36,4 +36,12 @@
 	.text-right {
 		text-align: right;
 	}
+	
+	i.icon {
+		pointer-events: none;
+	}
+	
+	.list-view-item > * {
+		pointer-events: none;
+	}
 </style>
