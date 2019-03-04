@@ -22,13 +22,11 @@
 						
 						<!-- Pages stored in this navigation view -->
 						<template slot="pages">
-							<NeoChannelPage :channelData="channelData" :userData="userData" />
+							<NeoChannelPage />
 							
 							<!-- Pages provided by plugins -->
 							
 							<NeoProfilePage />
-							
-							<!-- The settings page is only available if the user is permitted -->
 							<NeoSettingsPage />
 						</template>
 					</metro-navigation-view>
@@ -68,7 +66,7 @@ i.icon{
 </style>
 
 <script>
-import NeoChannelPage from "@/components/NeoChannelPage"
+import NeoChannelPage from "@/components/NeoChannelPage2"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
@@ -82,16 +80,18 @@ export default {
 		NeoSettingsPage,
 		NeoProfilePage
 	},
-	data() {
-		return {
-			channelData: [],
-			userData: []
-		}
-	},
 	mounted() {
 		this.$refs["mainNavView"].navigate("channels");
 		
-		SocketService.$on("package", packageObj => {
+		SocketService.send({
+			type: PackageType.LoginFinished
+		});
+		
+		SocketService.$on("package", this.onPackage);
+	},
+	methods: {
+		onPackage(packageObj) {
+			console.log(packageObj);
 			switch (packageObj.type) {
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
@@ -101,11 +101,11 @@ export default {
 					break;
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
+					this.$forceUpdate();
 					break;
 				default: break;
 			}
-		});
-		
+		}
 	}
 }
 </script>
