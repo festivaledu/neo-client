@@ -441,7 +441,10 @@ metroUI.ContentDialog = class {
 
 
 /**
+ * Shows a contextual list of simple commands or options.
  * 
+ * @param {HTMLElement} element The element to attach the MenuFlyout to
+ * @param {Array} actions A list of actions
  */
 metroUI.MenuFlyout = class {
 	constructor(element, actions) {
@@ -459,7 +462,18 @@ metroUI.MenuFlyout = class {
 		actions.forEach((_action, index) => {
 			let action = document.createElement("div");
 			action.className = "menu-item";
-			action.innerHTML = _action.title;
+			
+			if (_action.icon) {
+				let icon = document.createElement("i");
+				icon.className = `icon ${_action.icon}`;
+				action.appendChild(icon);
+				
+				let title = document.createElement("span");
+				title.innerText = _action.title;
+				action.appendChild(title);
+			} else {
+				action.innerText = _action.title;
+			}
 			
 			if (_action.disabled) {
 				action.classList.add("disabled");
@@ -489,7 +503,7 @@ metroUI.MenuFlyout = class {
 	}
 	
 	/**
-	 * 
+	 * Shows the MenuFlyout where the target element is located
 	 */
 	show() {
 		const flyout = this;
@@ -500,14 +514,15 @@ metroUI.MenuFlyout = class {
 		let offset = cumulativeOffset(flyout.targetElement);
 		
 		if (offset.top - (height + 8) >= 0) {
-			flyout.container.style.top = `${offset.top - (height + 8)}px`;
+			flyout.container.style.bottom = `${window.innerHeight - (offset.top - 8)}px`;
+			flyout.container.classList.add("animate-bottom");
 		} else if (offset.top + (flyout.targetElement.clientHeight + 8) <= window.innerHeight) {
 			flyout.container.style.top = `${offset.top + (flyout.targetElement.clientHeight + 8)}px`;
+			flyout.container.classList.add("animate-bottom");
 		}
 		
 		flyout.container.style.left = `${Math.max(Math.min(window.innerWidth - width, (offset.left + (flyout.targetElement.clientWidth / 2)) - width / 2), 0)}px`;
 		
-		flyout.container.classList.add("animate-in");
 		setTimeout(() => {
 			flyout.container.style.maxHeight = `${height}px`;
 		}, 0);
@@ -518,7 +533,7 @@ metroUI.MenuFlyout = class {
 	}
 	
 	/**
-	 * 
+	 * Hides the flyout
 	 */
 	hide() {
 		const flyout = this;
