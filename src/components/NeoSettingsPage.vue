@@ -2,7 +2,7 @@
 	<div class="page" data-page-id="settings">
 		<metro-list-view class="fixed-width" acrylic="acrylic-80" menuTitle="Settings" ref="settingsView">
 			<template slot="actions">
-				<metro-list-view-action icon="add" @click.native="addGroup()" />
+				<metro-list-view-action icon="more" @click.native="moreButtonClicked" />
 			</template>
 			
 			<template slot="list-items">
@@ -190,6 +190,16 @@ export default {
 			if (result == 1) {
 				console.log(addGroupDialog.text);
 			}
+		},
+		moreButtonClicked(event) {
+			var flyout = new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Add Group",
+					icon: "add",
+					action: this.addGroup
+				}
+			]);
+			flyout.show();
 		}
 	}
 }

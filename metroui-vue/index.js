@@ -51,7 +51,7 @@ HTMLElement.prototype.parentNodeOfClass = function(className) {
 	var node = this.parentNode;
 	while (node) {
 		// console.log(node);
-		if (node.classList.contains(className)) {
+		if (node.classList && node.classList.contains(className)) {
 			return node;
 		}
 		node = node.parentNode
@@ -436,6 +436,98 @@ metroUI.ContentDialog = class {
 		}
 		
 		return null;
+	}
+}
+
+
+/**
+ * 
+ */
+metroUI.MenuFlyout = class {
+	constructor(element, actions) {
+		const flyout = this;
+		
+		flyout.targetElement = element;
+		
+		flyout.container = document.createElement("div");
+		flyout.container.className = "menu-flyout";
+		
+		flyout.itemList = document.createElement("div");
+		flyout.itemList.className = "menu-items";
+		flyout.container.appendChild(flyout.itemList);
+			
+		actions.forEach((_action, index) => {
+			let action = document.createElement("div");
+			action.className = "menu-item";
+			action.innerHTML = _action.title;
+			
+			if (_action.disabled) {
+				action.classList.add("disabled");
+			}
+			
+			action.addEventListener("click", () => {
+				if (typeof _action.action === "function") {
+				_action.action();
+				}
+				
+				flyout.hide();
+			});
+			
+			flyout.itemList.appendChild(action);
+		});
+	}
+	
+	_hide_internal(event) {
+		const flyout = this;
+		if (!event.target.parentNodeOfClass("menu-flyout")) {
+			event.preventDefault();
+			event.stopPropagation();
+			
+			flyout.hide();
+		}
+		//console.log(event.target.parentNodeOfClass(".menu-flyout"));
+	}
+	
+	/**
+	 * 
+	 */
+	show() {
+		const flyout = this;
+		document.body.appendChild(flyout.container);
+		
+		const width = flyout.container.clientWidth;
+		const height = flyout.container.clientHeight;
+		let offset = cumulativeOffset(flyout.targetElement);
+		
+		if (offset.top - (height + 8) >= 0) {
+			flyout.container.style.top = `${offset.top - (height + 8)}px`;
+		} else if (offset.top + (flyout.targetElement.clientHeight + 8) <= window.innerHeight) {
+			flyout.container.style.top = `${offset.top + (flyout.targetElement.clientHeight + 8)}px`;
+		}
+		
+		flyout.container.style.left = `${Math.max(Math.min(window.innerWidth - width, (offset.left + (flyout.targetElement.clientWidth / 2)) - width / 2), 0)}px`;
+		
+		flyout.container.classList.add("animate-in");
+		setTimeout(() => {
+			flyout.container.style.maxHeight = `${height}px`;
+		}, 0);
+		
+		flyout.eventListener = this._hide_internal.bind(flyout);
+		
+		document.addEventListener("click", flyout.eventListener, true);
+	}
+	
+	/**
+	 * 
+	 */
+	hide() {
+		const flyout = this;
+		
+		document.removeEventListener("click", flyout.eventListener, true);
+		flyout.container.classList.add("animate-out");
+		setTimeout(() => {
+			document.body.removeChild(flyout.container);
+		}, 400);
 	}
 }
 

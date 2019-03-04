@@ -32,7 +32,7 @@
 								<p>%group_name%</p>
 							</div>
 							
-							<div class="list-view-item double-line">
+							<div class="list-view-item double-line" @click.stop="userListItemClicked">
 								<div class="list-view-item-icon">
 									<metro-person-picture displayName="Test" />
 								</div>
@@ -147,6 +147,15 @@ export default {
 				text: text,
 				type: "sent"
 			});
+		},
+		userListItemClicked(event) {
+			var flyout = new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Send Private Message",
+					disabled: true
+				}
+			]);
+			flyout.show();
 		}
 	}
 }

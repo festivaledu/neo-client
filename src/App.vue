@@ -37,6 +37,14 @@
 		text-align: right;
 	}
 	
+	i.icon {
+		pointer-events: none;
+	}
+	
+	.list-view-item > * {
+		pointer-events: none;
+	}
+	
 	/* Electron Additions */
 	html.electron {
 		background-image: none;
