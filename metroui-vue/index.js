@@ -296,7 +296,7 @@ metroUI.Page = class {
 
 /**
  * The 'ContentDialog' class can be used as a replacement for
- * alert() and confirm(). prompt() is not supported
+ * alert(), confirm(). and prompt().
  * 
  * @param {String} _title The title of the of the dialog
  * @param {String} _content The message of the dialog
@@ -1533,10 +1533,11 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
-			initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			// this.$data._initials = this.$props.initials.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g).join('');
+			// let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
+			// initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
 			
-			this.$data._initials = initials;
+			// this.$data._initials = initials;
 			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
 			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
 			// } else {

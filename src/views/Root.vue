@@ -22,7 +22,7 @@
 						
 						<!-- Pages stored in this navigation view -->
 						<template slot="pages">
-							<NeoChannelPage :channelData="this.channels" />
+							<NeoChannelPage :channelData="channelData" :userData="userData" />
 							
 							<!-- Pages provided by plugins -->
 							
@@ -72,6 +72,9 @@ import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
 	name: "Root",
 	components: {
@@ -81,17 +84,28 @@ export default {
 	},
 	data() {
 		return {
-			channels: [
-				{
-					id: "%channel_name%",
-					status: "%status%",
-					channelArtwork: "https://via.placeholder.com/32x32"
-				}
-			]
+			channelData: [],
+			userData: []
 		}
 	},
 	mounted() {
 		this.$refs["mainNavView"].navigate("channels");
+		
+		SocketService.$on("package", packageObj => {
+			switch (packageObj.type) {
+				case PackageType.ChannelListUpdate:
+					this.$store.commit("setChannelList", packageObj.content);
+					break;
+				case PackageType.GroupListUpdate:
+					this.$store.commit("setGroupList", packageObj.content);
+					break;
+				case PackageType.UserListUpdate:
+					this.$store.commit("setUserList", packageObj.content);
+					break;
+				default: break;
+			}
+		});
+		
 	}
 }
 </script>

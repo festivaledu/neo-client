@@ -1,7 +1,6 @@
 <template>
 	<div class="acrylic acrylic-80">
-		<vue-headful title="Login Prototype" />
-		<!--<metro-messages ref="messages" @messageSent="Messages_MessageSent" />-->
+		<vue-headful title="neo – Login" />
 		<div class="container">
 			<div class="row justify-content-around">
 				<div class="col-md-4">
@@ -119,6 +118,7 @@
 
 <script>
 import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
 import { required } from 'vuelidate/lib/validators';
 
 export default {
@@ -126,7 +126,7 @@ export default {
 	data() {
 		return {
 			//serverAddress: location.hostname,
-			serverAddress: "192.168.0.106",
+			serverAddress: "192.168.0.16",
 			socket: null,
 			knownServers: JSON.parse(localStorage.getItem("known-servers")) || [],
 			
@@ -154,6 +154,12 @@ export default {
 	methods: {
 		onOpen() {
 			this.socket = SocketService.socket;
+			
+			console.log(this.knownServers.indexOf(this.serverAddress))
+			if (this.knownServers.indexOf(this.serverAddress) < 0) {
+				this.knownServers.push(this.serverAddress);
+				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
+			}
 			//this.status = "Connected";
 			//this.$refs["messages"].addSystemMessage("Connected")
 		},
@@ -163,12 +169,14 @@ export default {
 			//this.$refs["messages"].addSystemMessage("Disconnected")
 		},
 		onPackage(packageObj) {
+			console.log(`login: ${packageObj.type}`);
 			switch (packageObj.type) {
-				case 8:
+				case PackageType.LoginResponse:
 					if (packageObj.content.status == 0) {
 						this.isWorking = false;
+						
 						this.$store.commit("setIdentity", packageObj.content.identity);
-						this.$router.replace("/messages");
+						this.$router.replace("/");
 					}
 					break;
 				default: break;
@@ -181,6 +189,7 @@ export default {
 			}
 		},
 		connect() {
+			console.log(`trying to connect to ws://${this.serverAddress}:42420/neo`);
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
 		
@@ -190,7 +199,7 @@ export default {
 		connectAsGuest() {
 			this.isWorking = true;
 			SocketService.send({
-				type: 7,
+				type: PackageType.GuestLogin,
 				content: {
 					name: this.user.username
 				}

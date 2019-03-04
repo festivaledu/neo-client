@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1168.21_winkit_internal_dev.190304-0144)
+ * metroUI 4.0 (4.0.1168.26_winkit_internal_dev.190304-1301)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -4466,10 +4466,16 @@ input[type="url"][disabled]::placeholder {
 .list-view .list-view-menu .list-view-items .list-view-item .list-view-item-content .text-label,
 .list-view .list-view-menu .list-view-bottom-items .list-view-item .list-view-item-content .text-label {
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .list-view .list-view-menu .list-view-items .list-view-item .list-view-item-content .detail-text-label,
 .list-view .list-view-menu .list-view-bottom-items .list-view-item .list-view-item-content .detail-text-label {
   color: var(--base-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .list-view .list-view-menu .list-view-items .list-view-item .list-view-item-icon,
 .list-view .list-view-menu .list-view-bottom-items .list-view-item .list-view-item-icon {
@@ -4997,11 +5003,15 @@ input[type="url"][disabled]::placeholder {
 .messages-container .messages-wrapper .message {
   position: relative;
   display: flex;
+  min-width: 136px;
   max-width: 274px;
   margin-top: 22px;
 }
 .messages-container .messages-wrapper .message + .message:not(.message-first) {
   margin-top: 4px;
+}
+.messages-container .messages-wrapper .message .message-content {
+  width: 100%;
 }
 .messages-container .messages-wrapper .message .message-text {
   word-wrap: break-word;
@@ -5109,7 +5119,6 @@ input[type="url"][disabled]::placeholder {
 .menu-flyout {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   position: absolute;
   min-width: 136px;
   background-color: var(--chrome-medium-low);
