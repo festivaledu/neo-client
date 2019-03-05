@@ -22,13 +22,13 @@
 
 				<metro-list-view class="user-list" acrylic="acrylic-80" :key="userList.length">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
-						<div v-for="group in sortedGroupList" :key="group.internalId" :data-group-identifier="group.internalId">
+						<div v-for="group in sortedGroupList" :key="group.internalId + userList.length" :data-group-identifier="group.internalId">
 							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
 								<div class="list-view-item-separator">
 									<p>{{group.name}}</p>
 								</div>
 								
-								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.memberIds.includes(_)))" :key="index">
+								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.memberIds.includes(_)))" :key="index + userList.length">
 									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
 								</div>
 							</div>
@@ -133,7 +133,7 @@ export default {
 	mounted() {
 		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
-		this.$refs["channelView"].setMenuTitle("%server_name%");
+		this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 	},
 	methods: {
 		onPackage(packageObj) {
@@ -173,7 +173,9 @@ export default {
 		},
         sortMemberList(memberIds) {
             var sorted = memberIds.slice(0);
-            sorted.sort((a, b) => this.userList.find(_ => _.internalId == a).identity.name.localeCompare(this.userList.find(_ => _.internalId == b).identity.name));
+            sorted.sort((a, b) => {
+                return this.userList.find(_ => _.internalId == a).identity.name.localeCompare(this.userList.find(_ => _.internalId == b).identity.name);
+            });
             return sorted;
         },
 		userListItemClicked(event) {

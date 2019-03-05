@@ -48,11 +48,11 @@
 						</div>
 						
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Connect as guest</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !guestsAllowed">Connect as guest</button>
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
-							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket">Don't have an account yet?</router-link>
+							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket || !registrationAllowed">Don't have an account yet?</router-link>
 						</div>
 						<div class="col text-right" v-show="isWorking">
 							<div class="loading-indicator" />
@@ -65,11 +65,11 @@
 						</div>
 						
 						<div class="col col-12" v-show="!isWorking">
-							<button class="col-12" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Connect as guest</button>
+							<button class="col-12" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !guestsAllowed">Connect as guest</button>
 						</div>
 						
 						<div class="col col-12 mt-3 text-center" v-show="!isWorking">
-							<router-link class="d-block mt-2 p-0" to="/register" :disabled="!socket">Don't have an account yet?</router-link>
+							<router-link class="d-block mt-2 p-0" to="/register" :disabled="!socket || !registrationAllowed">Don't have an account yet?</router-link>
 						</div>
 						<div class="col col-12 text-center" v-show="isWorking">
 							<div class="loading-indicator" />
@@ -137,7 +137,9 @@ export default {
 			},
 			
 			isWorking: false,
-			authData: null
+            authData: null,
+            guestsAllowed: false,
+            registrationAllowed: false
 		}
 	},
 	validations: {
@@ -162,7 +164,11 @@ export default {
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-			}
+            }
+            
+            SocketService.send({
+                type: PackageType.Meta
+            });
 		},
 		onClose() {
 			this.socket = null;
@@ -173,6 +179,12 @@ export default {
             console.debug(packageObj.content);
 
 			switch (packageObj.type) {
+                case PackageType.MetaResponse:
+                    this.guestsAllowed = packageObj.content.guestsAllowed;
+                    this.registrationAllowed = packageObj.content.registrationAllowed;
+
+                    this.$store.commit("setServerName", packageObj.content.name);
+                    break;
 				case PackageType.LoginResponse:
                     this.isWorking = false;
                     

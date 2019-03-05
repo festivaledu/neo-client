@@ -4,7 +4,8 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-	state: {
+    state: {
+        serverName: "",
 		identity: null,
 		currentChannel: null,
 		channelList: [],
@@ -27,7 +28,10 @@ export default new Vuex.Store({
 		},
 		setGroupList(state, groupList) {
 			state.groupList = groupList;
-		},
+        },
+        setServerName(state, serverName) {
+            state.serverName = serverName;
+        },
 		setUserList(state, userList) {
 			state.userList = userList;
 		}
