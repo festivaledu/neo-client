@@ -1472,6 +1472,14 @@ var NavigationView = {
 		},
 		
 		/**
+		 * Set the title string next to the toggle button
+		 * @param {String} title The title to set. Can be empty
+		 */
+		setMenuTitle(title) {
+			this.$data._menuTitle = title;
+		},
+		
+		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
 		 * @param {String} query The CSS-like query to select
 		 */
