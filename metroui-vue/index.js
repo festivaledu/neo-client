@@ -951,11 +951,13 @@ var ListView = {
 		return (
 			<div class="list-view">
 				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+					{this.$props.menuTitle &&
 					<div class="list-view-header">
 						<p class="list-view-title">{this.$props.menuTitle}</p>
 						
 						{this.$slots["actions"]}
 					</div>
+					}
 
 					<div class="list-view-items">
 						{this.$slots["list-items"]}
@@ -983,16 +985,18 @@ var ListView = {
 		)
 	},
 	mounted() {
-		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-			if (page.hasAttribute("data-page-id")) {
-				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-					parentPage: this,
-					title: page.getAttribute("data-page-title")
-				});
-			}
-		});
-		
-		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		if (this.$refs["frameContent"] && this.$refs["frame"]) {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+			
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		}
 		
 		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
 			if (item.hasAttribute("data-page")) {
