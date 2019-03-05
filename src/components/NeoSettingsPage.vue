@@ -7,6 +7,7 @@
 			
 			<template slot="list-items">
 				<metro-list-view-menu-separator title="General" />
+				<metro-list-view-menu-item class="single-line" title="Info" page="info" />
 				<metro-list-view-menu-item class="single-line" title="Server" page="server_settings" />
 				
 				<metro-list-view-menu-separator title="Groups" />
@@ -14,6 +15,10 @@
 			</template>
 			
 			<template slot="pages">
+				<div class="page" data-page-id="info" data-page-title="Info">
+					<p class="metro-ui-version-string" />
+				</div>
+				
 				<div class="page" data-page-id="server_settings" data-page-title="Server">
 					<metro-toggle-switch itemHeader="%setting_name%" />
 				</div>
@@ -160,7 +165,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.$refs["settingsView"].navigate("server_settings");
+		this.$refs["settingsView"].navigate("info");
 	},
 	methods: {
 		async addGroup() {
