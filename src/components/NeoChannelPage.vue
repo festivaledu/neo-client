@@ -1,12 +1,11 @@
 <template>
 	<div class="page" data-page-id="channels">
-		<metro-navigation-view menuTitle="%server_name%" :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
+		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<!-- Render a list of available channels -->
-				<div class="navigation-view-item channel-list-item" :class="{'selected': ($store.state.currentChannel && channel.internalId === $store.state.currentChannel.internalId) || false}" v-for="(channel, index) in $store.state.channelList" :key="index" @click="enterChannel(channel.internalId)">
+				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" :key="index" @click="enterChannel(channel.internalId)">
 					<div class="navigation-view-item-inner">
 						<div class="navigation-view-item-icon">
-							<metro-person-picture :displayName="channel.name" :profilePicture="channel.channelArtwork" />
+							<metro-person-picture :displayName="channel.name" />
 						</div>
 						<p class="navigation-view-item-content">
 							<span class="text-label">{{channel.name}}</span>
@@ -17,53 +16,25 @@
 			</template>
 			
 			<template slot="pages">
-				<!-- One messages page to rule them all -->
 				<div class="page" data-page-id="messages" data-page-title="%channelName%">
-					<metro-messages ref="messageContainer" @messageSent="Messages_MessageSent" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
-				
-				<div class="list-view user-list acrylic acrylic-80">
-					<div class="list-view-menu">
-						<div class="list-view-items">
-							<!-- Render a list of groups and their members -->
-							<!-- <div class="list-view-item-separator">
-								<p>%group_name%</p>
-							</div> -->
-							
-							<!-- <div v-if="channelData.length && userData.length">
-								<div class="list-view-item double-line" v-for="(user, index) in channelData[0].memberIds" :key="index" @click.stop="userListItemClicked">
-									<div class="list-view-item-icon">
-										<metro-person-picture :displayName="userData.find(_ => _.internalId === user).identity.name" />
-									</div>
-									<p class="list-view-item-content">
-										<span class="text-label">{{userData.find(_ => _.internalId === user).identity.name}}</span>
-										<span class="detail-text-label">{{user}}</span>
-									</p>
-								</div>
-							</div> -->
-							<!-- <div v-if="$store.state.currentChannel && $store.state.userList.length">
-								<NeoChannelUserListItem v-for="(memberId, index) in $store.state.currentChannel.memberIds" :key="index" :memberId="memberId" />
-							</div> -->
-							<div v-for="(group, index) in $store.state.groupList" :key="index">
-								<p>{{group}}</p>
+
+				<metro-list-view class="user-list" acrylic="acrylic-80">
+					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
+						<div v-for="group in groupList" :key="group.internalId" :data-group-identifier="group.internalId">
+							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
 								<div class="list-view-item-separator">
 									<p>{{group.name}}</p>
 								</div>
 								
-								<NeoChannelUserListItem v-for="(memberId, index) in group.memberIds" :key="index" :memberId="memberId" />
-								<!-- <div class="list-view-item double-line" v-for="(user, index) in group.memberIds" :key="index" @click.stop="userListItemClicked">
-									<div class="list-view-item-icon">
-										<metro-person-picture :displayName="userData.find(_ => _.internalId === user).identity.name" />
-									</div>
-									<p class="list-view-item-content">
-										<span class="text-label">{{userData.find(_ => _.internalId === user).identity.name}}</span>
-										<span class="detail-text-label">{{user}}</span>
-									</p>
-								</div> -->
+								<div v-for="(memberId, index) in group.memberIds.filter(_ => currentChannel.memberIds.includes(_))" :key="index">
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
+					</template>
+				</metro-list-view>
 			</template>
 		</metro-navigation-view>
 	</div>
@@ -159,20 +130,16 @@ export default {
 	components: {
 		NeoChannelUserListItem
 	},
-	props: ["channelData", "userData"],
 	mounted() {
+		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
-		
-		SocketService.send({
-			type: PackageType.LoginFinished
-		});
-		
-		SocketService.$on("package", packageObj => {
-			// console.log(packageObj);
-			console.log(`NeoChanellPage: ${packageObj.type}`);
+	},
+	methods: {
+		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.EnterChannelResponse:
 					this.$store.commit("setCurrentChannel", packageObj.content);
+					this.$refs["channelView"].setTitle(this.currentChannel.name);
 					break;
 				case PackageType.Message:
 					// Message Object received
@@ -186,11 +153,9 @@ export default {
 					break;
 				default: break;
 			}
-		});
-	},
-	methods: {
+		},
 		enterChannel(channelId) {
-			if (this.$store.state.currentChannel.internalId === channelId) {
+			if (this.currentChannel.internalId === channelId) {
 				return;
 			}
 			
@@ -199,14 +164,7 @@ export default {
 				content: channelId
 			});
 		},
-		Messages_MessageSent(text) {
-			// this.$refs["messageContainer"].addMessage({
-			// 	author: "DDBE86A4-A9A5-4F5D-B134-48323636AB77",
-			// 	displayName: "unknown",
-			// 	date: new Date(),
-			// 	text: text,
-			// 	type: "sent"
-			// });
+		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,
 				content: text
@@ -221,6 +179,20 @@ export default {
 				}
 			]);
 			flyout.show();
+		}
+	},
+	computed: {
+		currentChannel() {
+			return this.$store.state.currentChannel;
+		},
+		channelList() {
+			return this.$store.state.channelList;
+		},
+		groupList() {
+			return this.$store.state.groupList;
+		},
+		userList() {
+			return this.$store.state.userList;
 		}
 	}
 }

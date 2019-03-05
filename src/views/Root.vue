@@ -66,7 +66,7 @@ i.icon{
 </style>
 
 <script>
-import NeoChannelPage from "@/components/NeoChannelPage2"
+import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
