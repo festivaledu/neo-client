@@ -174,7 +174,7 @@ export default {
 		userListItemClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
-					title: "Send Private Message",
+					title: "Private Nachricht",
 					icon: "chat-bubbles",
 					disabled: true
 				}
