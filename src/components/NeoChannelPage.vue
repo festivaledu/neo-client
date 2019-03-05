@@ -20,7 +20,7 @@
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
 
-				<metro-list-view class="user-list" acrylic="acrylic-80">
+				<metro-list-view class="user-list" acrylic="acrylic-80" :key="currentChannel.internalId + userList.length">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
 						<div v-for="group in groupList" :key="group.internalId" :data-group-identifier="group.internalId">
 							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
