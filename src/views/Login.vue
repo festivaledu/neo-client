@@ -120,6 +120,7 @@
 import { SocketService } from "@/scripts/SocketService";
 import PackageType from '@/scripts/PackageType';
 import { required } from 'vuelidate/lib/validators';
+import CryptoJS from "crypto-js";
 
 export default {
 	name: 'Login',
@@ -168,14 +169,51 @@ export default {
 			this.$router.replace("/");
 		},
 		onPackage(packageObj) {
+            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(packageObj.content);
+
 			switch (packageObj.type) {
 				case PackageType.LoginResponse:
-					if (packageObj.content.status == 0) {
-						this.isWorking = false;
-						
+                    this.isWorking = false;
+                    
+					if (packageObj.content.status == 0) {                        
+						// Login successful
 						this.$store.commit("setIdentity", packageObj.content.identity);
 						this.$router.replace("/");
-					}
+					} else if (packageObj.content.status == 1) {
+                        // Unknown user
+                        var unknowUserDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
+                            return (
+                                <div>
+                                    <p>Der angegebene Benutzer existiert nicht.</p>
+                                </div>
+                            );
+                        })(), [{ text: "Ok" }]);
+                        
+                        unknowUserDialog.showAsync();
+                    } else if (packageObj.content.status == 2) {
+                        // Incorrect password
+                        var incorrectPasswordDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
+                            return (
+                                <div>
+                                    <p>Das Passwort ist falsch.</p>
+                                </div>
+                            );
+                        })(), [{ text: "Ok" }]);
+                        
+                        incorrectPasswordDialog.showAsync();
+                    } else if (packageObj.content.status == 3) {
+                        // Unauthorized
+                        var unauthorizedDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
+                            return (
+                                <div>
+                                    <p>Du bist nicht berechtigt dich anzumelden.</p>
+                                </div>
+                            );
+                        })(), [{ text: "Ok" }]);
+                        
+                        unauthorizedDialog.showAsync();
+                    }
 					break;
 				default: break;
 			}
@@ -186,7 +224,14 @@ export default {
 		},
 		
 		login() {
-			this.isWorking = true;
+            this.isWorking = true;
+            SocketService.send({
+                type: PackageType.MemberLogin,
+                content: {
+                    user: this.user.username,
+                    password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
+                }
+            });
 		},
 		connectAsGuest() {
 			this.isWorking = true;

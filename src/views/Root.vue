@@ -91,7 +91,9 @@ export default {
 	},
 	methods: {
 		onPackage(packageObj) {
-			console.log(packageObj);
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(packageObj.content);
+            
 			switch (packageObj.type) {
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
