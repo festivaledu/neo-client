@@ -133,6 +133,7 @@ export default {
 	mounted() {
 		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
+		this.$refs["channelView"].setMenuTitle("%server_name%");
 	},
 	methods: {
 		onPackage(packageObj) {
