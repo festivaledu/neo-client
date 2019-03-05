@@ -13,53 +13,62 @@
 					</nav>
 					<hr>
 					
+					<div class="row mt-3 d-flex">
+						<div class="col progress-indicator-container" >
+							<div class="progress indeterminate" v-show="isConnecting || isWorking" />
+						</div>
+					</div>
+					
 					<form novalidate class="mb-5">
 						<div class="form-group">
-							<label>Server Address</label>
-							<metro-auto-suggest v-model="serverAddress" placeholder="127.0.0.1" :data="knownServers" :disabled="socket" @keyup.13="connect" />
+							<label>Server-Adresse</label>
+							<metro-auto-suggest v-model="serverAddress" placeholder="127.0.0.1" :data="knownServers" :disabled="isConnecting || socket" @keyup.13="connect" />
 						</div>
 						
-						<div class="row mt-3 d-none d-md-flex">
+						<div class="row mt-3 d-flex">
 							<div class="col col-auto">
-								<button class="btn btn-primary d-block" @click.prevent="connect()" :disabled="$v.serverAddress.$invalid || socket">Connect</button>
+								<button class="btn btn-primary d-block" @click.prevent="connect()" :disabled="$v.serverAddress.$invalid || isConnecting || socket">Verbinden</button>
+							</div>
+							<div class="col col-auto" v-if="isConnecting">
+								<p class="block-text">Verbinden...</p>
 							</div>
 						</div>
-						<div class="row mt-3 d-md-none">
+						<!-- <div class="row mt-3 d-md-none">
 							<div class="col col-12">
 								<button class="btn btn-primary d-block col-12" @click.prevent="connect()" :disabled="$v.serverAddress.$invalid || socket">Connect</button>
 							</div>
-						</div>
+						</div> -->
 					</form>
 					
 					<form novalidate>
 						<div class="form-group">
-							<label>Username or E-Mail</label>
-							<input type="text" placeholder="John Appleseed" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup.13="login">
+							<label>Benutzername oder E-Mail-Adresse</label>
+							<input type="text" placeholder="Max Mustermann" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup.13="login">
 						</div>
 						<div class="form-group">
-							<label for="login-password">Password</label>
-							<input type="password"  placeholder="Required" v-model="user.password" :disabled="!socket" @input="$v.user.password.$touch()" @keyup.13="login">
+							<label for="login-password">Passwort</label>
+							<input type="password" placeholder="Benötigt" v-model="user.password" :disabled="!socket" @input="$v.user.password.$touch()" @keyup.13="login">
 						</div>
 					</form>
 					
 					<div class="row mt-3 d-none d-md-flex">
 						<div class="col col-6 text-left">
-							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
+							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
 						</div>
 						
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Connect as guest</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking">Als Gast anmelden</button>
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
-							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket">Don't have an account yet?</router-link>
+							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket">Noch kein Account?</router-link>
 						</div>
 						<div class="col text-right" v-show="isWorking">
 							<div class="loading-indicator" />
 						</div>
 					</div>
 					
-					<div class="row mt-3 d-md-none">
+					<!-- <div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">
 							<button class="col-12" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
 						</div>
@@ -74,7 +83,7 @@
 						<div class="col col-12 text-center" v-show="isWorking">
 							<div class="loading-indicator" />
 						</div>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -82,6 +91,16 @@
 </template>
 
 <style lang="less">
+.progress-indicator-container {
+	position: relative;
+	height: 24px;
+	
+	.progress.indeterminate {
+		position: absolute;
+		left: 0;
+	}
+}
+
 .form-group {
 	input[type="email"],
 	input[type="number"],
@@ -92,6 +111,10 @@
 	input[type="url"] {
 		max-width: initial;
 	}
+}
+
+p.block-text {
+	line-height: 32px;
 }
 
 @media all and (max-width: 576px) {
@@ -135,7 +158,7 @@ export default {
 				username: "",
 				password: ""
 			},
-			
+			isConnecting: false,
 			isWorking: false,
 			authData: null
 		}
@@ -163,6 +186,8 @@ export default {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
 			}
+			
+			this.isConnecting = false;
 		},
 		onClose() {
 			this.socket = null;
@@ -220,6 +245,7 @@ export default {
 		},
 		
 		connect() {
+			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
 		

@@ -636,7 +636,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 				{this.$data.results.map(item => {
 					return (
@@ -678,6 +678,11 @@ var AutoSuggestBox = {
 				}
 			}, 20);
 		},
+		_onFocus() {
+			if (!this.$data._value.length) {
+				this.$refs["items"].classList.add("visible");
+			}
+		},
 		_windowClickHandler(e) {
 			if (!this.$el.contains(e.target)) {
 				this.$refs["items"].classList.remove("visible");
@@ -686,7 +691,13 @@ var AutoSuggestBox = {
 		_suggestItems() {
 			if (!this.$data._data) return;
 			
-			this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			if (this.$refs["input"].value.length) {
+				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			} else {
+				this.$data.results = this.$data._data;
+			}
+			
+			
 			if (this.$data.results.length) {
 				this.$refs["items"].classList.add("visible");
 			} else {
