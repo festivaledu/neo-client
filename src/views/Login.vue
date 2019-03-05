@@ -125,8 +125,8 @@ export default {
 	name: 'home',
 	data() {
 		return {
-			//serverAddress: location.hostname,
-			serverAddress: "192.168.0.16",
+			serverAddress: location.hostname,
+			//serverAddress: "192.168.0.16",
 			socket: null,
 			knownServers: JSON.parse(localStorage.getItem("known-servers")) || [],
 			
@@ -169,7 +169,7 @@ export default {
 			//this.$refs["messages"].addSystemMessage("Disconnected")
 		},
 		onPackage(packageObj) {
-			console.log(`login: ${packageObj.type}`);
+			//console.log(`login: ${packageObj.type}`);
 			switch (packageObj.type) {
 				case PackageType.LoginResponse:
 					if (packageObj.content.status == 0) {
