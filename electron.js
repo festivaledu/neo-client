@@ -5,6 +5,8 @@ const createElectronWindow = () => {
 	electronWindow = new BrowserWindow({
 		width: 1366,
 		height: 768,
+		minWidth: 1220,
+		minHeight: 686,
 		webPreferences: {
 			experimentalFeatures: true
 		}
