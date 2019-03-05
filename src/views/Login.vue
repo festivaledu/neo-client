@@ -190,7 +190,7 @@ export default {
                             );
                         })(), [{ text: "Ok" }]);
                         
-                        unknowUserDialog.showAsync();
+                        unknowUserDialog.show();
                     } else if (packageObj.content.status == 2) {
                         // Incorrect password
                         var incorrectPasswordDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
@@ -201,7 +201,7 @@ export default {
                             );
                         })(), [{ text: "Ok" }]);
                         
-                        incorrectPasswordDialog.showAsync();
+                        incorrectPasswordDialog.show();
                     } else if (packageObj.content.status == 3) {
                         // Unauthorized
                         var unauthorizedDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
@@ -212,7 +212,7 @@ export default {
                             );
                         })(), [{ text: "Ok" }]);
                         
-                        unauthorizedDialog.showAsync();
+                        unauthorizedDialog.show();
                     }
 					break;
 				default: break;
