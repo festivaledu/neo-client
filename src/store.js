@@ -19,11 +19,11 @@ export default new Vuex.Store({
 			state.currentChannel = channel;
 		},
 		setChannelList(state, channelList) {
-            state.channelList = channelList;
-            
-            if (state.currentChannel) {
-                state.currentChannel = channelList.find(channel => channel.internalId == state.currentChannel.internalId);
-            }
+			state.channelList = channelList;
+
+			if (state.currentChannel) {
+				state.currentChannel = channelList.find(channel => channel.internalId == state.currentChannel.internalId);
+			}
 		},
 		setGroupList(state, groupList) {
 			state.groupList = groupList;

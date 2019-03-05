@@ -19,15 +19,22 @@
 				<div class="page" data-page-id="messages" data-page-title="%channelName%">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
-				
-				<div class="list-view user-list acrylic acrylic-80">
-					<div class="list-view-menu">
-						<!-- {{currentChannel}} -->
-						<div class="list-view-items" v-if="currentChannel">
-							<NeoChannelUserListGroup v-for="(group, index) in groupList" :key="index" :group="group" />
+
+				<metro-list-view class="user-list" acrylic="acrylic-80">
+					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
+						<div v-for="group in groupList" :key="group.internalId" :data-group-identifier="group.internalId">
+							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
+								<div class="list-view-item-separator">
+									<p>{{group.name}}</p>
+								</div>
+								
+								<div v-for="(memberId, index) in group.memberIds.filter(_ => currentChannel.memberIds.includes(_))" :key="index">
+									<NeoChannelUserListItem :memberId="memberId" />
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
+					</template>
+				</metro-list-view>
 			</template>
 		</metro-navigation-view>
 	</div>
@@ -113,7 +120,7 @@
 </style>
 
 <script>
-import NeoChannelUserListGroup from "@/components/NeoChannelUserListGroup.vue"
+import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue"
 
 import { SocketService } from "@/scripts/SocketService";
 import PackageType from '@/scripts/PackageType';
@@ -121,10 +128,11 @@ import PackageType from '@/scripts/PackageType';
 export default {
 	name: "NeoChannelPage",
 	components: {
-		NeoChannelUserListGroup
+		NeoChannelUserListItem
 	},
 	mounted() {
 		SocketService.$on("package", this.onPackage);
+		this.$refs["channelView"].navigate("messages");
 	},
 	methods: {
 		onPackage(packageObj) {
@@ -149,6 +157,9 @@ export default {
 		},
 		groupList() {
 			return this.$store.state.groupList;
+		},
+		userList() {
+			return this.$store.state.userList;
 		}
 	}
 }
