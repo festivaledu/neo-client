@@ -21,7 +21,7 @@ export default {
 	},
 	mounted() {
 		this.user = this.userList.find(_ => _.internalId === this.memberId);
-		console.log(this.user);
+		//console.log(this.user);
 	},
 	updated() {
 

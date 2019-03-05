@@ -192,7 +192,7 @@ export default {
 			[{text: "Create Group", primary: true},{text: "Cancel"}]);
 			var result = await addGroupDialog.showAsync();
 			
-			if (result == 1) {
+			if (result == metroUI.ContentDialogResult.Primary) {
 				console.log(addGroupDialog.text);
 			}
 		},

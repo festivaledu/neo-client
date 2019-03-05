@@ -1,5 +1,6 @@
 <template>
 	<div class="views transparent">
+		<vue-headful title="neo" />
 		<div class="view" data-view-id="main-view">
 			<div class="pages">
 				<div class="page" data-page-id="root">
@@ -91,7 +92,7 @@ export default {
 	},
 	methods: {
 		onPackage(packageObj) {
-			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
             console.debug(packageObj.content);
             
 			switch (packageObj.type) {
