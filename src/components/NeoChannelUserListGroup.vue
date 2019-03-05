@@ -18,7 +18,7 @@ export default {
 	},
 	data() {
 		return {
-			memberIds: []
+			//memberIds: []
 		}
 	},
 	mounted() {
@@ -29,18 +29,29 @@ export default {
 
 	},
 	methods: {
-		buildUserList() {
-			this.currentChannel.memberIds.forEach(memberId => {
-				if (this.group.memberIds.indexOf(memberId) >= 0) {
-					this.memberIds.push(memberId);
-				}
-			});
-		}
+		// buildUserList() {
+		// 	this.currentChannel.memberIds.forEach(memberId => {
+		// 		if (this.group.memberIds.includes(memberId)) {
+		// 			this.memberIds.push(memberId);
+		// 		}
+		// 	});
+		// }
 	},
 	computed: {
 		currentChannel() {
 			return this.$store.state.currentChannel;
-		},
+        },
+        memberIds() {
+            let ids = [];
+            
+            this.currentChannel.memberIds.forEach(memberId => {
+				if (this.group.memberIds.includes(memberId)) {
+					ids.push(memberId);
+				}
+            });
+            
+            return ids;
+        },
 		userList() {
 			return this.$store.state.userList;
 		}
