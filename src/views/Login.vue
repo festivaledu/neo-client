@@ -16,7 +16,7 @@
 					<form novalidate class="mb-5">
 						<div class="form-group">
 							<label>Server Address</label>
-							<metro-auto-suggest v-model="serverAddress" placeholder="127.0.0.1" :data="knownServers" :disabled="socket" />
+							<metro-auto-suggest v-model="serverAddress" placeholder="127.0.0.1" :data="knownServers" :disabled="socket" @keyup.13="connect" />
 						</div>
 						
 						<div class="row mt-3 d-none d-md-flex">
@@ -34,11 +34,11 @@
 					<form novalidate>
 						<div class="form-group">
 							<label>Username or E-Mail</label>
-							<input type="text" placeholder="John Appleseed" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup="keyUp">
+							<input type="text" placeholder="John Appleseed" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup.13="login">
 						</div>
 						<div class="form-group">
 							<label for="login-password">Password</label>
-							<input type="password"  placeholder="Required" v-model="user.password" :disabled="!socket" @input="$v.user.password.$touch()" @keyup="keyUp">
+							<input type="password"  placeholder="Required" v-model="user.password" :disabled="!socket" @input="$v.user.password.$touch()" @keyup.13="login">
 						</div>
 					</form>
 					
@@ -122,11 +122,11 @@ import PackageType from '@/scripts/PackageType';
 import { required } from 'vuelidate/lib/validators';
 
 export default {
-	name: 'home',
+	name: 'Login',
 	data() {
 		return {
-			//serverAddress: location.hostname,
-			serverAddress: "192.168.0.16",
+			serverAddress: location.hostname,
+			// serverAddress: "192.168.0.16",
 			socket: null,
 			knownServers: JSON.parse(localStorage.getItem("known-servers")) || [],
 			
@@ -151,25 +151,23 @@ export default {
 		SocketService.$on("close", this.onClose);
 		SocketService.$on("package", this.onPackage);
 	},
+	beforeDestroy() {
+		SocketService.$off("package", this.onPackage);
+	},
 	methods: {
 		onOpen() {
 			this.socket = SocketService.socket;
 			
-			console.log(this.knownServers.indexOf(this.serverAddress))
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
 			}
-			//this.status = "Connected";
-			//this.$refs["messages"].addSystemMessage("Connected")
 		},
 		onClose() {
 			this.socket = null;
 			this.$router.replace("/");
-			//this.$refs["messages"].addSystemMessage("Disconnected")
 		},
 		onPackage(packageObj) {
-			console.log(`login: ${packageObj.type}`);
 			switch (packageObj.type) {
 				case PackageType.LoginResponse:
 					if (packageObj.content.status == 0) {
@@ -183,13 +181,7 @@ export default {
 			}
 		},
 		
-		keyUp(e) {
-			if (e.keyCode == 13 && !this.$v.user.$invalid) {
-				this.login();
-			}
-		},
 		connect() {
-			console.log(`trying to connect to ws://${this.serverAddress}:42420/neo`);
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
 		
