@@ -1,53 +1,40 @@
 <template>
 	<div class="page" data-page-id="channels">
-		<metro-navigation-view menuTitle="%server_name%" :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
+		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<!-- Render a list of available channels -->
-				<div class="navigation-view-item channel-list-item" :class="{'selected': true}" v-for="(channel, index) in channelData" :key="index">
+				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" :key="index" @click="enterChannel(channel.internalId)">
 					<div class="navigation-view-item-inner">
 						<div class="navigation-view-item-icon">
-							<metro-person-picture :profilePicture="channel.channelArtwork" />
+							<metro-person-picture :displayName="channel.name" />
 						</div>
 						<p class="navigation-view-item-content">
-							<span class="text-label">#{{channel.id}}</span>
-							<span class="detail-text-label">{{channel.status}}</span>
+							<span class="text-label">{{channel.name}}</span>
+							<span class="detail-text-label">{{channel.statusMessage}}</span>
 						</p>
 					</div>
 				</div>
 			</template>
 			
 			<template slot="pages">
-				<!-- One messages page to rule them all -->
-				<div class="page" data-page-id="messages" data-page-title="%channel_name%">
-					<metro-messages ref="messageContainer" @messageSent="Messages_MessageSent" />
-					
-					
+				<div class="page" data-page-id="messages" data-page-title="%channelName%">
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
-				
-				<div class="list-view user-list acrylic acrylic-80">
-					<div class="list-view-menu">
-						<div class="list-view-items">
-							<!-- Render a list of groups and their members -->
-							<div class="list-view-item-separator">
-								<p>%group_name%</p>
-							</div>
-							
-							<div class="list-view-item double-line" @click.stop="userListItemClicked">
-								<div class="list-view-item-icon">
-									<metro-person-picture displayName="Test" />
+
+				<metro-list-view class="user-list" acrylic="acrylic-80">
+					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
+						<div v-for="group in groupList" :key="group.internalId" :data-group-identifier="group.internalId">
+							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
+								<div class="list-view-item-separator">
+									<p>{{group.name}}</p>
 								</div>
-								<p class="list-view-item-content">
-									<span class="text-label">%username%</span>
-									<span class="detail-text-label">%status%</span>
-								</p>
+								
+								<div v-for="(memberId, index) in group.memberIds.filter(_ => currentChannel.memberIds.includes(_))" :key="index">
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
+								</div>
 							</div>
 						</div>
-					</div>
-					
-					<div class="frame">
-						
-					</div>
-				</div>
+					</template>
+				</metro-list-view>
 			</template>
 		</metro-navigation-view>
 	</div>
@@ -133,29 +120,79 @@
 </style>
 
 <script>
+import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue"
+
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
-	props: ["channelData"],
+	name: "NeoChannelPage",
+	components: {
+		NeoChannelUserListItem
+	},
 	mounted() {
+		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
 	},
 	methods: {
-		Messages_MessageSent(text) {
-			this.$refs["messageContainer"].addMessage({
-				author: "DDBE86A4-A9A5-4F5D-B134-48323636AB77",
-				displayName: "unknown",
-				date: new Date(),
-				text: text,
-				type: "sent"
+		onPackage(packageObj) {
+			switch (packageObj.type) {
+				case PackageType.EnterChannelResponse:
+					this.$store.commit("setCurrentChannel", packageObj.content);
+					this.$refs["channelView"].setTitle(this.currentChannel.name);
+					break;
+				case PackageType.Message:
+					// Message Object received
+					this.$refs["messageContainer"].addMessage({
+						author: packageObj.content.identity.id,
+						displayName: packageObj.content.identity.name,
+						date: new Date(packageObj.content.timestamp),
+						text: packageObj.content.message,
+						type: packageObj.content.messageType
+					});
+					break;
+				default: break;
+			}
+		},
+		enterChannel(channelId) {
+			if (this.currentChannel.internalId === channelId) {
+				return;
+			}
+			
+			SocketService.send({
+				type: PackageType.EnterChannel,
+				content: channelId
+			});
+		},
+		sendMessage(text) {
+			SocketService.send({
+				type: PackageType.Input,
+				content: text
 			});
 		},
 		userListItemClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Send Private Message",
+					icon: "chat-bubbles",
 					disabled: true
 				}
 			]);
 			flyout.show();
+		}
+	},
+	computed: {
+		currentChannel() {
+			return this.$store.state.currentChannel;
+		},
+		channelList() {
+			return this.$store.state.channelList;
+		},
+		groupList() {
+			return this.$store.state.groupList;
+		},
+		userList() {
+			return this.$store.state.userList;
 		}
 	}
 }

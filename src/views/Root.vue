@@ -22,13 +22,11 @@
 						
 						<!-- Pages stored in this navigation view -->
 						<template slot="pages">
-							<NeoChannelPage :channelData="this.channels" />
+							<NeoChannelPage />
 							
 							<!-- Pages provided by plugins -->
 							
 							<NeoProfilePage />
-							
-							<!-- The settings page is only available if the user is permitted -->
 							<NeoSettingsPage />
 						</template>
 					</metro-navigation-view>
@@ -72,6 +70,9 @@ import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
 	name: "Root",
 	components: {
@@ -79,19 +80,32 @@ export default {
 		NeoSettingsPage,
 		NeoProfilePage
 	},
-	data() {
-		return {
-			channels: [
-				{
-					id: "%channel_name%",
-					status: "%status%",
-					channelArtwork: "https://via.placeholder.com/32x32"
-				}
-			]
-		}
-	},
 	mounted() {
 		this.$refs["mainNavView"].navigate("channels");
+		
+		SocketService.send({
+			type: PackageType.LoginFinished
+		});
+		
+		SocketService.$on("package", this.onPackage);
+	},
+	methods: {
+		onPackage(packageObj) {
+			console.log(packageObj);
+			switch (packageObj.type) {
+				case PackageType.ChannelListUpdate:
+					this.$store.commit("setChannelList", packageObj.content);
+					break;
+				case PackageType.GroupListUpdate:
+					this.$store.commit("setGroupList", packageObj.content);
+					break;
+				case PackageType.UserListUpdate:
+					this.$store.commit("setUserList", packageObj.content);
+					this.$forceUpdate();
+					break;
+				default: break;
+			}
+		}
 	}
 }
 </script>

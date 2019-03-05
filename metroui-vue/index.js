@@ -296,7 +296,7 @@ metroUI.Page = class {
 
 /**
  * The 'ContentDialog' class can be used as a replacement for
- * alert() and confirm(). prompt() is not supported
+ * alert(), confirm(). and prompt().
  * 
  * @param {String} _title The title of the of the dialog
  * @param {String} _content The message of the dialog
@@ -441,7 +441,10 @@ metroUI.ContentDialog = class {
 
 
 /**
+ * Shows a contextual list of simple commands or options.
  * 
+ * @param {HTMLElement} element The element to attach the MenuFlyout to
+ * @param {Array} actions A list of actions
  */
 metroUI.MenuFlyout = class {
 	constructor(element, actions) {
@@ -459,7 +462,18 @@ metroUI.MenuFlyout = class {
 		actions.forEach((_action, index) => {
 			let action = document.createElement("div");
 			action.className = "menu-item";
-			action.innerHTML = _action.title;
+			
+			if (_action.icon) {
+				let icon = document.createElement("i");
+				icon.className = `icon ${_action.icon}`;
+				action.appendChild(icon);
+				
+				let title = document.createElement("span");
+				title.innerText = _action.title;
+				action.appendChild(title);
+			} else {
+				action.innerText = _action.title;
+			}
 			
 			if (_action.disabled) {
 				action.classList.add("disabled");
@@ -489,7 +503,7 @@ metroUI.MenuFlyout = class {
 	}
 	
 	/**
-	 * 
+	 * Shows the MenuFlyout where the target element is located
 	 */
 	show() {
 		const flyout = this;
@@ -500,14 +514,15 @@ metroUI.MenuFlyout = class {
 		let offset = cumulativeOffset(flyout.targetElement);
 		
 		if (offset.top - (height + 8) >= 0) {
-			flyout.container.style.top = `${offset.top - (height + 8)}px`;
+			flyout.container.style.bottom = `${window.innerHeight - (offset.top - 8)}px`;
+			flyout.container.classList.add("animate-bottom");
 		} else if (offset.top + (flyout.targetElement.clientHeight + 8) <= window.innerHeight) {
 			flyout.container.style.top = `${offset.top + (flyout.targetElement.clientHeight + 8)}px`;
+			flyout.container.classList.add("animate-bottom");
 		}
 		
 		flyout.container.style.left = `${Math.max(Math.min(window.innerWidth - width, (offset.left + (flyout.targetElement.clientWidth / 2)) - width / 2), 0)}px`;
 		
-		flyout.container.classList.add("animate-in");
 		setTimeout(() => {
 			flyout.container.style.maxHeight = `${height}px`;
 		}, 0);
@@ -518,7 +533,7 @@ metroUI.MenuFlyout = class {
 	}
 	
 	/**
-	 * 
+	 * Hides the flyout
 	 */
 	hide() {
 		const flyout = this;
@@ -936,11 +951,13 @@ var ListView = {
 		return (
 			<div class="list-view">
 				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+					{this.$props.menuTitle &&
 					<div class="list-view-header">
 						<p class="list-view-title">{this.$props.menuTitle}</p>
 						
 						{this.$slots["actions"]}
 					</div>
+					}
 
 					<div class="list-view-items">
 						{this.$slots["list-items"]}
@@ -968,16 +985,18 @@ var ListView = {
 		)
 	},
 	mounted() {
-		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-			if (page.hasAttribute("data-page-id")) {
-				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-					parentPage: this,
-					title: page.getAttribute("data-page-title")
-				});
-			}
-		});
-		
-		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		if (this.$refs["frameContent"] && this.$refs["frame"]) {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+			
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		}
 		
 		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
 			if (item.hasAttribute("data-page")) {
@@ -1518,10 +1537,11 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
-			initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			// this.$data._initials = this.$props.initials.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g).join('');
+			// let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
+			// initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
 			
-			this.$data._initials = initials;
+			// this.$data._initials = initials;
 			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
 			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
 			// } else {
