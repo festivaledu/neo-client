@@ -17,8 +17,8 @@
 						
 						<!-- Bottom navigation items -->
 						<template slot="bottom-items">
-							<metro-navigation-view-menu-item page="profile" icon="contact" title="Profile" />
-							<metro-navigation-view-menu-item page="settings" icon="settings" title="Settings" />
+							<metro-navigation-view-menu-item page="profile" icon="contact" title="Profil" />
+							<metro-navigation-view-menu-item page="settings" icon="settings" title="Einstellungen" />
 						</template>
 						
 						<!-- Pages stored in this navigation view -->

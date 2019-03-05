@@ -1,31 +1,37 @@
 <template>
 	<div class="page" data-page-id="profile">
-		<metro-navigation-view menuTitle="Profile Settings" :history="false" acrylic="acrylic-80" ref="profileSettingsView">
+		<metro-navigation-view menuTitle="Profil" :history="false" acrylic="acrylic-80" ref="profileSettingsView">
 			<template slot="navigation-items">
-				<metro-navigation-view-menu-item page="profile_general" icon="contact" title="General" />
-				<metro-navigation-view-menu-item page="profile_colors" icon="color" title="Colors" />
+				<metro-navigation-view-menu-item page="profile_general" icon="contact" title="Allgemein" />
+				<metro-navigation-view-menu-item page="profile_colors" icon="color" title="Farben" />
 			</template>
 			
 			<template slot="pages">
-				<div class="page" data-page-id="profile_general" data-page-title="General">
-					<h4>Profile Image</h4>
+				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
+					<h4>Profilbild</h4>
 					<metro-person-picture displayName="Sniper_GER" />
-					<button>Set Profile Image</button>
+					<button disabled>Profilbild wählen</button>
 					
-					<h4>Username</h4>
-					<input type="text" placeholder="Username" value="Sniper_GER" />
+					<h4>Account-Informationen</h4>
+					<p>Benutzername: %username%</p>
+					<p>Benutzer-ID: %userId%</p>
+					<p>E-Mail-Adresse: %userId%</p>
+					
 					<div class="control-group">
-					<button disabled>Save Username</button>
-					<button @click="this.changePassword">Change Password</button>
+						<button @click="this.changeUsername">Benutzernamen ändern</button>
+						<button @click="this.changeEmail">E-Mail-Adresse ändern</button>
+						<button @click="this.changePassword">Passwort ändern</button>
 					</div>
 				</div>
 				
-				<div class="page" data-page-id="profile_colors" data-page-title="Colors">
-					<h4>Accent Color</h4>
+				<div class="page" data-page-id="profile_colors" data-page-title="Farben">
+					<p>Deine Farbeinstellungen werden mit dem Server synchronisiert und stehen dir beim Anmelden wieder zur Verfügung.</p>
+					<br />
+					<h4>Akzentfarbe</h4>
 					<metro-accent-color-selector />
 					
-					<h4>Background Mode</h4>
-					<metro-background-theme-selector/>
+					<h4>App-Modus</h4>
+					<metro-background-theme-selector lightName="Hell" darkName="Dunkel"/>
 				</div>
 			</template>
 		</metro-navigation-view>
@@ -51,6 +57,10 @@
 			padding: 22px 0 28px;
 		}
 	}
+	
+	.control-group {
+		margin-top: 30px;
+	}
 }
 </style>
 
@@ -61,26 +71,82 @@ export default {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 	},
 	methods: {
-		async changePassword() {
-			var changePasswordDialog = new metroUI.ContentDialog("Change your password",
-			(() => {
+		async changeUsername() {
+			var changeUsernameDialog = new metroUI.ContentDialog("Benutzernamen ändern", (() => {
 				return (
 					<div>
-						<p>Enter your current password:</p>
-						<input type="password" />
-						
-						<p>Enter your new password:</p>
-						<input type="password" />
-						
-						<p>Confirm your new password:</p>
-						<input type="password" />
+						<p>Hier kannst du deinen Benutzernamen ändern.</p>
+						<br />
+						<p>Bitte beachte, dass du dich nach erfolgreichem Ändern deines Benutzernamens erneut anmelden musst.</p>
+						<br />
+						<input type="Text" placeholder="Neuer Benutzername" />
 					</div>
 				)
 			})(),
-			[{text: "Ok", primary: true},{text: "Cancel"}]);
+			[
+				{
+					text: "Ok",
+					primary: true
+				},
+				{
+					text: "Abbrechen"
+				}
+			]);
+			var result = await changeUsernameDialog.showAsync();
+			
+			if (result == metroUI.ContentDialogResult.Primary) {
+				console.log(changeUsernameDialog.text);
+			}
+		},
+		async changeEmail() {
+			var changeEmailDialog = new metroUI.ContentDialog("E-Mail-Adresse ändern", (() => {
+				return (
+					<div>
+						<p>Hier kannst du deine E-Mail-Adresse ändern.</p>
+						<br />
+						<input type="email" placeholder="Neue E-Mail-Adresse" />
+					</div>
+				)
+			})(),
+			[
+				{
+					text: "Ok",
+					primary: true
+				},
+				{
+					text: "Abbrechen"
+				}
+			]);
+			var result = await changeEmailDialog.showAsync();
+			
+			if (result == metroUI.ContentDialogResult.Primary) {
+				console.log(changeEmailDialog.text);
+			}
+		},
+		async changePassword() {
+			var changePasswordDialog = new metroUI.ContentDialog("Passwort ändern", (() => {
+				return (
+					<div>
+						<p>Hier kannst du dein Passwort ändern.</p>
+						<br />
+						<input type="password" placeholder="Derzeitiges Passwort" />
+						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" />
+						<input type="password" placeholder="Passwort bestätigen" />
+					</div>
+				)
+			})(),
+			[
+				{
+					text: "Ok",
+					primary: true
+				},
+				{
+					text: "Abbrechen"
+				}
+			]);
 			var result = await changePasswordDialog.showAsync();
 			
-			if (result == 1) {
+			if (result == metroUI.ContentDialogResult.Primary) {
 				console.log(changePasswordDialog.text);
 			}
 		}
