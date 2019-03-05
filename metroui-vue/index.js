@@ -60,15 +60,6 @@ HTMLElement.prototype.parentNodeOfClass = function(className) {
 	return null;
 }
 
-/**
- * Enum containing possible ContentDialogResult values
- */
-let ContentDialogResult = {
-	None: 0,
-	Primary: 1,
-	Secondary: 2
-};
-
 
 
 /**
@@ -295,6 +286,15 @@ metroUI.Page = class {
 }
 
 /**
+ * Enum containing possible ContentDialogResult values
+ */
+metroUI.ContentDialogResult = {
+	None: 0,
+	Primary: 1,
+	Secondary: 2
+};
+
+/**
  * The 'ContentDialog' class can be used as a replacement for
  * alert(), confirm(). and prompt().
  * 
@@ -366,11 +366,11 @@ metroUI.ContentDialog = class {
 					if (dialog._promiseResolve) {
 						//dialog._promise.resolve(1);
 						if (_button.primary) {
-							dialog._promiseResolve(ContentDialogResult.Primary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Primary);
 						} else if (index == buttons.length - 1) {
-							dialog._promiseResolve(ContentDialogResult.None);
+							dialog._promiseResolve(metroUI.ContentDialogResult.None);
 						} else {
-							dialog._promiseResolve(ContentDialogResult.Secondary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
 						}
 					}
 					
@@ -380,6 +380,18 @@ metroUI.ContentDialog = class {
 				commands.appendChild(button);
 			});
 		}
+	}
+	
+	/**
+	 * Shows a dialog if no result is expected
+	 */
+	show() {
+		const dialog = this;
+		if (!document.querySelector("div.content-dialog-background")) {
+			document.body.appendChild(dialog.background);
+		}
+		
+		document.body.appendChild(dialog.container);
 	}
 	
 	/**
