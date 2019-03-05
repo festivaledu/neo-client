@@ -44,4 +44,19 @@
 	.list-view-item > * {
 		pointer-events: none;
 	}
+	
+	.content-dialog {
+		.content {
+			input[type="email"], 
+			input[type="number"], 
+			input[type="password"], 
+			input[type="search"], 
+			input[type="tel"], 
+			input[type="text"], 
+			input[type="url"],
+			.list {
+				max-width: initial;
+			}
+		}
+	}
 </style>

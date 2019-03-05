@@ -1,49 +1,49 @@
 <template>
 	<div class="page" data-page-id="settings">
-		<metro-list-view class="fixed-width" acrylic="acrylic-80" menuTitle="Settings" ref="settingsView">
+		<metro-list-view class="fixed-width" acrylic="acrylic-80" menuTitle="Einstellungen" ref="settingsView">
 			<template slot="actions">
 				<metro-list-view-action icon="more" @click.native="moreButtonClicked" />
 			</template>
 			
 			<template slot="list-items">
-				<metro-list-view-menu-separator title="General" />
-				<metro-list-view-menu-item class="single-line" title="Info" page="info" />
-				<metro-list-view-menu-item class="single-line" title="Server" page="server_settings" />
+				<metro-list-view-menu-separator title="Allgemein" />
+				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
+				<metro-list-view-menu-item class="single-line" title="Server-Einstellungen" page="server_settings" />
 				
-				<metro-list-view-menu-separator title="Groups" />
+				<metro-list-view-menu-separator title="Gruppen" />
 				<metro-list-view-menu-item class="single-line" title="%group_name%" page="group_settings" />
 			</template>
 			
 			<template slot="pages">
-				<div class="page" data-page-id="info" data-page-title="Info">
+				<div class="page" data-page-id="info" data-page-title="Über">
 					<p class="metro-ui-version-string" />
 				</div>
 				
-				<div class="page" data-page-id="server_settings" data-page-title="Server">
+				<div class="page" data-page-id="server_settings" data-page-title="Server-Einstellungen">
 					<metro-toggle-switch itemHeader="%setting_name%" />
 				</div>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
-					<h3>Actions</h3>
-					<button>Delete Group</button>
+					<!-- Insert label to show which group this group inherits from -->
+					<button @click="deleteGroup">Gruppe löschen</button>
 					
-					<h3>Permissions</h3>
+					<h3>Berechtigungen</h3>
 					<div class="row">
 						<div class="col col-6"></div>
 						<div class="col col-2 text-center">
-							<h5>Granted</h5>
+							<h5>Gestattet</h5>
 						</div>
 						<div class="col col-2 text-center">
-							<h5>Inherited</h5>
+							<h5>Geerbt</h5>
 						</div>
 						<div class="col col-2 text-center">
-							<h5>Denied</h5>
+							<h5>Verweigert</h5>
 						</div>
 					</div>
 					
 					<div class="row">
 						<div class="col col-6">
-							<p class="text-label">Read Messages</p>
+							<p class="text-label">Nachrichten lesen</p>
 							<p class="detail-text-label">neo.global.read</p>
 						</div>
 						<div class="col col-2 text-center">
@@ -68,17 +68,17 @@
 					
 					<p>{{demoPermission}}</p>
 					
-					<h3>Plugin Permissions</h3>
+					<h3>Plugin-Berechtigungen</h3>
 					<div class="row">
 						<div class="col col-6"></div>
 						<div class="col col-2 text-center">
-							<h5>Granted</h5>
+							<h5>Gestattet</h5>
 						</div>
 						<div class="col col-2 text-center">
-							<h5>Inherited</h5>
+							<h5>Geerbt</h5>
 						</div>
 						<div class="col col-2 text-center">
-							<h5>Denied</h5>
+							<h5>Verweigert</h5>
 						</div>
 					</div>
 					
@@ -125,7 +125,7 @@
 		}
 	}
 	
-	h3:not(:first-of-type) {
+	h3:not(:first-child) {
 		margin-top: 30px;
 	}
 	
@@ -169,14 +169,13 @@ export default {
 	},
 	methods: {
 		async addGroup() {
-			var addGroupDialog = new metroUI.ContentDialog("Add a new Group",
+			var addGroupDialog = new metroUI.ContentDialog("Neue Gruppe erstellen",
 			(() => {
 				return (
 					<div>
-						<p>Enter the name of the new group:</p>
-						<input type="text" />
+						<input type="text" placeholder="Name der neuen Gruppe"/>
 						
-						<p>Select a group to inherit from:</p>
+						<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
 						<metro-combo-box>
 							<select>
 								{[{id:"id",name:"%group_name%"}].map(item => {
@@ -189,7 +188,15 @@ export default {
 					</div>
 				)
 			})(),
-			[{text: "Create Group", primary: true},{text: "Cancel"}]);
+			[
+				{
+					text: "Abbrechen"
+				},
+				{
+					text: "Gruppe erstellen",
+					primary: true
+				}
+			]);
 			var result = await addGroupDialog.showAsync();
 			
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -199,12 +206,35 @@ export default {
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
-					title: "Add Group",
+					title: "Neue Gruupe",
 					icon: "add",
 					action: this.addGroup
 				}
 			]);
 			flyout.show();
+		},
+		async deleteGroup() {
+			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen", 
+			(() => {
+				return (
+					<div>
+						<p>Bist du sicher, dass du diese Gruppe löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+						<br />
+						<p>Benutzer in dieser Gruppe werden in die voherige Gruppe verschoben.</p>
+					</div>
+				)
+			})(), 
+			[
+				{
+					text: "Abbrechen"
+				},
+				{
+					text: "Löschen",
+					primary: true
+				}
+			]);
+			
+			var result = await deleteGroupDialog.showAsync();
 		}
 	}
 }
