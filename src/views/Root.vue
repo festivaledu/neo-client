@@ -1,5 +1,6 @@
 <template>
 	<div class="views transparent">
+		<vue-headful title="neo" />
 		<div class="view" data-view-id="main-view">
 			<div class="pages">
 				<div class="page" data-page-id="root">
