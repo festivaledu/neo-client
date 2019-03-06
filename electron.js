@@ -14,7 +14,7 @@ const createElectronWindow = () => {
 	
 	electronWindow.loadFile("./dist/index.html");
 	
-	if (process.env.NODE_ENV !== "production") {
+	if (process.env.npm_config_dev !== undefined) {
 		electronWindow.webContents.openDevTools();
 	}
 	
