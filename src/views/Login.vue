@@ -57,11 +57,11 @@
 						</div>
 						
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !guestsAllowed">Als Gast anmelden</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
-							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket || registrationAllowed">Noch kein Account?</router-link>
+							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
 						<div class="col text-right" v-show="isWorking">
 							<div class="loading-indicator" />
@@ -162,8 +162,10 @@ export default {
 			isConnecting: false,
 			isWorking: false,
             authData: null,
+			serverMetadata: {
             guestsAllowed: false,
             registrationAllowed: false
+		}
 		}
 	},
 	validations: {
@@ -206,8 +208,10 @@ export default {
 
 			switch (packageObj.type) {
                 case PackageType.MetaResponse:
-                    this.guestsAllowed = packageObj.content.guestsAllowed;
-                    this.registrationAllowed = packageObj.content.registrationAllowed;
+					Object.assign(this.serverMetadata, {
+						guestsAllowed: packageObj.content.guestsAllowed,
+						registrationAllowed: packageObj.content.registrationAllowed
+					});
 
                     this.$store.commit("setServerName", packageObj.content.name);
                     break;
