@@ -9,7 +9,8 @@
     "build": "vue-cli-service build",
 	"electron": "vue-cli-service build && electron .",
 	
-	"build-osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune true --out=build"
+	"build-osx": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build",
+	"build-win": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build --version-string.CompanyName=\"FESIVAL Development\" --version-string.ProductName=\"neo\""
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
