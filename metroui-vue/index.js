@@ -1022,7 +1022,7 @@ var ListView = {
 			</div>
 		)
 	},
-	mounted() {
+	updated() {
 		if (this.$refs["frameContent"] && this.$refs["frame"]) {
 			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
 				if (page.hasAttribute("data-page-id")) {
@@ -1105,7 +1105,7 @@ var ListView = {
 				this.$refs["frameTitle"].innerText = "";
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
-		},
+        },
 		
 		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container

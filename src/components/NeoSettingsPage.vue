@@ -11,7 +11,12 @@
 				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings" />
 				
 				<metro-list-view-menu-separator title="Gruppen" />
-				<metro-list-view-menu-item class="single-line" title="%group_name%" page="group_settings" />
+                
+                <template v-for="group in this.sortedGroupList">
+				    <metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
+                </template>
+				
+                <metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" />
 			</template>
 			
 			<template slot="pages">
@@ -36,6 +41,12 @@
 					
                     <button @click="saveSettings('server')">Einstellungen speichern</button>
 				</div>
+
+                <template v-for="group in this.sortedGroupList">
+                    <div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
+                        {{ group }}
+                    </div>
+                </template>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
 					<!-- Insert label to show which group this group inherits from -->
@@ -291,6 +302,11 @@ export default {
 			
 			var result = await deleteGroupDialog.showAsync();
 		}
-	}
+    },
+    computed: {
+        sortedGroupList() {
+            return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
+        }
+    }
 }
 </script>
