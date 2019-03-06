@@ -106,5 +106,6 @@ typings/
 #DynamoDB Local files 
 .dynamodb/ 
 
-# Vue/Electron build directory
+# Vue/Electron build directories
 dist/
+build/
