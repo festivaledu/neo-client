@@ -23,12 +23,12 @@
 				<metro-list-view class="user-list" acrylic="acrylic-80" :key="userList.length">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
 						<div v-for="group in sortedGroupList" :key="group.internalId + userList.length" :data-group-identifier="group.internalId">
-							<div v-if="group.memberIds.some(_ => currentChannel.memberIds.includes(_) )">
+							<div v-if="group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)).length">
 								<div class="list-view-item-separator">
 									<p>{{group.name}}</p>
 								</div>
 								
-								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.memberIds.includes(_)))" :key="index + userList.length">
+								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index + userList.length">
 									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
 								</div>
 							</div>
@@ -172,11 +172,12 @@ export default {
 			});
 		},
         sortMemberList(memberIds) {
-            var sorted = memberIds.slice(0);
-            sorted.sort((a, b) => {
-                return this.userList.find(_ => _.internalId == a).identity.name.localeCompare(this.userList.find(_ => _.internalId == b).identity.name);
-            });
-            return sorted;
+			return memberIds.slice(0).sort((a, b) => {
+				if (a && b) {
+					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
+				}
+				return 0;
+			});
         },
 		userListItemClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
@@ -200,9 +201,7 @@ export default {
 			return this.$store.state.groupList;
         },
         sortedGroupList() {
-            var sorted = this.groupList.slice(0);
-            sorted.sort((a, b) => b.sortValue - a.sortValue);
-            return sorted;
+            return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
         },
 		userList() {
 			return this.$store.state.userList;
