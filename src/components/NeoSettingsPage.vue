@@ -20,7 +20,20 @@
 				</div>
 				
 				<div class="page" data-page-id="server_settings" data-page-title="Server-Einstellungen">
-					<metro-toggle-switch itemHeader="%setting_name%" />
+                    
+                    <template v-for="(value, key, index) in settingsModel">
+                        <div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
+                            <template v-if="typeof(value) == 'boolean'">
+                                <metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
+                            </template>
+
+                            <template v-if="typeof(value) == 'string' || typeof(value) == 'number'">
+                                <p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
+                                <input type="text" v-model="settingsModel[key]" :key="index + key" />
+                            </template>
+                        </div>
+                    </template>
+                    
 				</div>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
@@ -164,7 +177,9 @@ export default {
 	data() {
 		return {
 			demoPermission: "inherit",
-			demoPermission2: "deny"
+            demoPermission2: "deny",
+            settingsModel: {},
+            settingsTitles: {}
 		}
 	},
 	mounted() {
@@ -224,6 +239,8 @@ export default {
             
 			switch (packageObj.type) {
                 case PackageType.OpenSettingsResponse:
+                    this.settingsModel = packageObj.content.model;
+                    this.settingsTitles = packageObj.content.titles;
                     break;
 				default: break;
 			}
