@@ -335,7 +335,7 @@ metroUI.ContentDialog = class {
 		// 	}
 		// }
 		if (_content) {
-			if (_content.constructor.name == "VNode") {
+			if (typeof _content === "object") {
 			const NodeConstructor = Vue.extend({
 				props: ['node'],
 				render(h, context) {
