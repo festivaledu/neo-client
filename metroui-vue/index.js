@@ -680,7 +680,7 @@ var AutoSuggestBox = {
 		},
 		_onFocus() {
 			if (!this.$data._value.length) {
-				this.$refs["items"].classList.add("visible");
+				this._suggestItems();
 			}
 		},
 		_windowClickHandler(e) {
