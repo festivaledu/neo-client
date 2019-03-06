@@ -227,7 +227,7 @@ export default {
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
-					title: "Neue Gruupe",
+					title: "Neue Gruppe",
 					icon: "add",
 					action: this.addGroup
 				}
