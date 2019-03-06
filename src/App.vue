@@ -23,7 +23,7 @@
 	}
 	
 	html {
-		background: url(https://images.pexels.com/photos/443446/pexels-photo-443446.jpeg?cs=srgb&dl=baume-berge-draussen-443446.jpg&fm=jpg) no-repeat center center fixed;
+		background: url(/img/neo-background.jpg) no-repeat center center fixed;
 		background-size: cover;
 	}
 	
@@ -43,6 +43,21 @@
 	
 	.list-view-item > * {
 		pointer-events: none;
+	}
+	
+	.content-dialog {
+		.content {
+			input[type="email"], 
+			input[type="number"], 
+			input[type="password"], 
+			input[type="search"], 
+			input[type="tel"], 
+			input[type="text"], 
+			input[type="url"],
+			.list {
+				max-width: initial;
+			}
+		}
 	}
 	
 	/* Electron Additions */

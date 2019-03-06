@@ -1,5 +1,6 @@
 <template>
 	<div class="views transparent">
+		<vue-headful title="neo" />
 		<div class="view" data-view-id="main-view">
 			<div class="pages">
 				<div class="page" data-page-id="root">
@@ -16,8 +17,8 @@
 						
 						<!-- Bottom navigation items -->
 						<template slot="bottom-items">
-							<metro-navigation-view-menu-item page="profile" icon="contact" title="Profile" />
-							<metro-navigation-view-menu-item page="settings" icon="settings" title="Settings" />
+							<metro-navigation-view-menu-item page="profile" icon="contact" title="Profil" />
+							<metro-navigation-view-menu-item page="settings" icon="settings" title="Einstellungen" />
 						</template>
 						
 						<!-- Pages stored in this navigation view -->
@@ -91,7 +92,9 @@ export default {
 	},
 	methods: {
 		onPackage(packageObj) {
-			console.log(packageObj);
+            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(packageObj.content);
+            
 			switch (packageObj.type) {
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);

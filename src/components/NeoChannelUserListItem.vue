@@ -5,7 +5,7 @@
 		</div>
 		<p class="list-view-item-content">
 			<span class="text-label">{{user.identity.name}}</span>
-			<span class="detail-text-label">{{user.internalId}}</span>
+			<span class="detail-text-label">@{{user.identity.id}}</span>
 		</p>
 	</div>
 </template>
@@ -21,7 +21,7 @@ export default {
 	},
 	mounted() {
 		this.user = this.userList.find(_ => _.internalId === this.memberId);
-		console.log(this.user);
+		//console.log(this.user);
 	},
 	updated() {
 

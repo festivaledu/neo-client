@@ -60,15 +60,6 @@ HTMLElement.prototype.parentNodeOfClass = function(className) {
 	return null;
 }
 
-/**
- * Enum containing possible ContentDialogResult values
- */
-let ContentDialogResult = {
-	None: 0,
-	Primary: 1,
-	Secondary: 2
-};
-
 
 
 /**
@@ -295,6 +286,15 @@ metroUI.Page = class {
 }
 
 /**
+ * Enum containing possible ContentDialogResult values
+ */
+metroUI.ContentDialogResult = {
+	None: 0,
+	Primary: 1,
+	Secondary: 2
+};
+
+/**
  * The 'ContentDialog' class can be used as a replacement for
  * alert(), confirm(). and prompt().
  * 
@@ -366,11 +366,11 @@ metroUI.ContentDialog = class {
 					if (dialog._promiseResolve) {
 						//dialog._promise.resolve(1);
 						if (_button.primary) {
-							dialog._promiseResolve(ContentDialogResult.Primary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Primary);
 						} else if (index == buttons.length - 1) {
-							dialog._promiseResolve(ContentDialogResult.None);
+							dialog._promiseResolve(metroUI.ContentDialogResult.None);
 						} else {
-							dialog._promiseResolve(ContentDialogResult.Secondary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
 						}
 					}
 					
@@ -380,6 +380,18 @@ metroUI.ContentDialog = class {
 				commands.appendChild(button);
 			});
 		}
+	}
+	
+	/**
+	 * Shows a dialog if no result is expected
+	 */
+	show() {
+		const dialog = this;
+		if (!document.querySelector("div.content-dialog-background")) {
+			document.body.appendChild(dialog.background);
+		}
+		
+		document.body.appendChild(dialog.container);
 	}
 	
 	/**
@@ -624,7 +636,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 				{this.$data.results.map(item => {
 					return (
@@ -666,6 +678,11 @@ var AutoSuggestBox = {
 				}
 			}, 20);
 		},
+		_onFocus() {
+			if (!this.$data._value.length) {
+				this.$refs["items"].classList.add("visible");
+			}
+		},
 		_windowClickHandler(e) {
 			if (!this.$el.contains(e.target)) {
 				this.$refs["items"].classList.remove("visible");
@@ -674,7 +691,13 @@ var AutoSuggestBox = {
 		_suggestItems() {
 			if (!this.$data._data) return;
 			
-			this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			if (this.$refs["input"].value.length) {
+				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			} else {
+				this.$data.results = this.$data._data;
+			}
+			
+			
 			if (this.$data.results.length) {
 				this.$refs["items"].classList.add("visible");
 			} else {
@@ -1457,6 +1480,14 @@ var NavigationView = {
 				this.$refs["frameTitle"].innerText = "";
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
+		},
+		
+		/**
+		 * Set the title string next to the toggle button
+		 * @param {String} title The title to set. Can be empty
+		 */
+		setMenuTitle(title) {
+			this.$data._menuTitle = title;
 		},
 		
 		/**
