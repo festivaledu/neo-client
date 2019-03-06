@@ -138,6 +138,10 @@ export default {
 	methods: {
 		onPackage(packageObj) {
 			switch (packageObj.type) {
+                case PackageType.MetaResponse:                    
+                    this.$store.commit("setServerName", packageObj.content.name);
+		            this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
+                    break;
 				case PackageType.EnterChannelResponse:
 					this.$store.commit("setCurrentChannel", packageObj.content);
 					this.$refs["channelView"].setTitle(this.currentChannel.name);

@@ -599,7 +599,7 @@ var AccentColorSelector = {
 		_selectAccent(e) {
 			if (document.body.getAttribute("data-accent") != e.target.getAttribute("data-accent")) {
 				document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
-				this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+				this.$emit("accent-select", e.target.getAttribute("data-accent"));
 			}
 		}
 	}
@@ -771,7 +771,7 @@ var BackgroundThemeSelector = {
 		_selectTheme(e) {
 			if (e.target.checked) {
 				document.body.setAttribute("data-theme", e.target.getAttribute("data-theme"));
-				this.$emit("themeSelect", e.target.getAttribute("data-theme"));
+				this.$emit("theme-select", e.target.getAttribute("data-theme"));
 			}
 		}
 	}
@@ -1022,7 +1022,7 @@ var ListView = {
 			</div>
 		)
 	},
-	mounted() {
+	updated() {
 		if (this.$refs["frameContent"] && this.$refs["frame"]) {
 			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
 				if (page.hasAttribute("data-page-id")) {
@@ -1105,7 +1105,7 @@ var ListView = {
 				this.$refs["frameTitle"].innerText = "";
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
-		},
+        },
 		
 		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
