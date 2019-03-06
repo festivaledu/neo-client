@@ -29,7 +29,7 @@
 								</div>
 								
 								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index + userList.length">
-									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked"/>
 								</div>
 							</div>
 						</div>
@@ -183,7 +183,15 @@ export default {
 				return 0;
 			});
         },
-		userListItemClicked(event) {
+		userListItemClicked(memberId) {
+			let user = this.userList.find(_ => _.internalId === memberId);
+
+			if (user && user.identity.id.localeCompare(this.currentIdentity.id) != 0) {
+				this.$refs["messageContainer"].$refs["input"].value += `@${user.identity.id} `;
+				this.$refs["messageContainer"].$refs["input"].focus();
+			}
+		},
+		userListItemContextClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
@@ -195,6 +203,9 @@ export default {
 		}
 	},
 	computed: {
+		currentIdentity() {
+			return this.$store.state.identity;
+		},
 		currentChannel() {
 			return this.$store.state.currentChannel;
 		},

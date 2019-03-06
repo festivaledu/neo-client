@@ -322,18 +322,6 @@ metroUI.ContentDialog = class {
 			content.appendChild(title);
 		}
 		
-		// if (_content.length) {
-		// 	let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
-		// 	if (parsedHTML.body.children.length) {
-		// 		for (var i=0; i<parsedHTML.body.children.length; i++) {
-		// 			content.appendChild(parsedHTML.body.children[i].cloneNode(true));
-		// 		}
-		// 	} else {
-		// 		let contentText = document.createElement("p");
-		// 		contentText.innerHTML = _content;
-		// 		content.appendChild(contentText);
-		// 	}
-		// }
 		if (_content) {
 			if (typeof _content === "object") {
 			const NodeConstructor = Vue.extend({
@@ -1216,7 +1204,7 @@ var Messages = {
 				
 				<div class="messages-input">
 					<button class="emoji-selector" disabled><i class="icon emoji2"></i></button>
-					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} />
+					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} ref="input" />
 					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
 				</div>
 			</div>
