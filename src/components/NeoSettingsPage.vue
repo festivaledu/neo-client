@@ -34,7 +34,7 @@
                         </div>
                     </template>
 					
-                    <button @click="saveSettings">Einstellungen speichern</button>
+                    <button @click="saveSettings('server')">Einstellungen speichern</button>
 				</div>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
@@ -252,7 +252,15 @@ export default {
                 content: settings
             });
 		},
-		saveSettings() {
+		saveSettings(settings) {
+            SocketService.send({
+                type: PackageType.EditSettings,
+                content: {
+                    scope: settings,
+                    model: this.settingsModel
+                }
+            });
+
 			new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
 				{
 					text: "Ok",
