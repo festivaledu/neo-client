@@ -61,7 +61,7 @@
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
-							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || serverMetadata.registrationAllowed">Noch kein Account?</a>
+							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
 						<div class="col text-right" v-show="isWorking">
 							<div class="loading-indicator" />
