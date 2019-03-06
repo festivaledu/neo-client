@@ -33,7 +33,8 @@
                             </template>
                         </div>
                     </template>
-                    
+					
+                    <button @click="saveSettings">Einstellungen speichern</button>
 				</div>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
@@ -250,7 +251,15 @@ export default {
                 type: PackageType.OpenSettings,
                 content: settings
             });
-        },
+		},
+		saveSettings() {
+			new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
+				{
+					text: "Ok",
+					primary: true
+				}
+			]).show();
+		},
 		async deleteGroup() {
 			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen", 
 			(() => {
