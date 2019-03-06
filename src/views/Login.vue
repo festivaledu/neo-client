@@ -207,7 +207,7 @@ export default {
 		},
 		onClose() {
 			this.socket = null;
-			this.$router.replace("/");
+			this.$router.replace("/login");
 		},
 		onPackage(packageObj) {
             console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
