@@ -9,13 +9,13 @@
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
-					<metro-person-picture displayName="Sniper_GER" />
-					<button disabled>Profilbild wählen</button>
+					<metro-person-picture :displayName="currentIdentity.name" />
+					<button :disabled="!currentAccount">Profilbild wählen</button>
 					
 					<h4>Account-Informationen</h4>
 					<p>Benutzername: {{currentIdentity.name}}</p>
 					<p>Benutzer-ID: {{currentIdentity.id}}</p>
-					<p v-if="false">E-Mail-Adresse: {{currentIdentity.id}}</p>
+					<p v-if="currentAccount">E-Mail-Adresse: {{currentAccount.email}}</p>
 					
 					<div class="control-group">
 						<button @click="this.showEditAccountFlyout">Account bearbeiten</button>
@@ -78,17 +78,17 @@ export default {
 				{
 					title: "Benutzer-ID ändern",
 					action: this.changeUserId,
-					disabled: this.currentIdentity.id.startsWith("Guest-")
+					disabled: this.currentAccount === null
 				},
 				{
 					title: "E-Mail-Adresse ändern",
 					action: this.changeEmail,
-					disabled: this.currentIdentity.id.startsWith("Guest-")
+					disabled: this.currentAccount === null
 				},
 				{
 					title: "Passwort ändern",
 					action: this.changePassword,
-					disabled: this.currentIdentity.id.startsWith("Guest-")
+					disabled: this.currentAccount === null
 				},
 			]).show();
 		},
@@ -119,7 +119,7 @@ export default {
 			var changeUserIdDialog = new metroUI.ContentDialog("Benutzer-ID ändern", (() => {
 				return (
 					<div>
-						<input type="Text" placeholder="Neuer Benutzer-ID" />
+						<input type="Text" placeholder="Neue Benutzer-ID" />
 					</div>
 				)
 			})(),
@@ -188,6 +188,9 @@ export default {
 		}
 	},
 	computed: {
+		currentAccount() {
+			return this.$store.state.currentAccount;
+		},
 		currentIdentity() {
 			return this.$store.state.identity;
 		}

@@ -227,6 +227,7 @@ export default {
 					
 					switch (packageObj.content.status) {
 						case 0:
+							this.$store.commit("setCurrentAccount", packageObj.content.account);
 							this.$store.commit("setIdentity", packageObj.content.identity);
 							this.$router.replace("/");
 							break;
