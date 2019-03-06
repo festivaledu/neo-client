@@ -335,6 +335,7 @@ metroUI.ContentDialog = class {
 		// 	}
 		// }
 		if (_content) {
+			if (_content.constructor.name == "VNode") {
 			const NodeConstructor = Vue.extend({
 				props: ['node'],
 				render(h, context) {
@@ -349,6 +350,18 @@ metroUI.ContentDialog = class {
 			});
 			nodeRenderer.$mount();
 			content.appendChild(nodeRenderer.$el);
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		}
+				} else {
+					let contentText = document.createElement("p");
+					contentText.innerHTML = _content;
+					content.appendChild(contentText);
+				}
+			}
 		}
 		
 		if (buttons.length) {
@@ -389,6 +402,8 @@ metroUI.ContentDialog = class {
 		const dialog = this;
 		if (!document.querySelector("div.content-dialog-background")) {
 			document.body.appendChild(dialog.background);
+		} else {
+			document.querySelector(".content-dialog-background").classList.remove("animate-out");
 		}
 		
 		document.body.appendChild(dialog.container);
