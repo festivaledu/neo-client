@@ -335,6 +335,7 @@ metroUI.ContentDialog = class {
 		// 	}
 		// }
 		if (_content) {
+			if (_content.constructor.name == "VNode") {
 			const NodeConstructor = Vue.extend({
 				props: ['node'],
 				render(h, context) {
@@ -349,6 +350,18 @@ metroUI.ContentDialog = class {
 			});
 			nodeRenderer.$mount();
 			content.appendChild(nodeRenderer.$el);
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		}
+				} else {
+					let contentText = document.createElement("p");
+					contentText.innerHTML = _content;
+					content.appendChild(contentText);
+				}
+			}
 		}
 		
 		if (buttons.length) {
@@ -389,6 +402,8 @@ metroUI.ContentDialog = class {
 		const dialog = this;
 		if (!document.querySelector("div.content-dialog-background")) {
 			document.body.appendChild(dialog.background);
+		} else {
+			document.querySelector(".content-dialog-background").classList.remove("animate-out");
 		}
 		
 		document.body.appendChild(dialog.container);
@@ -1568,16 +1583,14 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			// this.$data._initials = this.$props.initials.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g).join('');
-			// let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
-			// initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
 			
-			// this.$data._initials = initials;
-			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
-			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
-			// } else {
-			// 	this.$data._initials = this.$props.displayName.slice(0,1);
-			// }
+			if (initials.length > 1) {
+				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
+			} else if (initials.length) {
+				this.$data._initials = initials[0];
+			}
+			
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}

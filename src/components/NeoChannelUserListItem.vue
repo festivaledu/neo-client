@@ -1,7 +1,7 @@
 <template>
 	<div class="list-view-item double-line" v-if="user">
 		<div class="list-view-item-icon">
-			<metro-person-picture :displayName="null" />
+			<metro-person-picture :displayName="user.identity.name" />
 		</div>
 		<p class="list-view-item-content">
 			<span class="text-label">{{user.identity.name}}</span>
@@ -9,6 +9,15 @@
 		</p>
 	</div>
 </template>
+
+<style lang="less">
+.list-view-item .person-picture p.initials {
+	line-height: 15px !important;
+	font-size: 24px !important;
+	padding: 16px 0 !important;
+}
+</style>
+
 
 <script>
 export default {

@@ -60,9 +60,9 @@
 				}
 				
 				.initials {
-					font-size: 20px;
-					line-height: 32px;
-					padding: 0;
+					font-size: 16px;
+					line-height: 14px;
+					padding: 9px 0;
 				}
 			}
 		}

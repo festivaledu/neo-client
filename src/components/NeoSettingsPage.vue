@@ -8,7 +8,7 @@
 			<template slot="list-items">
 				<metro-list-view-menu-separator title="Allgemein" />
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
-				<metro-list-view-menu-item class="single-line" title="Server-Einstellungen" page="server_settings" />
+				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings" />
 				
 				<metro-list-view-menu-separator title="Gruppen" />
 				<metro-list-view-menu-item class="single-line" title="%group_name%" page="group_settings" />
@@ -20,7 +20,21 @@
 				</div>
 				
 				<div class="page" data-page-id="server_settings" data-page-title="Server-Einstellungen">
-					<metro-toggle-switch itemHeader="%setting_name%" />
+                    
+                    <template v-for="(value, key, index) in settingsModel">
+                        <div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
+                            <template v-if="typeof(value) == 'boolean'">
+                                <metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
+                            </template>
+
+                            <template v-if="typeof(value) == 'string' || typeof(value) == 'number'">
+                                <p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
+                                <input type="text" v-model="settingsModel[key]" :key="index + key" />
+                            </template>
+                        </div>
+                    </template>
+					
+                    <button @click="saveSettings">Einstellungen speichern</button>
 				</div>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
@@ -156,16 +170,23 @@
 <script>
 import Vue from "vue";
 
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
 	name: "NeoSettingsPage",
 	data() {
 		return {
 			demoPermission: "inherit",
-			demoPermission2: "deny"
+            demoPermission2: "deny",
+            settingsModel: {},
+            settingsTitles: {}
 		}
 	},
 	mounted() {
-		this.$refs["settingsView"].navigate("info");
+        this.$refs["settingsView"].navigate("info");        
+        
+		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		async addGroup() {
@@ -206,12 +227,38 @@ export default {
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
-					title: "Neue Gruupe",
+					title: "Neue Gruppe",
 					icon: "add",
 					action: this.addGroup
 				}
 			]);
 			flyout.show();
+        },
+        onPackage(packageObj) {
+            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(packageObj.content);
+            
+			switch (packageObj.type) {
+                case PackageType.OpenSettingsResponse:
+                    this.settingsModel = packageObj.content.model;
+                    this.settingsTitles = packageObj.content.titles;
+                    break;
+				default: break;
+			}
+        },
+        openSettings(settings) {
+            SocketService.send({
+                type: PackageType.OpenSettings,
+                content: settings
+            });
+		},
+		saveSettings() {
+			new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
+				{
+					text: "Ok",
+					primary: true
+				}
+			]).show();
 		},
 		async deleteGroup() {
 			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen", 

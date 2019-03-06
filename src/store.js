@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        serverName: "",
+		serverName: "",
+		currentAccount: null,
 		identity: null,
 		currentChannel: null,
 		channelList: [],
@@ -13,6 +14,9 @@ export default new Vuex.Store({
 		userList: []
 	},
 	mutations: {
+		setCurrentAccount(state, account) {
+			state.currentAccount = account;
+		},
 		setIdentity(state, identity) {
 			state.identity = identity;
 		},

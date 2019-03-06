@@ -57,11 +57,11 @@
 						</div>
 						
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !guestsAllowed">Als Gast anmelden</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 						
 						<div class="col text-right" v-show="!isWorking">
-							<router-link class="d-inline-block mt-2 p-0" to="/register" :disabled="!socket || registrationAllowed">Noch kein Account?</router-link>
+							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
 						<div class="col text-right" v-show="isWorking">
 							<div class="loading-indicator" />
@@ -161,9 +161,18 @@ export default {
 			},
 			isConnecting: false,
 			isWorking: false,
-            authData: null,
-            guestsAllowed: false,
-            registrationAllowed: false
+			authData: null,
+			registerData: {
+				username: "",
+				userId: "",
+				email: "",
+				password: "",
+				passwordConfirm: ""
+			},
+			serverMetadata: {
+            	guestsAllowed: false,
+				registrationAllowed: false
+			}
 		}
 	},
 	validations: {
@@ -205,53 +214,64 @@ export default {
             console.debug(packageObj.content);
 
 			switch (packageObj.type) {
-                case PackageType.MetaResponse:
-                    this.guestsAllowed = packageObj.content.guestsAllowed;
-                    this.registrationAllowed = packageObj.content.registrationAllowed;
+				case PackageType.MetaResponse:
+					Object.assign(this.serverMetadata, {
+						guestsAllowed: packageObj.content.guestsAllowed,
+						registrationAllowed: packageObj.content.registrationAllowed
+					});
 
                     this.$store.commit("setServerName", packageObj.content.name);
                     break;
 				case PackageType.LoginResponse:
                     this.isWorking = false;
-                    
-					if (packageObj.content.status == 0) {                        
-						// Login successful
-						this.$store.commit("setIdentity", packageObj.content.identity);
-						this.$router.replace("/");
-					} else if (packageObj.content.status == 1) {
-                        // Unknown user
-                        var unknowUserDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Der angegebene Benutzer existiert nicht.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        unknowUserDialog.show();
-                    } else if (packageObj.content.status == 2) {
-                        // Incorrect password
-                        var incorrectPasswordDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Das Passwort ist falsch.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        incorrectPasswordDialog.show();
-                    } else if (packageObj.content.status == 3) {
-                        // Unauthorized
-                        var unauthorizedDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Du bist nicht berechtigt dich anzumelden.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        unauthorizedDialog.show();
-                    }
+					
+					switch (packageObj.content.status) {
+						case 0:
+							this.$store.commit("setCurrentAccount", packageObj.content.account);
+							this.$store.commit("setIdentity", packageObj.content.identity);
+							this.$router.replace("/");
+							break;
+						case 1:
+						case 2:
+						case 3:
+							new metroUI.ContentDialog("Anmeldefehler", (() => {
+								return (
+									<div>
+										{(() => {
+											switch (packageObj.content.status) {
+												case 1:
+													return <p>Der angegebene Benutzer existiert nicht.</p>;
+												case 2:
+													return <p>Das Passwort ist falsch.</p>;
+												case 3:
+													return <p>Du bist nicht berechtigt dich anzumelden.</p>;
+												default: return null
+											}
+										})()}
+									</div>
+								)
+							})(), [{ text: "Ok" }]).show();
+							break;
+						case 4:
+						case 5:
+							new metroUI.ContentDialog("Registrierungsfehler", (() => {
+								return (
+									<div>
+										{(() => {
+											switch (packageObj.content.status) {
+												case 4:
+													return <p>Die angegebene Benutzer-ID wird bereits verwendet.</p>;
+												case 5:
+													return <p>Der angegebene Benutzername wird bereits verwendet.</p>;
+												default: return null
+											}
+										})()}
+									</div>
+								)
+							})(), [{ text: "Ok" }]).show();
+							break;
+						default: break;
+					}
 					break;
 				default: break;
 			}
@@ -271,6 +291,73 @@ export default {
                     password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
                 }
             });
+		},
+		async register() {
+			var registerDialog = new metroUI.ContentDialog("Registrieren", (() => {
+				return (
+					<div>
+						<input type="text" placeholder="Benutzername" />
+						<input type="text" placeholder="Benutzer-ID" />
+						<input type="email" placeholder="E-Mail-Adresse" />
+						<input type="password" placeholder="Passwort (min. 8 Zeichen)" />
+						<input type="password" placeholder="Passwort bestätigen" />
+					</div>
+				)
+			})(), 
+			[
+				{
+					text: "Abbrechen"
+				},
+				{
+					text: "Ok",
+					primary: true
+				}
+			]);
+			
+			var result = await registerDialog.showAsync();
+
+			if (result == metroUI.ContentDialogResult.Primary) {
+				let texts = registerDialog.text;
+				for (var i = 0; i < texts.length; i++) {
+					if (!texts[i].length) {
+						new metroUI.ContentDialog("Fehler", "Du musst alle Felder ausfüllen, um dich zu registieren.", [
+							{
+								text: "Ok",
+								primary: true
+							}
+						]).show();
+						return;
+					}
+				}
+				
+				if (texts[3].length < 8) {
+					new metroUI.ContentDialog("Fehler", "Das Passwort muss mindestens 8 Zeichen lang sein.", [
+						{
+							text: "Ok",
+							primary: true
+						}
+					]).show();
+					return;
+				} else if (texts[3].localeCompare(texts[4]) != 0) {
+					new metroUI.ContentDialog("Fehler", "Die angegeben Passwörter stimmen nicht überein.", [
+						{
+							text: "Ok",
+							primary: true
+						}
+					]).show();
+				}
+				
+				this.isWorking = true;
+				SocketService.send({
+					type: PackageType.Register,
+					content: {
+						name: texts[0],
+						id: texts[1],
+						email: texts[2],
+						password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(texts[3]))
+					}
+				});
+			}
 		},
 		connectAsGuest() {
 			this.isWorking = true;

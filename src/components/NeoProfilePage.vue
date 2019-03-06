@@ -9,18 +9,16 @@
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
-					<metro-person-picture displayName="Sniper_GER" />
-					<button disabled>Profilbild wählen</button>
+					<metro-person-picture :displayName="currentIdentity.name" />
+					<button :disabled="!currentAccount">Profilbild wählen</button>
 					
 					<h4>Account-Informationen</h4>
-					<p>Benutzername: %username%</p>
-					<p>Benutzer-ID: %userId%</p>
-					<p>E-Mail-Adresse: %userId%</p>
+					<p>Benutzername: {{currentIdentity.name}}</p>
+					<p>Benutzer-ID: {{currentIdentity.id}}</p>
+					<p v-if="currentAccount">E-Mail-Adresse: {{currentAccount.email}}</p>
 					
 					<div class="control-group">
-						<button @click="this.changeUsername">Benutzernamen ändern</button>
-						<button @click="this.changeEmail">E-Mail-Adresse ändern</button>
-						<button @click="this.changePassword">Passwort ändern</button>
+						<button @click="this.showEditAccountFlyout">Account bearbeiten</button>
 					</div>
 				</div>
 				
@@ -71,14 +69,33 @@ export default {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 	},
 	methods: {
+		showEditAccountFlyout(event) {
+			new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Benutzernamen ändern",
+					action: this.changeUsername
+				},
+				{
+					title: "Benutzer-ID ändern",
+					action: this.changeUserId,
+					disabled: this.currentAccount === null
+				},
+				{
+					title: "E-Mail-Adresse ändern",
+					action: this.changeEmail,
+					disabled: this.currentAccount === null
+				},
+				{
+					title: "Passwort ändern",
+					action: this.changePassword,
+					disabled: this.currentAccount === null
+				},
+			]).show();
+		},
 		async changeUsername() {
 			var changeUsernameDialog = new metroUI.ContentDialog("Benutzernamen ändern", (() => {
 				return (
 					<div>
-						<p>Hier kannst du deinen Benutzernamen ändern.</p>
-						<br />
-						<p>Bitte beachte, dass du dich nach erfolgreichem Ändern deines Benutzernamens erneut anmelden musst.</p>
-						<br />
 						<input type="Text" placeholder="Neuer Benutzername" />
 					</div>
 				)
@@ -98,12 +115,33 @@ export default {
 				console.log(changeUsernameDialog.text);
 			}
 		},
+		async changeUserId() {
+			var changeUserIdDialog = new metroUI.ContentDialog("Benutzer-ID ändern", (() => {
+				return (
+					<div>
+						<input type="Text" placeholder="Neue Benutzer-ID" />
+					</div>
+				)
+			})(),
+			[
+				{
+					text: "Ok",
+					primary: true
+				},
+				{
+					text: "Abbrechen"
+				}
+			]);
+			var result = await changeUserIdDialog.showAsync();
+			
+			if (result == metroUI.ContentDialogResult.Primary) {
+				console.log(changeUserIdDialog.text);
+			}
+		},
 		async changeEmail() {
 			var changeEmailDialog = new metroUI.ContentDialog("E-Mail-Adresse ändern", (() => {
 				return (
 					<div>
-						<p>Hier kannst du deine E-Mail-Adresse ändern.</p>
-						<br />
 						<input type="email" placeholder="Neue E-Mail-Adresse" />
 					</div>
 				)
@@ -127,8 +165,6 @@ export default {
 			var changePasswordDialog = new metroUI.ContentDialog("Passwort ändern", (() => {
 				return (
 					<div>
-						<p>Hier kannst du dein Passwort ändern.</p>
-						<br />
 						<input type="password" placeholder="Derzeitiges Passwort" />
 						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" />
 						<input type="password" placeholder="Passwort bestätigen" />
@@ -149,6 +185,14 @@ export default {
 			if (result == metroUI.ContentDialogResult.Primary) {
 				console.log(changePasswordDialog.text);
 			}
+		}
+	},
+	computed: {
+		currentAccount() {
+			return this.$store.state.currentAccount;
+		},
+		currentIdentity() {
+			return this.$store.state.identity;
 		}
 	}
 }
