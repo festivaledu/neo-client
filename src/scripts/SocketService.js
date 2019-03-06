@@ -1,6 +1,5 @@
 import Vue from "vue";
 import CryptoJS from "crypto-js";
-import NodeRSA from "node-rsa";
 
 export const SocketService = new Vue({
 	data: {
@@ -8,7 +7,7 @@ export const SocketService = new Vue({
 		key: [],
 		rsaE: "",
 		rsaM: "",
-		socket: {},
+		socket: null,
 	},
 	methods: {
 		generateAesParams() {
@@ -18,14 +17,21 @@ export const SocketService = new Vue({
 		connect(url) {
 			this.generateAesParams();
 			this.socket = new WebSocket(url);
-			this.socket.onmessage = this.onMessage;
 			this.socket.onopen = this.onOpen;
 			this.socket.onclose = this.onClose;
+			this.socket.onmessage = this.onMessage;
 		},
 		encrypt(data) {
 			let encrypted = CryptoJS.AES.encrypt(data, this.key, { iv: this.iv }).toString();
 
 			return encrypted;
+		},
+		onOpen(event) {
+			this.sendAesParams();
+			this.$emit("open", event);
+		},
+		onClose(event) {
+			this.$emit("close");
 		},
 		onMessage(event) {
 			let container = JSON.parse(event.data);
@@ -39,20 +45,14 @@ export const SocketService = new Vue({
 
 			if (packageObj.type === 1) {
 				this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
-				this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
+                this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
+                
 				console.log(this.rsaE);
 				console.log(this.rsaM);
 				return;
 			}
 
 			this.$emit("package", packageObj);
-		},
-		onOpen(event) {
-			this.sendAesParams();
-			this.$emit("open");
-		},
-		onClose(event) {
-			this.$emit("close");
 		},
 		send(data) {
 			this.socket.send(JSON.stringify({

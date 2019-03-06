@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import Vue from "vue";
 
 /**
  * Helper methods to get the first and last objects in an array
@@ -44,13 +45,20 @@ var cumulativeOffset = (element) => {
 };
 
 /**
- * Enum containing possible ContentDialogResult values
+ * 
  */
-let ContentDialogResult = {
-	None: 0,
-	Primary: 1,
-	Secondary: 2
-};
+HTMLElement.prototype.parentNodeOfClass = function(className) {
+	var node = this.parentNode;
+	while (node) {
+		// console.log(node);
+		if (node.classList && node.classList.contains(className)) {
+			return node;
+		}
+		node = node.parentNode
+	}
+	
+	return null;
+}
 
 
 
@@ -221,7 +229,7 @@ metroUI.Page = class {
 			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else {
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
 					item.classList.remove("page-active");
 				}
 			});
@@ -229,7 +237,7 @@ metroUI.Page = class {
 			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else {
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
 					item.classList.remove("page-active");
 				}
 			});
@@ -278,8 +286,17 @@ metroUI.Page = class {
 }
 
 /**
+ * Enum containing possible ContentDialogResult values
+ */
+metroUI.ContentDialogResult = {
+	None: 0,
+	Primary: 1,
+	Secondary: 2
+};
+
+/**
  * The 'ContentDialog' class can be used as a replacement for
- * alert() and confirm(). prompt() is not supported
+ * alert(), confirm(). and prompt().
  * 
  * @param {String} _title The title of the of the dialog
  * @param {String} _content The message of the dialog
@@ -305,17 +322,33 @@ metroUI.ContentDialog = class {
 			content.appendChild(title);
 		}
 		
-		if (_content.length) {
-			let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
-			if (parsedHTML.body.children.length) {
-				for (var i=0; i<parsedHTML.body.children.length; i++) {
-					content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		// if (_content.length) {
+		// 	let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+		// 	if (parsedHTML.body.children.length) {
+		// 		for (var i=0; i<parsedHTML.body.children.length; i++) {
+		// 			content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		// 		}
+		// 	} else {
+		// 		let contentText = document.createElement("p");
+		// 		contentText.innerHTML = _content;
+		// 		content.appendChild(contentText);
+		// 	}
+		// }
+		if (_content) {
+			const NodeConstructor = Vue.extend({
+				props: ['node'],
+				render(h, context) {
+					return this.node ? this.node : ''
 				}
-			} else {
-				let contentText = document.createElement("p");
-				contentText.innerHTML = _content;
-				content.appendChild(contentText);
+			});
+			
+			const nodeRenderer = new NodeConstructor({
+				propsData: {
+					node: _content
 			}
+			});
+			nodeRenderer.$mount();
+			content.appendChild(nodeRenderer.$el);
 		}
 		
 		if (buttons.length) {
@@ -333,11 +366,11 @@ metroUI.ContentDialog = class {
 					if (dialog._promiseResolve) {
 						//dialog._promise.resolve(1);
 						if (_button.primary) {
-							dialog._promiseResolve(ContentDialogResult.Primary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Primary);
 						} else if (index == buttons.length - 1) {
-							dialog._promiseResolve(ContentDialogResult.None);
+							dialog._promiseResolve(metroUI.ContentDialogResult.None);
 						} else {
-							dialog._promiseResolve(ContentDialogResult.Secondary);
+							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
 						}
 					}
 					
@@ -347,6 +380,18 @@ metroUI.ContentDialog = class {
 				commands.appendChild(button);
 			});
 		}
+	}
+	
+	/**
+	 * Shows a dialog if no result is expected
+	 */
+	show() {
+		const dialog = this;
+		if (!document.querySelector("div.content-dialog-background")) {
+			document.body.appendChild(dialog.background);
+		}
+		
+		document.body.appendChild(dialog.container);
 	}
 	
 	/**
@@ -386,6 +431,131 @@ metroUI.ContentDialog = class {
 			}
 		}, 400);
 	}
+	
+	get text() {
+		const dialog = this;
+		
+		if (dialog.container.querySelectorAll("input, select").length > 1) {
+			var output = [];
+			
+			dialog.container.querySelectorAll("input, select").forEach(item => {
+				output.push(item.value);
+			});
+			
+			return output;
+		} else if (dialog.container.querySelector("input, select")) {
+			return dialog.container.querySelector("input, select").value;
+		}
+		
+		return null;
+	}
+}
+
+
+/**
+ * Shows a contextual list of simple commands or options.
+ * 
+ * @param {HTMLElement} element The element to attach the MenuFlyout to
+ * @param {Array} actions A list of actions
+ */
+metroUI.MenuFlyout = class {
+	constructor(element, actions) {
+		const flyout = this;
+		
+		flyout.targetElement = element;
+		
+		flyout.container = document.createElement("div");
+		flyout.container.className = "menu-flyout";
+		
+		flyout.itemList = document.createElement("div");
+		flyout.itemList.className = "menu-items";
+		flyout.container.appendChild(flyout.itemList);
+			
+		actions.forEach((_action, index) => {
+			let action = document.createElement("div");
+			action.className = "menu-item";
+			
+			if (_action.icon) {
+				let icon = document.createElement("i");
+				icon.className = `icon ${_action.icon}`;
+				action.appendChild(icon);
+				
+				let title = document.createElement("span");
+				title.innerText = _action.title;
+				action.appendChild(title);
+			} else {
+				action.innerText = _action.title;
+			}
+			
+			if (_action.disabled) {
+				action.classList.add("disabled");
+			}
+			
+			action.addEventListener("click", () => {
+				if (typeof _action.action === "function") {
+				_action.action();
+				}
+				
+				flyout.hide();
+			});
+			
+			flyout.itemList.appendChild(action);
+		});
+	}
+	
+	_hide_internal(event) {
+		const flyout = this;
+		if (!event.target.parentNodeOfClass("menu-flyout")) {
+			event.preventDefault();
+			event.stopPropagation();
+			
+			flyout.hide();
+		}
+		//console.log(event.target.parentNodeOfClass(".menu-flyout"));
+	}
+	
+	/**
+	 * Shows the MenuFlyout where the target element is located
+	 */
+	show() {
+		const flyout = this;
+		document.body.appendChild(flyout.container);
+		
+		const width = flyout.container.clientWidth;
+		const height = flyout.container.clientHeight;
+		let offset = cumulativeOffset(flyout.targetElement);
+		
+		if (offset.top - (height + 8) >= 0) {
+			flyout.container.style.bottom = `${window.innerHeight - (offset.top - 8)}px`;
+			flyout.container.classList.add("animate-bottom");
+		} else if (offset.top + (flyout.targetElement.clientHeight + 8) <= window.innerHeight) {
+			flyout.container.style.top = `${offset.top + (flyout.targetElement.clientHeight + 8)}px`;
+			flyout.container.classList.add("animate-bottom");
+		}
+		
+		flyout.container.style.left = `${Math.max(Math.min(window.innerWidth - width, (offset.left + (flyout.targetElement.clientWidth / 2)) - width / 2), 0)}px`;
+		
+		setTimeout(() => {
+			flyout.container.style.maxHeight = `${height}px`;
+		}, 0);
+		
+		flyout.eventListener = this._hide_internal.bind(flyout);
+		
+		document.addEventListener("click", flyout.eventListener, true);
+	}
+	
+	/**
+	 * Hides the flyout
+	 */
+	hide() {
+		const flyout = this;
+		
+		document.removeEventListener("click", flyout.eventListener, true);
+		flyout.container.classList.add("animate-out");
+		setTimeout(() => {
+			document.body.removeChild(flyout.container);
+		}, 400);
+	}
 }
 
 
@@ -412,8 +582,10 @@ var AccentColorSelector = {
 	},
 	methods: {
 		_selectAccent(e) {
-			document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
-			this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+			if (document.body.getAttribute("data-accent") != e.target.getAttribute("data-accent")) {
+				document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
+				this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+			}
 		}
 	}
 };
@@ -464,7 +636,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 				{this.$data.results.map(item => {
 					return (
@@ -506,6 +678,11 @@ var AutoSuggestBox = {
 				}
 			}, 20);
 		},
+		_onFocus() {
+			if (!this.$data._value.length) {
+				this.$refs["items"].classList.add("visible");
+			}
+		},
 		_windowClickHandler(e) {
 			if (!this.$el.contains(e.target)) {
 				this.$refs["items"].classList.remove("visible");
@@ -514,7 +691,13 @@ var AutoSuggestBox = {
 		_suggestItems() {
 			if (!this.$data._data) return;
 			
-			this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			if (this.$refs["input"].value.length) {
+				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
+			} else {
+				this.$data.results = this.$data._data;
+			}
+			
+			
 			if (this.$data.results.length) {
 				this.$refs["items"].classList.add("visible");
 			} else {
@@ -541,6 +724,43 @@ var AutoSuggestBox = {
 		}
 	}
 };
+
+/**
+ * 
+ */
+var BackgroundThemeSelector = {
+	name: "metro-background-theme-selector",
+	props: ["lightName", "darkName"],
+	render(h) {
+		return (
+			<div class="control-group">
+				<div class="radio">
+					<input type="radio" id="theme-light" data-theme="light" name="theme" ref="theme-light" onChange={this._selectTheme} />
+					<label for="theme-light">
+						<p class="item-label">{this.$props.lightName || "Light"}</p>
+					</label>
+				</div>
+				<div class="radio">
+					<input type="radio" id="theme-dark" data-theme="dark" name="theme" ref="theme-dark" onChange={this._selectTheme} />
+					<label for="theme-dark">
+						<p class="item-label">{this.$props.darkName || "Dark"}</p>
+					</label>
+				</div>
+			</div>
+		)
+	},
+	mounted() {
+		this.$refs[`theme-${document.body.getAttribute("data-theme")}`].checked = true;
+	},
+	methods: {
+		_selectTheme(e) {
+			if (e.target.checked) {
+				document.body.setAttribute("data-theme", e.target.getAttribute("data-theme"));
+				this.$emit("themeSelect", e.target.getAttribute("data-theme"));
+			}
+		}
+	}
+}
 
 /**
  * A control that a user can select or clear.
@@ -646,6 +866,8 @@ var ComboBox = {
 				} else {
 					this.$data.value = null;
 				}
+				
+				select.elm.value = this.$data.value;
 				this.$emit('input', this.$data.value);
 			});
 		});
@@ -728,6 +950,213 @@ var CommandBar = {
 		toggle() {
 			this.$el.classList.toggle("expanded")
 		}
+	}
+};
+
+/**
+ * Common vertical layout for top-level areas of your app via a collapsible navigation menu
+ * @param {String} title Sets the title of the NavigationView
+ * @param {String} menuTitle Sets the title that is displayed next to the Menu Button
+ * @param {String} acrylic Sets the acrylic background variant (60%, 70%, 80%)
+ */
+var ListView = {
+	name: "metro-list-view",
+	props: ["title", "menuTitle", "acrylic"],
+	data() {
+		return {
+			_acrylic: this.$props.acrylic || "acrylic-60",
+			_currentPage: null,
+			_pages: {},
+			_items: {},
+		}
+	},
+	render(h) {
+		return (
+			<div class="list-view">
+				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+					{this.$props.menuTitle &&
+					<div class="list-view-header">
+						<p class="list-view-title">{this.$props.menuTitle}</p>
+						
+						{this.$slots["actions"]}
+					</div>
+					}
+
+					<div class="list-view-items">
+						{this.$slots["list-items"]}
+					</div>
+					
+					<div class="list-view-bottom-items">
+						{this.$slots["bottom-items"]}
+					</div>
+				</div>
+				
+				{this.$slots["pages"] &&
+				<div class="frame-header" ref="frameHeader">
+					<p class="title" ref="frameTitle">{this.$props.title}</p>
+				</div>
+				}
+				
+				{this.$slots["pages"] &&
+				<div class="frame" ref="frame">
+					<div class="frame-content" ref="frameContent">
+						{this.$slots["pages"]}
+					</div>
+				</div>
+				}
+			</div>
+		)
+	},
+	mounted() {
+		if (this.$refs["frameContent"] && this.$refs["frame"]) {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+			
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+		}
+		
+		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
+			if (item.hasAttribute("data-page")) {
+				this.$data._items[item.getAttribute("data-page")] = item;
+
+				item.addEventListener("click", () => {
+					this.navigate(item.getAttribute("data-page"));
+				});
+			}
+		});
+	},
+	methods: {
+		_frameScrolled() {
+			if (this.$data._currentPage) {
+				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
+			}
+		},
+
+		/**
+		 * Navigate to a page this view references
+		 * @param {String} pageName The name of the page you want to navigate to. Must be referenced by this NavigationView
+		 * @param {*} _options -- NOT IN USE
+		 */
+		navigate(pageName, _options) {
+			var options = {
+				url: null,
+				addHistory: true
+			}
+			for (var option in _options) {
+				options[option] = _options[option];
+			}
+
+			let page = this.$data._pages[pageName];
+			if (page) {
+				if (page.isVisible) return;
+				
+				page.show();
+				this.$data._currentPage = page;
+				this.setTitle(page.params.title);
+
+				if (this.$data._items[pageName]) {
+					if (this.$refs["menu"].querySelector(".selected")) {
+						this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+					}
+					this.$data._items[pageName].classList.add("selected");
+				} else if (page.container.hasAttribute("data-nav-item")) {
+					let navItem = page.container.getAttribute("data-nav-item");
+					if (this.$data._items[navItem]) {
+						if (this.$refs["menu"].querySelector(".selected")) {
+							this.$refs["menu"].querySelector(".selected").classList.remove("selected");
+						}
+						this.$data._items[navItem].classList.add("selected");
+					}
+				}
+
+				this.$refs["frame"].scrollTo(0, 0);
+			}
+		},
+		/**
+		 * Set the title of this NavigationView
+		 * @param {String} title The title to set. Can be empty
+		 */
+		setTitle(title) {
+			if (title && title.length) {
+				this.$refs["frameTitle"].innerText = title;
+				this.$refs["frameTitle"].parentElement.classList.remove("hidden");
+			} else {
+				this.$refs["frameTitle"].innerText = "";
+				this.$refs["frameTitle"].parentElement.classList.add("hidden");
+			}
+		},
+		
+		/**
+		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
+		 * @param {String} query The CSS-like query to select
+		 */
+		querySelector(query) {
+			return this.$el.querySelector(query);
+		},
+		querySelectorAll(query) {
+			return this.$el.querySelectorAll(query);
+		}
+	}
+};
+
+/**
+ * Represents an action located in a ListView header
+ * @param {String} icon The icon to show next to the title
+ */
+var ListViewAction = {
+	name: "metro-list-view-action",
+	props: ["icon"],
+	render(h) {
+		return (
+			<div class="list-view-action">
+				<i class={`icon ${this.$props.icon}`}></i>
+			</div>
+		)
+	}
+};
+
+/**
+ * Represents a item for use in a ListView
+ * @param {String} page The page to navigate to. Must be referenced by the parent ListView
+ * @param {String} icon The icon to show next to the title
+ * @param {String} title The title of this item
+ */
+var ListViewMenuItem = {
+	name: "metro-list-view-menu-item",
+	props: ["page", "icon", "title"],
+	render(h) {
+		return (
+			<div class="list-view-item" data-page={this.$props.page}>
+				<div class="list-view-item-inner">
+					{this.$props.icon &&
+					<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+					}
+					<p class="list-view-item-content">{this.$props.title}</p>
+				</div>
+			</div>
+		)
+	}
+};
+
+/**
+ * Represents a separator in a ListView
+ * @param {String} title The title of this item
+ */
+var ListViewMenuSeparator = {
+	name: "metro-list-view-menu-separator",
+	props: ["title"],
+	render(h) {
+		return (
+			<div class="list-view-item-separator">
+				<p>{this.$props.title}</p>
+			</div>
+		)
 	}
 };
 
@@ -853,12 +1282,20 @@ var Messages = {
  * Common vertical layout for top-level areas of your app via a collapsible navigation menu
  * @param {String} title Sets the title of the NavigationView
  * @param {Boolean} history If false, disable the use of history in this NavigationView
+ * @param {String} menuTitle Sets the title that is displayed next to the Menu Button
+ * @param {String} acrylic Sets the acrylic background variant (60%, 70%, 80%)
+ * @param {Boolean} startExpanded Expands the navigation view on load (< 768 px)
+ * @param {Boolean} startRetracted Retracts the navigation view on load (>= 768 px)
  */
 var NavigationView = {
 	name: "metro-navigation-view",
-	props: ["title", "history"],
+	props: ["title", "history", "menuTitle", "acrylic", "startExpanded", "startRetracted"],
 	data() {
 		return {
+			_acrylic: this.$props.acrylic || "acrylic-60",
+			_menuTitle: this.$props.menuTitle,
+			_startExpanded: this.$props.startExpanded || false,
+			_startRetracted: this.$props.startRetracted || false,
 			_currentPage: null,
 			_pages: {},
 			_items: {},
@@ -868,8 +1305,10 @@ var NavigationView = {
 	render(h) {
 		return (
 			<div class="navigation-view">
-				<div class="navigation-view-menu" ref="menu">
-					<div class="toggle-pane-button" ref="toggleButton" onClick={this.toggle}></div>
+				<div class={{[`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted}} ref="menu">
+					<div class={{"toggle-pane-button": true, "title": this.$data._menuTitle != null}} ref="toggleButton" onClick={this.toggle}>
+						<p>{this.$data._menuTitle}</p>
+					</div>
 					
 					{this.$props.history != false && 
 					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
@@ -877,6 +1316,10 @@ var NavigationView = {
 
 					<div class="navigation-view-items">
 						{this.$slots["navigation-items"]}
+					</div>
+					
+					<div class="navigation-view-bottom-items">
+						{this.$slots["bottom-items"]}
 					</div>
 				</div>
 				
@@ -917,6 +1360,8 @@ var NavigationView = {
 					
 					if (window.innerWidth < 1008) {
 						this.$refs["menu"].classList.remove("expanded");
+					} else if (this.$props.startRetracted) {
+						this.$refs["menu"].classList.add("retracted");
 					}
 				});
 			}
@@ -1038,6 +1483,14 @@ var NavigationView = {
 		},
 		
 		/**
+		 * Set the title string next to the toggle button
+		 * @param {String} title The title to set. Can be empty
+		 */
+		setMenuTitle(title) {
+			this.$data._menuTitle = title;
+		},
+		
+		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
 		 * @param {String} query The CSS-like query to select
 		 */
@@ -1072,6 +1525,22 @@ var NavigationViewMenuItem = {
 };
 
 /**
+ * Represents a separator in a NavigationView
+ * @param {String} title The title of this item
+ */
+var NavigationViewMenuSeparator = {
+	name: "metro-navigation-view-menu-separator",
+	props: ["title"],
+	render(h) {
+		return (
+			<div class="navigation-view-item-separator">
+				<p>{this.$props.title}</p>
+			</div>
+		)
+	}
+};
+
+/**
  * Displays the picture of a person/contact.
  * Use either of the attributes to display a person/contact
  * @param {String} profilePicture A URL to an image (eg. profile image)
@@ -1099,7 +1568,16 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
+			// this.$data._initials = this.$props.initials.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g).join('');
+			// let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
+			// initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			
+			// this.$data._initials = initials;
+			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
+			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
+			// } else {
+			// 	this.$data._initials = this.$props.displayName.slice(0,1);
+			// }
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}
@@ -1219,7 +1697,7 @@ var Slider = {
  */
 var ToggleSwitch = {
 	name: "metro-toggle-switch",
-	props: ["value", "onContent", "offContent"],
+	props: ["value", "itemHeader", "onContent", "offContent"],
 	data() {
 		return {
 			id: crypto.randomBytes(20).toString("hex"),
@@ -1231,6 +1709,9 @@ var ToggleSwitch = {
 	render(h) {
 		return (
 			<div class="toggle-switch">
+				{this.$props.itemHeader &&
+				<p class="item-header">{this.$props.itemHeader}</p>
+				}
 				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this._onChange} ref="input"></input>
 				<label for={this.$data.id}>
 					<p class="item-label" ref="itemLabel"></p>
@@ -1269,19 +1750,25 @@ export default {
 				[AccentColorSelector.name]: AccentColorSelector,
 				[AppBarButton.name]: AppBarButton,
 				[AutoSuggestBox.name]: AutoSuggestBox,
+				[BackgroundThemeSelector.name]: BackgroundThemeSelector,
 				[Checkbox.name]: Checkbox,
 				[ComboBox.name]: ComboBox,
 				[CommandBar.name]: CommandBar,
+				[ListView.name]: ListView,
+				[ListViewAction.name]: ListViewAction,
+				[ListViewMenuItem.name]: ListViewMenuItem,
+				[ListViewMenuSeparator.name]: ListViewMenuSeparator,
 				[Messages.name]: Messages,
 				[NavigationView.name]: NavigationView,
 				[NavigationViewMenuItem.name]: NavigationViewMenuItem,
+				[NavigationViewMenuSeparator.name]: NavigationViewMenuSeparator,
 				[PersonPicture.name]: PersonPicture,
 				[ProgressBar.name]: ProgressBar,
 				[Slider.name]: Slider,
 				[ToggleSwitch.name]: ToggleSwitch
 			},
 			mounted() {
-				if (this.$el.querySelector(".view")) {
+				if (this.$el.querySelector && this.$el.querySelector(".view")) {
 					this.$el.querySelectorAll(".view").forEach((item, index) => {
 						if (item.hasAttribute("data-view-id")) {
 							metroUI.views[item.getAttribute("data-view-id")] = new metroUI.View(item, {

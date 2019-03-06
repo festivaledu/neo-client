@@ -8,9 +8,12 @@
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
+    "metroui-vue": "file:metroui-vue",
     "node-rsa": "^1.0.2",
     "vue": "^2.5.17",
+    "vue-headful": "^2.0.1",
     "vue-router": "^3.0.1",
+    "vuelidate": "^0.7.4",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -19,7 +22,8 @@
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
-    "babel-plugin-transform-vue-jsx": "^4.0.1",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.3.0",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.17"
