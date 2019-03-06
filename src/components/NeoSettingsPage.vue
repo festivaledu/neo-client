@@ -8,7 +8,7 @@
 			<template slot="list-items">
 				<metro-list-view-menu-separator title="Allgemein" />
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
-				<metro-list-view-menu-item class="single-line" title="Server-Einstellungen" page="server_settings" />
+				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings" />
 				
 				<metro-list-view-menu-separator title="Gruppen" />
 				<metro-list-view-menu-item class="single-line" title="%group_name%" page="group_settings" />
@@ -156,6 +156,9 @@
 <script>
 import Vue from "vue";
 
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
 	name: "NeoSettingsPage",
 	data() {
@@ -165,7 +168,9 @@ export default {
 		}
 	},
 	mounted() {
-		this.$refs["settingsView"].navigate("info");
+        this.$refs["settingsView"].navigate("info");        
+        
+		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		async addGroup() {
@@ -212,7 +217,23 @@ export default {
 				}
 			]);
 			flyout.show();
-		},
+        },
+        onPackage(packageObj) {
+            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+            console.debug(packageObj.content);
+            
+			switch (packageObj.type) {
+                case PackageType.OpenSettingsResponse:
+                    break;
+				default: break;
+			}
+        },
+        openSettings(settings) {
+            SocketService.send({
+                type: PackageType.OpenSettings,
+                content: settings
+            });
+        },
 		async deleteGroup() {
 			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen", 
 			(() => {
