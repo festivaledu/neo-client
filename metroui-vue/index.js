@@ -1583,16 +1583,14 @@ var PersonPicture = {
 		if (this.$props.initials) {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
-			// this.$data._initials = this.$props.initials.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g).join('');
-			// let initials = this.$props.displayName.replace(/\_|\:|\.|\:/g, " ").match(/\b\w/g) || [];
-			// initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
 			
-			// this.$data._initials = initials;
-			// if (this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g)) {
-			// this.$data._initials = this.$props.displayName.match(/(^\s?\w+\b|(\b\w+)[\.?!\s]*$)/g).map(name => name.slice(0,1)).join("");
-			// } else {
-			// 	this.$data._initials = this.$props.displayName.slice(0,1);
-			// }
+			if (initials.length > 1) {
+				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
+			} else if (initials.length) {
+				this.$data._initials = initials[0];
+			}
+			
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}
