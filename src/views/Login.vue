@@ -224,45 +224,53 @@ export default {
                     break;
 				case PackageType.LoginResponse:
                     this.isWorking = false;
-                    
-					if (packageObj.content.status == 0) {                        
-						// Login successful
-						this.$store.commit("setIdentity", packageObj.content.identity);
-						this.$router.replace("/");
-					} else if (packageObj.content.status == 1) {
-                        // Unknown user
-                        var unknowUserDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Der angegebene Benutzer existiert nicht.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        unknowUserDialog.show();
-                    } else if (packageObj.content.status == 2) {
-                        // Incorrect password
-                        var incorrectPasswordDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Das Passwort ist falsch.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        incorrectPasswordDialog.show();
-                    } else if (packageObj.content.status == 3) {
-                        // Unauthorized
-                        var unauthorizedDialog = new metroUI.ContentDialog("Anmeldefehler", (() => {
-                            return (
-                                <div>
-                                    <p>Du bist nicht berechtigt dich anzumelden.</p>
-                                </div>
-                            );
-                        })(), [{ text: "Ok" }]);
-                        
-                        unauthorizedDialog.show();
-                    }
+					
+					switch (packageObj.content.status) {
+						case 0:
+							this.$store.commit("setIdentity", packageObj.content.identity);
+							this.$router.replace("/");
+							break;
+						case 1:
+						case 2:
+						case 3:
+							new metroUI.ContentDialog("Anmeldefehler", (() => {
+								return (
+									<div>
+										{(() => {
+											switch (packageObj.content.status) {
+												case 1:
+													return <p>Der angegebene Benutzer existiert nicht.</p>;
+												case 2:
+													return <p>Das Passwort ist falsch.</p>;
+												case 3:
+													return <p>Du bist nicht berechtigt dich anzumelden.</p>;
+												default: return null
+											}
+										})()}
+									</div>
+								)
+							})(), [{ text: "Ok" }]).show();
+							break;
+						case 4:
+						case 5:
+							new metroUI.ContentDialog("Registrierungsfehler", (() => {
+								return (
+									<div>
+										{(() => {
+											switch (packageObj.content.status) {
+												case 4:
+													return <p>Die angegebene Benutzer-ID wird bereits verwendet.</p>;
+												case 5:
+													return <p>Der angegebene Benutzername wird bereits verwendet.</p>;
+												default: return null
+											}
+										})()}
+									</div>
+								)
+							})(), [{ text: "Ok" }]).show();
+							break;
+						default: break;
+					}
 					break;
 				default: break;
 			}
