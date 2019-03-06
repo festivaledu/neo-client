@@ -227,7 +227,17 @@ export default {
 					
 					switch (packageObj.content.status) {
 						case 0:
-							this.$store.commit("setCurrentAccount", packageObj.content.account);
+                            this.$store.commit("setCurrentAccount", packageObj.content.account);
+                            
+                            if (packageObj.content.account) {
+                                if (packageObj.content.account.attributes["neo.client.accent"]) {
+                                    document.body.setAttribute("data-accent", packageObj.content.account.attributes["neo.client.accent"]);
+                                }
+                                if (packageObj.content.account.attributes["neo.client.theme"]) {
+                                    document.body.setAttribute("data-theme", packageObj.content.account.attributes["neo.client.theme"]);
+                                }
+                            }
+
 							this.$store.commit("setIdentity", packageObj.content.identity);
 							this.$router.replace("/");
 							break;

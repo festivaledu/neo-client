@@ -26,10 +26,10 @@
 					<p>Deine Farbeinstellungen werden mit dem Server synchronisiert und stehen dir beim Anmelden wieder zur Verfügung.</p>
 					<br />
 					<h4>Akzentfarbe</h4>
-					<metro-accent-color-selector />
+					<metro-accent-color-selector @accent-select="setColors($event, null)" />
 					
 					<h4>App-Modus</h4>
-					<metro-background-theme-selector lightName="Hell" darkName="Dunkel"/>
+					<metro-background-theme-selector @theme-select="setColors(null, $event)" lightName="Hell" darkName="Dunkel"/>
 				</div>
 			</template>
 		</metro-navigation-view>
@@ -63,12 +63,40 @@
 </style>
 
 <script>
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+
 export default {
-	name: "NeoSettingsPage",
+	name: "NeoProfilePage",
 	mounted() {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 	},
 	methods: {
+        setColors(accentEvent, themeEvent) {
+            let account = this.$store.state.currentAccount;
+
+            if (!account) {
+                return;
+            }
+
+            if (accentEvent) {
+                account.attributes["neo.client.accent"] = accentEvent;
+            }
+
+            if (themeEvent) {
+                account.attributes["neo.client.theme"] = themeEvent;
+            }
+
+            this.$store.commit("setCurrentAccount", account);
+
+            SocketService.send({
+                type: PackageType.EditSettings,
+                content: {
+                    scope: "account",
+                    model: account
+                }
+            });
+        },
 		showEditAccountFlyout(event) {
 			new metroUI.MenuFlyout(event.target, [
 				{
