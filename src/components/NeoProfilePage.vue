@@ -65,6 +65,7 @@
 <script>
 import { SocketService } from "@/scripts/SocketService";
 import PackageType from '@/scripts/PackageType';
+import CryptoJS from "crypto-js";
 
 export default {
 	name: "NeoProfilePage",
@@ -85,14 +86,23 @@ export default {
                         this.$store.commit("setIdentity", packageObj.content.identity);
                     }
 
-                    if (!packageObj.content.account && !packageObj.content.identity) {
+                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
                         new metroUI.ContentDialog("Profil ändern", `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`, [
                             {
                                 text: "Ok",
                                 primary: true
                             }
                         ]).show();
-                    }                    
+                    }
+
+                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
+                        new metroUI.ContentDialog("Profil ändern", "Das aktuelle Passwort ist falsch.", [
+                            {
+                                text: "Ok",
+                                primary: true
+                            }
+                        ]).show();
+                    }
                     break;
             }
         },
@@ -253,11 +263,27 @@ export default {
 			var result = await changePasswordDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
+                let passwords = changePasswordDialog.text;
+
+                if (passwords[1] !== passwords[2]) {
+                    new metroUI.ContentDialog("Profil ändern", "Die angegeben Passwörter stimmen nicht überein.", [
+                        {
+                            text: "Ok",
+                            primary: true
+                        }
+                    ]).show();
+                    return;
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    passwords[i] = CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(passwords[i]));
+                }
+
 				SocketService.send({
                     type: PackageType.EditProfile,
                     content: {
                         key: "password",
-                        value: changePasswordDialog.text
+                        value: passwords
                     }
                 });
 			}

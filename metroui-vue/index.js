@@ -334,7 +334,7 @@ metroUI.ContentDialog = class {
 			const nodeRenderer = new NodeConstructor({
 				propsData: {
 					node: _content
-			}
+			    }
 			});
 			nodeRenderer.$mount();
 			content.appendChild(nodeRenderer.$el);
@@ -343,7 +343,7 @@ metroUI.ContentDialog = class {
 				if (parsedHTML.body.children.length) {
 					for (var i = 0; i < parsedHTML.body.children.length; i++) {
 						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
-		}
+		            }
 				} else {
 					let contentText = document.createElement("p");
 					contentText.innerHTML = _content;
