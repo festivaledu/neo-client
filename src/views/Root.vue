@@ -106,6 +106,15 @@ export default {
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
 					break;
+					
+				case PackageType.EditSettingsResponse:
+					new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
+						{
+							text: "Ok",
+							primary: true
+						}
+					]).show();
+					break;
 				default: break;
 			}
 		}

@@ -268,13 +268,6 @@ export default {
 					model: this.settingsModel
 				}
 			});
-
-			new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
-				{
-					text: "Ok",
-					primary: true
-				}
-			]).show();
 		},
 		async deleteGroup() {
 			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen",
