@@ -158,7 +158,7 @@ export default {
 			var changeUsernameDialog = new metroUI.ContentDialog("Benutzernamen ändern", (() => {
 				return (
 					<div>
-						<input type="Text" placeholder="Neuer Benutzername" />
+						<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
 					</div>
 				)
 			})(),
@@ -187,7 +187,7 @@ export default {
 			var changeUserIdDialog = new metroUI.ContentDialog("Benutzer-ID ändern", (() => {
 				return (
 					<div>
-						<input type="Text" placeholder="Neue Benutzer-ID" />
+						<input type="Text" placeholder="Neue Benutzer-ID (min. 3 Zeichen)" data-minlength="3" />
 					</div>
 				)
 			})(),
@@ -216,7 +216,7 @@ export default {
 			var changeEmailDialog = new metroUI.ContentDialog("E-Mail-Adresse ändern", (() => {
 				return (
 					<div>
-						<input type="email" placeholder="Neue E-Mail-Adresse" />
+						<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
 					</div>
 				)
 			})(),
@@ -246,8 +246,8 @@ export default {
 				return (
 					<div>
 						<input type="password" placeholder="Derzeitiges Passwort" />
-						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" />
-						<input type="password" placeholder="Passwort bestätigen" />
+						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
+						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
 					</div>
 				)
 			})(),

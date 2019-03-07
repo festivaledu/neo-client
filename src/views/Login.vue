@@ -42,7 +42,7 @@
 
 					<form novalidate>
 						<div class="form-group">
-							<label>Benutzername oder E-Mail-Adresse</label>
+							<label>Benutzer-ID oder E-Mail-Adresse</label>
 							<input type="text" placeholder="Max Mustermann" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup.13="login">
 						</div>
 						<div class="form-group">

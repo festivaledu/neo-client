@@ -360,7 +360,12 @@ metroUI.ContentDialog = class {
 			buttons.forEach((_button, index) => {
 				let button = document.createElement("button");
 				button.innerHTML = _button.text;
-				button.className = _button.primary ? "primary" : "";
+                button.className = _button.primary ? "primary" : "";
+                
+                if (_button.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength)) {
+                    button.disabled = true;
+                }
+
 				// TODO: Add event listener
 
 				button.addEventListener("click", () => {
@@ -380,7 +385,20 @@ metroUI.ContentDialog = class {
 
 				commands.appendChild(button);
 			});
-		}
+        }
+        
+        content.querySelectorAll("input").forEach(el => {
+            el.addEventListener("input", ev => {                
+                document.querySelector(".primary").disabled = false;
+
+                content.querySelectorAll("input").forEach(inputEl => {
+                    if (inputEl.dataset.minlength && inputEl.value.length < inputEl.dataset.minlength) {
+                        document.querySelector(".primary").disabled = true;
+                        return;
+                    }
+                });
+            });
+        });
 	}
 
 	/**
