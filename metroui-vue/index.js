@@ -63,6 +63,31 @@ HTMLElement.prototype.parentNodeOfClass = function(className) {
 
 
 /**
+ * Vue NodeRenderer helper
+ */
+const NodeRenderer = class {
+	constructor(element) {
+		const NodeConstructor = Vue.extend({
+			props: ['node'],
+			render(h, context) {
+				return this.node ? this.node : ''
+			}
+		});
+
+		const nodeRenderer = new NodeConstructor({
+			propsData: {
+				node: element
+			}
+		});
+		nodeRenderer.$mount();
+
+		return nodeRenderer.$el;
+	}
+}
+
+
+
+/**
  * Our global metroUI object
  * We're also adding it to the window object to access it from anywhere
  */
@@ -299,11 +324,11 @@ metroUI.ContentDialogResult = {
  * alert(), confirm(). and prompt().
  *
  * @param {String} _title The title of the of the dialog
- * @param {String} _content The message of the dialog
+ * @param {String} _content The content of the dialog
  * @param {Array} buttons An array containing the buttons. Buttons have a title and a 'primary' flag
  */
 metroUI.ContentDialog = class {
-	constructor(_title, _content, buttons) {
+	constructor(params) {
 		const dialog = this;
 
 		dialog.background = document.createElement("div");
@@ -318,32 +343,19 @@ metroUI.ContentDialog = class {
 
 		if (_title.length) {
 			let title = document.createElement("h4");
-			title.innerHTML = _title;
+			title.innerText = _title;
 			content.appendChild(title);
 		}
 
 		if (_content) {
 			if (typeof _content === "object") {
-			const NodeConstructor = Vue.extend({
-				props: ['node'],
-				render(h, context) {
-					return this.node ? this.node : ''
-				}
-			});
-
-			const nodeRenderer = new NodeConstructor({
-				propsData: {
-					node: _content
-			    }
-			});
-			nodeRenderer.$mount();
-			content.appendChild(nodeRenderer.$el);
+				content.appendChild(new NodeRenderer(_content));
 			} else {
 				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
 				if (parsedHTML.body.children.length) {
 					for (var i = 0; i < parsedHTML.body.children.length; i++) {
 						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
-		            }
+					}
 				} else {
 					let contentText = document.createElement("p");
 					contentText.innerHTML = _content;
@@ -352,7 +364,7 @@ metroUI.ContentDialog = class {
 			}
 		}
 
-		if (buttons.length) {
+		if (buttons && buttons.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
@@ -422,11 +434,8 @@ metroUI.ContentDialog = class {
 	 */
 	async showAsync() {
 		const dialog = this;
-		if (!document.querySelector("div.content-dialog-background")) {
-			document.body.appendChild(dialog.background);
-		}
 
-		document.body.appendChild(dialog.container);
+		dialog.show();
 
 		let promise = new Promise((resolve, reject) => {
 			dialog._promiseResolve = resolve;
@@ -453,6 +462,9 @@ metroUI.ContentDialog = class {
 		}, 400);
 	}
 
+	/**
+	 * Returns the text (if only one input/select) or an array of texts (if multiple) entered into the dialog
+	 */
 	get text() {
 		const dialog = this;
 
@@ -514,7 +526,7 @@ metroUI.MenuFlyout = class {
 
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-				_action.action();
+					_action.action();
 				}
 
 				flyout.hide();
@@ -581,6 +593,334 @@ metroUI.MenuFlyout = class {
 
 
 /**
+ * Show a notification containing either text or rich content
+ * 
+ * @param {Object} params An object containg all parameters for this notification ([payload], [icon], title, content, [inputs], [buttons])
+ */
+metroUI.Notification = class {
+	constructor(params) {
+		const notification = this;
+
+		notification.notificationCenter = document.createElement("div");
+		notification.notificationCenter.className = "notification-center";
+
+		notification.wrapper = document.createElement("div");
+		notification.wrapper.className = "notification-wrapper";
+
+		notification.container = document.createElement("div");
+		notification.container.className = "notification";
+		notification.wrapper.appendChild(notification.container);
+
+		let dismissButton = document.createElement("div");
+		dismissButton.className = "dismiss-button";
+		dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
+		dismissButton.addEventListener("click", notification.hide.bind(notification));
+		notification.container.appendChild(dismissButton);
+
+		notification.payload = params.payload;
+		notification.displayTimeout = null;
+		notification.container.addEventListener("mouseover", () => {
+			clearTimeout(notification.displayTimeout);
+		});
+		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+
+		if (params.icon) {
+			let iconContainer = document.createElement("div");
+			iconContainer.className = "notification-icon";
+			notification.container.appendChild(iconContainer);
+
+			if (typeof params.icon === "object") {
+				iconContainer.appendChild(new NodeRenderer(params.icon));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.icon, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						iconContainer.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				} else {
+					let icon = document.createElement("i");
+					icon.className = `icon ${params.icon}`;
+					iconContainer.appendChild(icon);
+				}
+			}
+		}
+
+		let content = document.createElement("div");
+		content.className = "content";
+		notification.container.appendChild(content);
+
+		if (params.title && params.title.length) {
+			let title = document.createElement("p");
+			title.className = "title-label";
+			title.innerText = params.title;
+			content.appendChild(title);
+		}
+
+		if (params.content) {
+			if (typeof params.content === "object") {
+				content.appendChild(new NodeRenderer(params.content));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.content, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				} else {
+					let contentText = document.createElement("p");
+					contentText.innerText = params.content;
+					content.appendChild(contentText);
+				}
+			}
+		}
+
+		if (params.inputs) {
+			let inputs = document.createElement("div");
+			inputs.className = "notification-inputs";
+			notification.container.appendChild(inputs);
+
+			if (typeof params.inputs === "object") {
+				inputs.appendChild(new NodeRenderer(params.inputs));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.inputs, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				}
+			}
+		}
+
+		if (params.buttons && params.buttons.length) {
+			let buttons = document.createElement("div");
+			buttons.className = "notification-buttons";
+			notification.container.appendChild(buttons);
+
+			params.buttons.forEach((_button, index) => {
+				let button = document.createElement("button");
+				button.innerText = _button.text;
+
+				button.addEventListener("click", () => {
+					if (typeof _button.action === "function") {
+						_button.action(notification.payload);
+					}
+
+					if (notification._promiseResolve) {
+						notification._promiseResolve(findInRow(button));
+					}
+
+					notification.hide();
+				});
+
+				buttons.appendChild(button);
+			});
+		}
+
+		// notification.notificationCenter = document.createElement("div");
+		// notification.notificationCenter.className = "notification-center";
+
+		// notification.wrapper = document.createElement("div");
+		// notification.wrapper.className = "notification-wrapper";
+
+		// notification.container = document.createElement("div");
+		// notification.container.className = "notification";
+		// notification.wrapper.appendChild(notification.container);
+
+		// let dismissButton = document.createElement("div");
+		// dismissButton.className = "dismiss-button";
+		// dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
+		// dismissButton.addEventListener("click", notification.hide.bind(notification));
+		// notification.container.appendChild(dismissButton);
+
+		// notification.displayTimeout = null;
+		// notification.container.addEventListener("mouseover", () => {
+		// 	clearTimeout(notification.displayTimeout);
+		// });
+		// notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+
+		// // TODO: Icon
+
+		// let content = document.createElement("div");
+		// content.className = "content";
+		// notification.container.appendChild(content);
+
+		// if (_title.length) {
+		// 	let title = document.createElement("p");
+		// 	title.className = "title-label";
+		// 	title.innerText = _title;
+		// 	content.appendChild(title);
+		// }
+
+		// if (_content) {
+		// 	if (typeof _content === "object") {
+		// 		const NodeConstructor = Vue.extend({
+		// 			props: ['node'],
+		// 			render(h, context) {
+		// 				return this.node ? this.node : ''
+		// 			}
+		// 		});
+
+		// 		const nodeRenderer = new NodeConstructor({
+		// 			propsData: {
+		// 				node: _content
+		// 			}
+		// 		});
+		// 		nodeRenderer.$mount();
+		// 		content.appendChild(nodeRenderer.$el);
+		// 	} else {
+		// 		let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+		// 		if (parsedHTML.body.children.length) {
+		// 			for (var i = 0; i < parsedHTML.body.children.length; i++) {
+		// 				content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+		// 			}
+		// 		} else {
+		// 			let contentText = document.createElement("p");
+		// 			contentText.innerHTML = _content;
+		// 			content.appendChild(contentText);
+		// 		}
+		// 	}
+		// }
+
+		// if (_buttons && _buttons.length) {
+		// 	let buttons = document.createElement("div");
+		// 	buttons.className = "buttons";
+		// 	notification.container.appendChild(buttons);
+
+		// 	_buttons.forEach((_button, index) => {
+		// 		let button = document.createElement("button");
+		// 		button.innerText = _button.text;
+
+		// 		button.addEventListener("click", () => {
+		// 			if (typeof _button.action === "function") {
+		// 				_button.action();
+		// 			}
+
+		// 			if (notification._promiseResolve) {
+		// 				notification._promiseResolve(findInRow(button));
+		// 			}
+
+		// 			notification.hide();
+		// 		});
+
+		// 		buttons.appendChild(button);
+		// 	});
+		// }
+	}
+
+	_resetTimeout() {
+		const notification = this;
+
+		if (notification.container.classList.contains("slide-out")) {
+			return;
+		}
+
+		clearTimeout(notification.displayTimeout);
+		notification.displayTimeout = setTimeout(notification.hide.bind(notification), 6000);
+	}
+
+	/**
+	 * Displays a notification on the screen
+	 */
+	show() {
+		const notification = this;
+
+		if (!document.querySelector(".notification-center")) {
+			document.body.appendChild(notification.notificationCenter);
+		} else {
+			notification.notificationCenter = document.querySelector(".notification-center")
+		}
+
+		notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+			var notificationHeight = 0;
+
+			var node = item;
+			while (node) {
+				notificationHeight += (node.clientHeight + 12);
+				node = node.nextElementSibling;
+			}
+
+			item.style.marginBottom = `${notificationHeight}px`;
+		});
+
+		notification.notificationCenter.appendChild(notification.wrapper);
+		notification.container.classList.add("slide-in");
+
+		this._resetTimeout();
+	}
+
+	/**
+	 * Displays a notification asynchroneously and returns a promise,
+	 * which later returns the index of the pressed button (if any, else -1)
+	 */
+	async showAsync() {
+		const notification = this;
+
+		notification.show();
+
+		notification._promise = new Promise((resolve, reject) => {
+			notification._promiseResolve = resolve;
+		});
+
+		return notification._promise;
+	}
+
+	/**
+	 * Hides a notification and removes it from the screen
+	 */
+	hide() {
+		const notification = this;
+
+		clearTimeout(notification.displayTimeout);
+
+		notification.container.classList.remove("slide-in");
+		notification.container.classList.add("slide-out");
+
+		if (notification._promise && typeof notification._promise.result === "undefined") {
+			notification._promiseResolve(-1);
+		}
+
+		setTimeout(() => {
+			notification.notificationCenter.removeChild(notification.wrapper);
+
+			setTimeout(() => {
+				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+					var notificationHeight = 0;
+
+					var node = item;
+					while (node.nextElementSibling) {
+						notificationHeight += (node.clientHeight + 12);
+						node = node.nextElementSibling;
+					}
+
+					item.style.marginBottom = `${notificationHeight}px`;
+				});
+			});
+		}, 300);
+	}
+
+	/**
+	 * Returns the text (if only one input/select) or an array of texts (if multiple) entered into the dialog
+	 */
+	get text() {
+		const notification = this;
+
+		if (notification.container.querySelectorAll("input, select").length > 1) {
+			var output = [];
+
+			notification.container.querySelectorAll("input, select").forEach(item => {
+				output.push(item.value);
+			});
+
+			return output;
+		} else if (notification.container.querySelector("input, select")) {
+			return notification.container.querySelector("input, select").value;
+		}
+
+		return null;
+	}
+}
+
+
+/**
  * Select the current accent color
  * @fires accentSelect Fired when the user selects an accent color. Contains the current accent color name
  */
@@ -589,9 +929,9 @@ var AccentColorSelector = {
 	render(h) {
 		const accents = [];
 
-		for (var i=0; i<48; i++) {
+		for (var i = 0; i < 48; i++) {
 			accents.push(
-				<div class="accent-color-item" onClick={this._selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
+				<div class="accent-color-item" onClick={this._selectAccent} data-accent={`win10-${i + 1 < 10 ? "0" : ""}${i + 1}`}></div>
 			)
 		}
 
@@ -622,7 +962,7 @@ var AppBarButton = {
 	props: ["disabled", "icon", "title"],
 	render(h) {
 		return (
-			<div class={{'app-bar-button': true, 'disabled': this.$props.disabled}}>
+			<div class={{ 'app-bar-button': true, 'disabled': this.$props.disabled }}>
 				<div class="app-bar-button-icon">
 					<i class={`icon ${this.$props.icon}`}></i>
 				</div>
@@ -659,11 +999,11 @@ var AutoSuggestBox = {
 			<div class="auto-suggest">
 				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
-				{this.$data.results.map(item => {
-					return (
-						<div class="item" onClick={this._itemClicked}>{item}</div>
-					)
-				})}
+					{this.$data.results.map(item => {
+						return (
+							<div class="item" onClick={this._itemClicked}>{item}</div>
+						)
+					})}
 				</div>
 			</div>
 		)
@@ -937,15 +1277,15 @@ var CommandBar = {
 			<div class="command-bar">
 				<div class="command-bar-inner">
 					{this.$slots.content &&
-					<div class="app-bar-content">
-						{this.$slots.content}
-					</div>
+						<div class="app-bar-content">
+							{this.$slots.content}
+						</div>
 					}
 
 					{this.$slots.buttons &&
-					<div class="app-bar-buttons">
-						{this.$slots.buttons}
-					</div>
+						<div class="app-bar-buttons">
+							{this.$slots.buttons}
+						</div>
 					}
 					<div class="more" onClick={this.toggle}></div>
 				</div>
@@ -994,13 +1334,13 @@ var ListView = {
 	render(h) {
 		return (
 			<div class="list-view">
-				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+				<div class={{ [`list-view-menu acrylic ${this.$data._acrylic}`]: true }} ref="menu">
 					{this.$props.menuTitle &&
-					<div class="list-view-header">
-						<p class="list-view-title">{this.$props.menuTitle}</p>
+						<div class="list-view-header">
+							<p class="list-view-title">{this.$props.menuTitle}</p>
 
-						{this.$slots["actions"]}
-					</div>
+							{this.$slots["actions"]}
+						</div>
 					}
 
 					<div class="list-view-items">
@@ -1013,17 +1353,17 @@ var ListView = {
 				</div>
 
 				{this.$slots["pages"] &&
-				<div class="frame-header" ref="frameHeader">
-					<p class="title" ref="frameTitle">{this.$props.title}</p>
-				</div>
+					<div class="frame-header" ref="frameHeader">
+						<p class="title" ref="frameTitle">{this.$props.title}</p>
+					</div>
 				}
 
 				{this.$slots["pages"] &&
-				<div class="frame" ref="frame">
-					<div class="frame-content" ref="frameContent">
-						{this.$slots["pages"]}
+					<div class="frame" ref="frame">
+						<div class="frame-content" ref="frameContent">
+							{this.$slots["pages"]}
+						</div>
 					</div>
-				</div>
 				}
 			</div>
 		)
@@ -1156,7 +1496,7 @@ var ListViewMenuItem = {
 			<div class="list-view-item" data-page={this.$props.page}>
 				<div class="list-view-item-inner">
 					{this.$props.icon &&
-					<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+						<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
 					}
 					<p class="list-view-item-content">{this.$props.title}</p>
 				</div>
@@ -1201,19 +1541,19 @@ var Messages = {
 						return (
 							<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
 								{(item.type == "sent" || item.type == "received") &&
-								<div class="message-content">
-									<div class="message-bubble">
-										<p class="message-text">{item.text}</p>
-										<div class="message-info">
-											<p class="message-time">{this._formatTime(item.date)}</p>
-											<p class="message-name">{item.displayName || item.author}</p>
+									<div class="message-content">
+										<div class="message-bubble">
+											<p class="message-text">{item.text}</p>
+											<div class="message-info">
+												<p class="message-time">{this._formatTime(item.date)}</p>
+												<p class="message-name">{item.displayName || item.author}</p>
+											</div>
 										</div>
 									</div>
-								</div>
 								}
 
 								{item.type == "system" &&
-								<span>{item.text}</span>
+									<span>{item.text}</span>
 								}
 							</div>
 						)
@@ -1230,7 +1570,7 @@ var Messages = {
 	},
 	methods: {
 		_formatTime(date) {
-			return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 		},
 		_onInput(e) {
 			this.$data.messageText = e.target.value;
@@ -1326,13 +1666,13 @@ var NavigationView = {
 	render(h) {
 		return (
 			<div class="navigation-view">
-				<div class={{[`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted}} ref="menu">
-					<div class={{"toggle-pane-button": true, "title": this.$data._menuTitle != null}} ref="toggleButton" onClick={this.toggle}>
+				<div class={{ [`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted }} ref="menu">
+					<div class={{ "toggle-pane-button": true, "title": this.$data._menuTitle != null }} ref="toggleButton" onClick={this.toggle}>
 						<p>{this.$data._menuTitle}</p>
 					</div>
 
 					{this.$props.history != false &&
-					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
+						<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
 					}
 
 					<div class="navigation-view-items">
@@ -1346,7 +1686,7 @@ var NavigationView = {
 
 				<div class="frame-header" ref="frameHeader">
 					{this.$props.history != false &&
-					<div class="navigation-view-back-button" ref="backButton"></div>
+						<div class="navigation-view-back-button" ref="backButton"></div>
 					}
 					<div class="toggle-pane-button" onClick={this.toggle}></div>
 					<p class="title" ref="frameTitle">{this.$props.title}</p>
@@ -1729,7 +2069,7 @@ var ToggleSwitch = {
 		return (
 			<div class="toggle-switch">
 				{this.$props.itemHeader &&
-				<p class="item-header">{this.$props.itemHeader}</p>
+					<p class="item-header">{this.$props.itemHeader}</p>
 				}
 				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this._onChange} ref="input"></input>
 				<label for={this.$data.id}>
