@@ -4,29 +4,29 @@
 		<div class="view" data-view-id="main-view">
 			<div class="pages">
 				<div class="page" data-page-id="root">
-					
+
 					<!-- Main navigation view, always visible -->
 					<metro-navigation-view menuTitle="Neo" :history="false" :startRetracted="true" class="transparent no-frame-animation fixed-width" ref="mainNavView">
-						
+
 						<!-- Regular navigation items -->
 						<template slot="navigation-items">
 							<metro-navigation-view-menu-item page="channels" icon="channels" title="Channels" />
-							
+
 							<!-- Items provided by plugins -->
 						</template>
-						
+
 						<!-- Bottom navigation items -->
 						<template slot="bottom-items">
 							<metro-navigation-view-menu-item page="profile" icon="contact" title="Profil" />
 							<metro-navigation-view-menu-item page="settings" icon="settings" title="Einstellungen" />
 						</template>
-						
+
 						<!-- Pages stored in this navigation view -->
 						<template slot="pages">
 							<NeoChannelPage />
-							
+
 							<!-- Pages provided by plugins -->
-							
+
 							<NeoProfilePage />
 							<NeoSettingsPage />
 						</template>
@@ -83,18 +83,18 @@ export default {
 	},
 	mounted() {
 		this.$refs["mainNavView"].navigate("channels");
-		
+
 		SocketService.send({
 			type: PackageType.LoginFinished
 		});
-		
+
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
-            
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
+
 			switch (packageObj.type) {
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
@@ -105,10 +105,10 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
-                    break;
+					break;
 				default: break;
 			}
-        }
+		}
 	}
 }
 </script>

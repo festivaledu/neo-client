@@ -14,7 +14,7 @@
 					</div>
 				</div>
 			</template>
-			
+
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
@@ -44,21 +44,21 @@
 .navigation-view {
 	.navigation-view-menu .navigation-view-items .navigation-view-item.channel-list-item {
 		height: 64px;
-		
+
 		.navigation-view-item-icon {
 			width: 48px;
 			height: 64px;
-			
+
 			.person-picture {
 				width: 32px;
 				height: 32px;
 				margin: 16px 8px;
-				
+
 				&:before {
 					width: 32px;
 					height: 32px;
 				}
-				
+
 				.initials {
 					font-size: 16px;
 					line-height: 14px;
@@ -66,15 +66,15 @@
 				}
 			}
 		}
-		
+
 		.navigation-view-item-content {
 			left: 48px;
-			
+
 			span {
 				display: block;
 				line-height: 22px;
 			}
-			
+
 			.text-label {
 				font-weight: 600;
 			}
@@ -89,13 +89,13 @@
 	.frame-header {
 		right: 320px;
 		background-color: var(--alt-high);
-		
+
 		p.title {
 			font-size: 32px;
 			height: 64px;
 		}
 	}
-	
+
 	.frame-content {
 		width: calc(~"100% - 320px");
 		background-color: var(--alt-high);
@@ -105,7 +105,7 @@
 .page[data-page-id="messages"] {
 	.messages-container {
 		position: relative;
-		
+
 		.messages-input {
 			left: -24px;
 			bottom: -10px;
@@ -138,10 +138,10 @@ export default {
 	methods: {
 		onPackage(packageObj) {
 			switch (packageObj.type) {
-                case PackageType.MetaResponse:                    
-                    this.$store.commit("setServerName", packageObj.content.name);
-		            this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
-                    break;
+				case PackageType.MetaResponse:
+					this.$store.commit("setServerName", packageObj.content.name);
+					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
+					break;
 				case PackageType.EnterChannelResponse:
 					this.$store.commit("setCurrentChannel", packageObj.content);
 					this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -163,7 +163,7 @@ export default {
 			if (this.currentChannel.internalId === channelId) {
 				return;
 			}
-			
+
 			SocketService.send({
 				type: PackageType.EnterChannel,
 				content: channelId
@@ -175,14 +175,14 @@ export default {
 				content: text
 			});
 		},
-        sortMemberList(memberIds) {
+		sortMemberList(memberIds) {
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
 				}
 				return 0;
 			});
-        },
+		},
 		userListItemClicked(memberId) {
 			let user = this.userList.find(_ => _.internalId === memberId);
 
