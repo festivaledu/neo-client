@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1169.7_winkit_internal_dev.190306-1105)
+ * metroUI 4.0 (4.0.1170.43_winkit_internal_dev.190307-1153)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -315,7 +315,6 @@ body[data-accent="win10-01"] {
 body[data-accent="win10-01"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-01"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-01"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -324,6 +323,9 @@ body[data-accent="win10-01"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-01"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-01"] .notification-center .notification {
+  background-color: rgba(186, 137, 0, 0.8);
 }
 body[data-accent="win10-01"] .accent-color-selector .accent-color-item[data-accent="win10-01"]:before {
   display: initial;
@@ -360,7 +362,6 @@ body[data-accent="win10-02"] {
 body[data-accent="win10-02"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-02"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-02"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -369,6 +370,9 @@ body[data-accent="win10-02"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-02"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-02"] .notification-center .notification {
+  background-color: rgba(158, 33, 44, 0.8);
 }
 body[data-accent="win10-02"] .accent-color-selector .accent-color-item[data-accent="win10-02"]:before {
   display: initial;
@@ -405,7 +409,6 @@ body[data-accent="win10-03"] {
 body[data-accent="win10-03"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-03"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-03"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -414,6 +417,9 @@ body[data-accent="win10-03"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-03"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-03"] .notification-center .notification {
+  background-color: rgba(0, 90, 158, 0.8);
 }
 body[data-accent="win10-03"] .accent-color-selector .accent-color-item[data-accent="win10-03"]:before {
   display: initial;
@@ -450,7 +456,6 @@ body[data-accent="win10-04"] {
 body[data-accent="win10-04"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-04"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-04"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -459,6 +464,9 @@ body[data-accent="win10-04"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-04"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-04"] .notification-center .notification {
+  background-color: rgba(0, 107, 131, 0.8);
 }
 body[data-accent="win10-04"] .accent-color-selector .accent-color-item[data-accent="win10-04"]:before {
   display: initial;
@@ -495,7 +503,6 @@ body[data-accent="win10-05"] {
 body[data-accent="win10-05"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-05"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-05"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -504,6 +511,9 @@ body[data-accent="win10-05"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-05"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-05"] .notification-center .notification {
+  background-color: rgba(95, 91, 90, 0.8);
 }
 body[data-accent="win10-05"] .accent-color-selector .accent-color-item[data-accent="win10-05"]:before {
   display: initial;
@@ -540,7 +550,6 @@ body[data-accent="win10-06"] {
 body[data-accent="win10-06"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-06"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-06"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -549,6 +558,9 @@ body[data-accent="win10-06"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-06"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-06"] .notification-center .notification {
+  background-color: rgba(79, 79, 79, 0.8);
 }
 body[data-accent="win10-06"] .accent-color-selector .accent-color-item[data-accent="win10-06"]:before {
   display: initial;
@@ -585,7 +597,6 @@ body[data-accent="win10-07"] {
 body[data-accent="win10-07"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-07"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-07"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -594,6 +605,9 @@ body[data-accent="win10-07"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-07"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-07"] .notification-center .notification {
+  background-color: rgba(179, 98, 0, 0.8);
 }
 body[data-accent="win10-07"] .accent-color-selector .accent-color-item[data-accent="win10-07"]:before {
   display: initial;
@@ -630,7 +644,6 @@ body[data-accent="win10-08"] {
 body[data-accent="win10-08"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-08"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-08"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -639,6 +652,9 @@ body[data-accent="win10-08"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-08"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-08"] .notification-center .notification {
+  background-color: rgba(153, 0, 13, 0.8);
 }
 body[data-accent="win10-08"] .accent-color-selector .accent-color-item[data-accent="win10-08"]:before {
   display: initial;
@@ -675,7 +691,6 @@ body[data-accent="win10-09"] {
 body[data-accent="win10-09"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-09"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-09"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -684,6 +699,9 @@ body[data-accent="win10-09"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-09"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-09"] .notification-center .notification {
+  background-color: rgba(0, 66, 117, 0.8);
 }
 body[data-accent="win10-09"] .accent-color-selector .accent-color-item[data-accent="win10-09"]:before {
   display: initial;
@@ -720,7 +738,6 @@ body[data-accent="win10-10"] {
 body[data-accent="win10-10"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-10"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-10"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -729,6 +746,9 @@ body[data-accent="win10-10"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-10"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-10"] .notification-center .notification {
+  background-color: rgba(33, 93, 115, 0.8);
 }
 body[data-accent="win10-10"] .accent-color-selector .accent-color-item[data-accent="win10-10"]:before {
   display: initial;
@@ -765,7 +785,6 @@ body[data-accent="win10-11"] {
 body[data-accent="win10-11"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-11"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-11"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -774,6 +793,9 @@ body[data-accent="win10-11"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-11"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-11"] .notification-center .notification {
+  background-color: rgba(62, 60, 59, 0.8);
 }
 body[data-accent="win10-11"] .accent-color-selector .accent-color-item[data-accent="win10-11"]:before {
   display: initial;
@@ -810,7 +832,6 @@ body[data-accent="win10-12"] {
 body[data-accent="win10-12"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-12"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-12"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -819,6 +840,9 @@ body[data-accent="win10-12"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-12"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-12"] .notification-center .notification {
+  background-color: rgba(54, 53, 51, 0.8);
 }
 body[data-accent="win10-12"] .accent-color-selector .accent-color-item[data-accent="win10-12"]:before {
   display: initial;
@@ -855,7 +879,6 @@ body[data-accent="win10-13"] {
 body[data-accent="win10-13"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-13"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-13"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -864,6 +887,9 @@ body[data-accent="win10-13"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-13"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-13"] .notification-center .notification {
+  background-color: rgba(208, 65, 34, 0.8);
 }
 body[data-accent="win10-13"] .accent-color-selector .accent-color-item[data-accent="win10-13"]:before {
   display: initial;
@@ -900,7 +926,6 @@ body[data-accent="win10-14"] {
 body[data-accent="win10-14"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-14"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-14"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -909,6 +934,9 @@ body[data-accent="win10-14"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-14"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-14"] .notification-center .notification {
+  background-color: rgba(172, 0, 70, 0.8);
 }
 body[data-accent="win10-14"] .accent-color-selector .accent-color-item[data-accent="win10-14"]:before {
   display: initial;
@@ -945,7 +973,6 @@ body[data-accent="win10-15"] {
 body[data-accent="win10-15"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-15"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-15"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -954,6 +981,9 @@ body[data-accent="win10-15"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-15"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-15"] .notification-center .notification {
+  background-color: rgba(111, 109, 168, 0.8);
 }
 body[data-accent="win10-15"] .accent-color-selector .accent-color-item[data-accent="win10-15"]:before {
   display: initial;
@@ -990,7 +1020,6 @@ body[data-accent="win10-16"] {
 body[data-accent="win10-16"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-16"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-16"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -999,6 +1028,9 @@ body[data-accent="win10-16"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-16"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-16"] .notification-center .notification {
+  background-color: rgba(0, 124, 133, 0.8);
 }
 body[data-accent="win10-16"] .accent-color-selector .accent-color-item[data-accent="win10-16"]:before {
   display: initial;
@@ -1035,7 +1067,6 @@ body[data-accent="win10-17"] {
 body[data-accent="win10-17"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-17"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-17"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1044,6 +1075,9 @@ body[data-accent="win10-17"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-17"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-17"] .notification-center .notification {
+  background-color: rgba(79, 92, 110, 0.8);
 }
 body[data-accent="win10-17"] .accent-color-selector .accent-color-item[data-accent="win10-17"]:before {
   display: initial;
@@ -1080,7 +1114,6 @@ body[data-accent="win10-18"] {
 body[data-accent="win10-18"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-18"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-18"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1089,6 +1122,9 @@ body[data-accent="win10-18"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-18"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-18"] .notification-center .notification {
+  background-color: rgba(67, 88, 94, 0.8);
 }
 body[data-accent="win10-18"] .accent-color-selector .accent-color-item[data-accent="win10-18"]:before {
   display: initial;
@@ -1125,7 +1161,6 @@ body[data-accent="win10-19"] {
 body[data-accent="win10-19"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-19"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-19"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1134,6 +1169,9 @@ body[data-accent="win10-19"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-19"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-19"] .notification-center .notification {
+  background-color: rgba(149, 59, 12, 0.8);
 }
 body[data-accent="win10-19"] .accent-color-selector .accent-color-item[data-accent="win10-19"]:before {
   display: initial;
@@ -1170,7 +1208,6 @@ body[data-accent="win10-20"] {
 body[data-accent="win10-20"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-20"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-20"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1179,6 +1216,9 @@ body[data-accent="win10-20"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-20"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-20"] .notification-center .notification {
+  background-color: rgba(140, 0, 58, 0.8);
 }
 body[data-accent="win10-20"] .accent-color-selector .accent-color-item[data-accent="win10-20"]:before {
   display: initial;
@@ -1215,7 +1255,6 @@ body[data-accent="win10-21"] {
 body[data-accent="win10-21"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-21"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-21"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1224,6 +1263,9 @@ body[data-accent="win10-21"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-21"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-21"] .notification-center .notification {
+  background-color: rgba(79, 77, 158, 0.8);
 }
 body[data-accent="win10-21"] .accent-color-selector .accent-color-item[data-accent="win10-21"]:before {
   display: initial;
@@ -1260,7 +1302,6 @@ body[data-accent="win10-22"] {
 body[data-accent="win10-22"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-22"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-22"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1269,6 +1310,9 @@ body[data-accent="win10-22"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-22"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-22"] .notification-center .notification {
+  background-color: rgba(0, 86, 89, 0.8);
 }
 body[data-accent="win10-22"] .accent-color-selector .accent-color-item[data-accent="win10-22"]:before {
   display: initial;
@@ -1305,7 +1349,6 @@ body[data-accent="win10-23"] {
 body[data-accent="win10-23"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-23"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-23"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1314,6 +1357,9 @@ body[data-accent="win10-23"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-23"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-23"] .notification-center .notification {
+  background-color: rgba(59, 68, 82, 0.8);
 }
 body[data-accent="win10-23"] .accent-color-selector .accent-color-item[data-accent="win10-23"]:before {
   display: initial;
@@ -1350,7 +1396,6 @@ body[data-accent="win10-24"] {
 body[data-accent="win10-24"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-24"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-24"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1359,6 +1404,9 @@ body[data-accent="win10-24"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-24"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-24"] .notification-center .notification {
+  background-color: rgba(55, 63, 66, 0.8);
 }
 body[data-accent="win10-24"] .accent-color-selector .accent-color-item[data-accent="win10-24"]:before {
   display: initial;
@@ -1395,7 +1443,6 @@ body[data-accent="win10-25"] {
 body[data-accent="win10-25"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-25"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-25"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1404,6 +1451,9 @@ body[data-accent="win10-25"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-25"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-25"] .notification-center .notification {
+  background-color: rgba(156, 43, 2, 0.8);
 }
 body[data-accent="win10-25"] .accent-color-selector .accent-color-item[data-accent="win10-25"]:before {
   display: initial;
@@ -1440,7 +1490,6 @@ body[data-accent="win10-26"] {
 body[data-accent="win10-26"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-26"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-26"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1449,6 +1498,9 @@ body[data-accent="win10-26"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-26"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-26"] .notification-center .notification {
+  background-color: rgba(163, 0, 101, 0.8);
 }
 body[data-accent="win10-26"] .accent-color-selector .accent-color-item[data-accent="win10-26"]:before {
   display: initial;
@@ -1485,7 +1537,6 @@ body[data-accent="win10-27"] {
 body[data-accent="win10-27"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-27"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-27"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1494,6 +1545,9 @@ body[data-accent="win10-27"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-27"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-27"] .notification-center .notification {
+  background-color: rgba(91, 62, 131, 0.8);
 }
 body[data-accent="win10-27"] .accent-color-selector .accent-color-item[data-accent="win10-27"]:before {
   display: initial;
@@ -1530,7 +1584,6 @@ body[data-accent="win10-28"] {
 body[data-accent="win10-28"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-28"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-28"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -1539,6 +1592,9 @@ body[data-accent="win10-28"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-28"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-28"] .notification-center .notification {
+  background-color: rgba(0, 130, 108, 0.8);
 }
 body[data-accent="win10-28"] .accent-color-selector .accent-color-item[data-accent="win10-28"]:before {
   display: initial;
@@ -1575,7 +1631,6 @@ body[data-accent="win10-29"] {
 body[data-accent="win10-29"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-29"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-29"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1584,6 +1639,9 @@ body[data-accent="win10-29"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-29"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-29"] .notification-center .notification {
+  background-color: rgba(58, 84, 78, 0.8);
 }
 body[data-accent="win10-29"] .accent-color-selector .accent-color-item[data-accent="win10-29"]:before {
   display: initial;
@@ -1620,7 +1678,6 @@ body[data-accent="win10-30"] {
 body[data-accent="win10-30"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-30"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-30"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1629,6 +1686,9 @@ body[data-accent="win10-30"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-30"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-30"] .notification-center .notification {
+  background-color: rgba(72, 89, 72, 0.8);
 }
 body[data-accent="win10-30"] .accent-color-selector .accent-color-item[data-accent="win10-30"]:before {
   display: initial;
@@ -1665,7 +1725,6 @@ body[data-accent="win10-31"] {
 body[data-accent="win10-31"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-31"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-31"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -1674,6 +1733,9 @@ body[data-accent="win10-31"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-31"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-31"] .notification-center .notification {
+  background-color: rgba(158, 68, 52, 0.8);
 }
 body[data-accent="win10-31"] .accent-color-selector .accent-color-item[data-accent="win10-31"]:before {
   display: initial;
@@ -1710,7 +1772,6 @@ body[data-accent="win10-32"] {
 body[data-accent="win10-32"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-32"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-32"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1719,6 +1780,9 @@ body[data-accent="win10-32"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-32"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-32"] .notification-center .notification {
+  background-color: rgba(138, 0, 85, 0.8);
 }
 body[data-accent="win10-32"] .accent-color-selector .accent-color-item[data-accent="win10-32"]:before {
   display: initial;
@@ -1755,7 +1819,6 @@ body[data-accent="win10-33"] {
 body[data-accent="win10-33"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-33"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-33"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1764,6 +1827,9 @@ body[data-accent="win10-33"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-33"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-33"] .notification-center .notification {
+  background-color: rgba(78, 48, 120, 0.8);
 }
 body[data-accent="win10-33"] .accent-color-selector .accent-color-item[data-accent="win10-33"]:before {
   display: initial;
@@ -1800,7 +1866,6 @@ body[data-accent="win10-34"] {
 body[data-accent="win10-34"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-34"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-34"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1809,6 +1874,9 @@ body[data-accent="win10-34"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-34"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-34"] .notification-center .notification {
+  background-color: rgba(0, 94, 82, 0.8);
 }
 body[data-accent="win10-34"] .accent-color-selector .accent-color-item[data-accent="win10-34"]:before {
   display: initial;
@@ -1845,7 +1913,6 @@ body[data-accent="win10-35"] {
 body[data-accent="win10-35"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-35"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-35"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1854,6 +1921,9 @@ body[data-accent="win10-35"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-35"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-35"] .notification-center .notification {
+  background-color: rgba(51, 74, 68, 0.8);
 }
 body[data-accent="win10-35"] .accent-color-selector .accent-color-item[data-accent="win10-35"]:before {
   display: initial;
@@ -1890,7 +1960,6 @@ body[data-accent="win10-36"] {
 body[data-accent="win10-36"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-36"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-36"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1899,6 +1968,9 @@ body[data-accent="win10-36"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-36"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-36"] .notification-center .notification {
+  background-color: rgba(58, 67, 61, 0.8);
 }
 body[data-accent="win10-36"] .accent-color-selector .accent-color-item[data-accent="win10-36"]:before {
   display: initial;
@@ -1935,7 +2007,6 @@ body[data-accent="win10-37"] {
 body[data-accent="win10-37"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-37"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-37"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1944,6 +2015,9 @@ body[data-accent="win10-37"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-37"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-37"] .notification-center .notification {
+  background-color: rgba(153, 38, 41, 0.8);
 }
 body[data-accent="win10-37"] .accent-color-selector .accent-color-item[data-accent="win10-37"]:before {
   display: initial;
@@ -1980,7 +2054,6 @@ body[data-accent="win10-38"] {
 body[data-accent="win10-38"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-38"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-38"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -1989,6 +2062,9 @@ body[data-accent="win10-38"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-38"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-38"] .notification-center .notification {
+  background-color: rgba(140, 41, 129, 0.8);
 }
 body[data-accent="win10-38"] .accent-color-selector .accent-color-item[data-accent="win10-38"]:before {
   display: initial;
@@ -2025,7 +2101,6 @@ body[data-accent="win10-39"] {
 body[data-accent="win10-39"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-39"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-39"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2034,6 +2109,9 @@ body[data-accent="win10-39"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-39"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-39"] .notification-center .notification {
+  background-color: rgba(125, 49, 137, 0.8);
 }
 body[data-accent="win10-39"] .accent-color-selector .accent-color-item[data-accent="win10-39"]:before {
   display: initial;
@@ -2070,7 +2148,6 @@ body[data-accent="win10-40"] {
 body[data-accent="win10-40"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-40"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-40"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -2079,6 +2156,9 @@ body[data-accent="win10-40"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-40"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-40"] .notification-center .notification {
+  background-color: rgba(0, 135, 70, 0.8);
 }
 body[data-accent="win10-40"] .accent-color-selector .accent-color-item[data-accent="win10-40"]:before {
   display: initial;
@@ -2115,7 +2195,6 @@ body[data-accent="win10-41"] {
 body[data-accent="win10-41"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-41"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-41"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2124,6 +2203,9 @@ body[data-accent="win10-41"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-41"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-41"] .notification-center .notification {
+  background-color: rgba(53, 94, 3, 0.8);
 }
 body[data-accent="win10-41"] .accent-color-selector .accent-color-item[data-accent="win10-41"]:before {
   display: initial;
@@ -2160,7 +2242,6 @@ body[data-accent="win10-42"] {
 body[data-accent="win10-42"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-42"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-42"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2169,6 +2250,9 @@ body[data-accent="win10-42"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-42"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-42"] .notification-center .notification {
+  background-color: rgba(99, 86, 44, 0.8);
 }
 body[data-accent="win10-42"] .accent-color-selector .accent-color-item[data-accent="win10-42"]:before {
   display: initial;
@@ -2205,7 +2289,6 @@ body[data-accent="win10-43"] {
 body[data-accent="win10-43"] button.colored:not([disabled]) {
   color: #000000;
 }
-body[data-accent="win10-43"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-43"] .content-dialog .commands button.primary:not(:active) {
   color: #000000;
 }
@@ -2214,6 +2297,9 @@ body[data-accent="win10-43"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-43"] .messages-container .message.message-received {
   color: #000000;
+}
+body[data-accent="win10-43"] .notification-center .notification {
+  background-color: rgba(184, 42, 42, 0.8);
 }
 body[data-accent="win10-43"] .accent-color-selector .accent-color-item[data-accent="win10-43"]:before {
   display: initial;
@@ -2250,7 +2336,6 @@ body[data-accent="win10-44"] {
 body[data-accent="win10-44"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-44"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-44"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2259,6 +2344,9 @@ body[data-accent="win10-44"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-44"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-44"] .notification-center .notification {
+  background-color: rgba(112, 0, 99, 0.8);
 }
 body[data-accent="win10-44"] .accent-color-selector .accent-color-item[data-accent="win10-44"]:before {
   display: initial;
@@ -2295,7 +2383,6 @@ body[data-accent="win10-45"] {
 body[data-accent="win10-45"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-45"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-45"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2304,6 +2391,9 @@ body[data-accent="win10-45"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-45"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-45"] .notification-center .notification {
+  background-color: rgba(98, 17, 110, 0.8);
 }
 body[data-accent="win10-45"] .accent-color-selector .accent-color-item[data-accent="win10-45"]:before {
   display: initial;
@@ -2340,7 +2430,6 @@ body[data-accent="win10-46"] {
 body[data-accent="win10-46"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-46"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-46"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2349,6 +2438,9 @@ body[data-accent="win10-46"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-46"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-46"] .notification-center .notification {
+  background-color: rgba(11, 92, 42, 0.8);
 }
 body[data-accent="win10-46"] .accent-color-selector .accent-color-item[data-accent="win10-46"]:before {
   display: initial;
@@ -2385,7 +2477,6 @@ body[data-accent="win10-47"] {
 body[data-accent="win10-47"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-47"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-47"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2394,6 +2485,9 @@ body[data-accent="win10-47"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-47"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-47"] .notification-center .notification {
+  background-color: rgba(12, 92, 12, 0.8);
 }
 body[data-accent="win10-47"] .accent-color-selector .accent-color-item[data-accent="win10-47"]:before {
   display: initial;
@@ -2430,7 +2524,6 @@ body[data-accent="win10-48"] {
 body[data-accent="win10-48"] button.colored:not([disabled]) {
   color: #FFFFFF;
 }
-body[data-accent="win10-48"] input[type="email"] .commands button.primary:not(:active),
 body[data-accent="win10-48"] .content-dialog .commands button.primary:not(:active) {
   color: #FFFFFF;
 }
@@ -2439,6 +2532,9 @@ body[data-accent="win10-48"] .messages-container .message.message-sent {
 }
 body[data-accent="win10-48"] .messages-container .message.message-received {
   color: #FFFFFF;
+}
+body[data-accent="win10-48"] .notification-center .notification {
+  background-color: rgba(94, 86, 71, 0.8);
 }
 body[data-accent="win10-48"] .accent-color-selector .accent-color-item[data-accent="win10-48"]:before {
   display: initial;
