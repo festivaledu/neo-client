@@ -340,52 +340,50 @@ metroUI.ContentDialog = class {
 		let content = document.createElement("div");
 		content.className = "content";
 		dialog.container.appendChild(content);
-
-		if (_title.length) {
+		
+		if (params.title && params.title.length) {
 			let title = document.createElement("h4");
-			title.innerText = _title;
+			title.innerText = params.title;
 			content.appendChild(title);
 		}
-
-		if (_content) {
-			if (typeof _content === "object") {
-				content.appendChild(new NodeRenderer(_content));
+		
+		if (params.content) {
+			if (typeof params.content === "object") {
+				content.appendChild(new NodeRenderer(params.content));
 			} else {
-				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+				let parsedHTML = (new DOMParser()).parseFromString(params.content, "text/html");
 				if (parsedHTML.body.children.length) {
 					for (var i = 0; i < parsedHTML.body.children.length; i++) {
 						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
 					}
 				} else {
 					let contentText = document.createElement("p");
-					contentText.innerHTML = _content;
+					contentText.innerText = params.content;
 					content.appendChild(contentText);
 				}
 			}
 		}
-
-		if (buttons && buttons.length) {
+		
+		if (params.commands && params.commands.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
 
-			buttons.forEach((_button, index) => {
-				let button = document.createElement("button");
-				button.innerHTML = _button.text;
-                button.className = _button.primary ? "primary" : "";
-                
-                if (_button.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength)) {
-                    button.disabled = true;
-                }
+			params.commands.slice(0,3).forEach((_command, index) => {
+				let command = document.createElement("button");
+				command.innerText = _command.text;
+				command.className = _command.primary ? "primary" : "";
+				command.disabled = (_command.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength));
 
-				// TODO: Add event listener
+				command.addEventListener("click", () => {
+					if (typeof _command.action === "function") {
+						_command.action();
+					}
 
-				button.addEventListener("click", () => {
 					if (dialog._promiseResolve) {
-						//dialog._promise.resolve(1);
-						if (_button.primary) {
+						if (_command.primary) {
 							dialog._promiseResolve(metroUI.ContentDialogResult.Primary);
-						} else if (index == buttons.length - 1) {
+						} else if (index == commands.length - 1) {
 							dialog._promiseResolve(metroUI.ContentDialogResult.None);
 						} else {
 							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
@@ -395,22 +393,19 @@ metroUI.ContentDialog = class {
 					dialog.hide();
 				});
 
-				commands.appendChild(button);
+				commands.appendChild(command);
 			});
-        }
-        
-        content.querySelectorAll("input").forEach(el => {
-            el.addEventListener("input", ev => {                
-                document.querySelector(".primary").disabled = false;
-
-                content.querySelectorAll("input").forEach(inputEl => {
-                    if (inputEl.dataset.minlength && inputEl.value.length < inputEl.dataset.minlength) {
-                        document.querySelector(".primary").disabled = true;
-                        return;
-                    }
-                });
-            });
-        });
+			
+			content.querySelectorAll("input, select").forEach(item => {
+				item.addEventListener("input", () => {
+					let primaryCommand = commands.querySelector(".primary");
+					
+					if (primaryCommand) {
+						primaryCommand.disabled = [...content.querySelectorAll("input")].some(inputEl => inputEl.value.length < inputEl.dataset.minlength);
+					}
+				});
+			});
+		}
 	}
 
 	/**
