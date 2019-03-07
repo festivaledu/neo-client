@@ -245,10 +245,7 @@ export default {
 			]);
 			flyout.show();
         },
-        onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
-            
+        onPackage(packageObj) {            
 			switch (packageObj.type) {
                 case PackageType.OpenSettingsResponse:
                     this.settingsModel = packageObj.content.model;

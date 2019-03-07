@@ -21,5 +21,7 @@ export default {
     OpenSettings: 19,
     OpenSettingsResponse: 20,
     EditSettings: 21,
-    EditSettingsResponse: 22
+    EditSettingsResponse: 22,
+    EditProfile: 23,
+    EditProfileResponse: 24
 }

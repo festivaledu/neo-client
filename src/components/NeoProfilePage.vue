@@ -69,9 +69,33 @@ import PackageType from '@/scripts/PackageType';
 export default {
 	name: "NeoProfilePage",
 	mounted() {
-		this.$refs["profileSettingsView"].navigate("profile_general");
+        this.$refs["profileSettingsView"].navigate("profile_general");
+        
+        SocketService.$on("package", this.onPackage);
 	},
 	methods: {
+        onPackage(packageObj) {
+            switch (packageObj.type) {                
+                case PackageType.EditProfileResponse:
+                    if (packageObj.content.account) {
+                        this.$store.commit("setCurrentAccount", packageObj.content.account);
+                    }
+
+                    if (packageObj.content.identity) {
+                        this.$store.commit("setIdentity", packageObj.content.identity);
+                    }
+
+                    if (!packageObj.content.account && !packageObj.content.identity) {
+                        new metroUI.ContentDialog("Profil ändern", `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`, [
+                            {
+                                text: "Ok",
+                                primary: true
+                            }
+                        ]).show();
+                    }                    
+                    break;
+            }
+        },
         setColors(accentEvent, themeEvent) {
             let account = this.$store.state.currentAccount;
 
@@ -140,7 +164,13 @@ export default {
 			var result = await changeUsernameDialog.showAsync();
 			
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeUsernameDialog.text);
+                SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "name",
+                        value: changeUsernameDialog.text
+                    }
+                });
 			}
 		},
 		async changeUserId() {
@@ -163,7 +193,13 @@ export default {
 			var result = await changeUserIdDialog.showAsync();
 			
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeUserIdDialog.text);
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "id",
+                        value: changeUserIdDialog.text
+                    }
+                });
 			}
 		},
 		async changeEmail() {
@@ -186,7 +222,13 @@ export default {
 			var result = await changeEmailDialog.showAsync();
 			
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeEmailDialog.text);
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "email",
+                        value: changeEmailDialog.text
+                    }
+                });
 			}
 		},
 		async changePassword() {
@@ -211,7 +253,13 @@ export default {
 			var result = await changePasswordDialog.showAsync();
 			
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changePasswordDialog.text);
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "password",
+                        value: changePasswordDialog.text
+                    }
+                });
 			}
 		}
 	},

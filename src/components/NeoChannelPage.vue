@@ -2,7 +2,7 @@
 	<div class="page" data-page-id="channels">
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" :key="index" @click="enterChannel(channel.internalId)">
+				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" @click="enterChannel(channel.internalId)">
 					<div class="navigation-view-item-inner">
 						<div class="navigation-view-item-icon">
 							<metro-person-picture :displayName="channel.name" />
@@ -20,7 +20,7 @@
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
 
-				<metro-list-view class="user-list" acrylic="acrylic-80" :key="userList.length">
+				<metro-list-view class="user-list" acrylic="acrylic-80">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
 						<div v-for="group in sortedGroupList" :key="group.internalId + userList.length" :data-group-identifier="group.internalId">
 							<div v-if="group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)).length">
@@ -28,8 +28,8 @@
 									<p>{{group.name}}</p>
 								</div>
 								
-								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index + userList.length">
-									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked"/>
+								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked" :key="index + lastUpdate" />
 								</div>
 							</div>
 						</div>
@@ -214,6 +214,9 @@ export default {
 		},
 		groupList() {
 			return this.$store.state.groupList;
+        },
+        lastUpdate() {
+            return this.$store.state.lastUpdate;
         },
         sortedGroupList() {
             return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
