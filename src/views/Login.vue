@@ -170,7 +170,7 @@ export default {
 				passwordConfirm: ""
 			},
 			serverMetadata: {
-            	guestsAllowed: false,
+				guestsAllowed: false,
 				registrationAllowed: false
 			}
 		}
@@ -197,10 +197,10 @@ export default {
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-            }
-            
-            SocketService.send({
-                type: PackageType.Meta
+			}
+			
+			SocketService.send({
+				type: PackageType.Meta
 			});
 			
 			this.isConnecting = false;
@@ -210,8 +210,8 @@ export default {
 			this.$router.replace("/login");
 		},
 		onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
 
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
@@ -220,23 +220,23 @@ export default {
 						registrationAllowed: packageObj.content.registrationAllowed
 					});
 
-                    this.$store.commit("setServerName", packageObj.content.name);
-                    break;
+					this.$store.commit("setServerName", packageObj.content.name);
+					break;
 				case PackageType.LoginResponse:
-                    this.isWorking = false;
+					this.isWorking = false;
 					
 					switch (packageObj.content.status) {
 						case 0:
-                            this.$store.commit("setCurrentAccount", packageObj.content.account);
-                            
-                            if (packageObj.content.account) {
-                                if (packageObj.content.account.attributes["neo.client.accent"]) {
-                                    document.body.setAttribute("data-accent", packageObj.content.account.attributes["neo.client.accent"]);
-                                }
-                                if (packageObj.content.account.attributes["neo.client.theme"]) {
-                                    document.body.setAttribute("data-theme", packageObj.content.account.attributes["neo.client.theme"]);
-                                }
-                            }
+							this.$store.commit("setCurrentAccount", packageObj.content.account);
+							
+							if (packageObj.content.account) {
+								if (packageObj.content.account.attributes["neo.client.accent"]) {
+									document.body.setAttribute("data-accent", packageObj.content.account.attributes["neo.client.accent"]);
+								}
+								if (packageObj.content.account.attributes["neo.client.theme"]) {
+									document.body.setAttribute("data-theme", packageObj.content.account.attributes["neo.client.theme"]);
+								}
+							}
 
 							this.$store.commit("setIdentity", packageObj.content.identity);
 							this.$router.replace("/");
@@ -293,14 +293,14 @@ export default {
 		},
 		
 		login() {
-            this.isWorking = true;
-            SocketService.send({
-                type: PackageType.MemberLogin,
-                content: {
-                    user: this.user.username,
-                    password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
-                }
-            });
+			this.isWorking = true;
+			SocketService.send({
+				type: PackageType.MemberLogin,
+				content: {
+					user: this.user.username,
+					password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
+				}
+			});
 		},
 		async register() {
 			var registerDialog = new metroUI.ContentDialog("Registrieren", (() => {

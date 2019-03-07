@@ -15,11 +15,11 @@ export default {
 	GroupListUpdate: 13,
 	UserListUpdate: 14,
 	EnterChannel: 15,
-    EnterChannelResponse: 16,
-    GetSettings: 17,
-    GetSettingsResponse: 18,
-    OpenSettings: 19,
-    OpenSettingsResponse: 20,
-    EditSettings: 21,
-    EditSettingsResponse: 22
+	EnterChannelResponse: 16,
+	GetSettings: 17,
+	GetSettingsResponse: 18,
+	OpenSettings: 19,
+	OpenSettingsResponse: 20,
+	EditSettings: 21,
+	EditSettingsResponse: 22
 }

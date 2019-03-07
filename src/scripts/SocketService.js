@@ -45,8 +45,8 @@ export const SocketService = new Vue({
 
 			if (packageObj.type === 1) {
 				this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
-                this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
-                
+				this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
+				
 				console.log(this.rsaE);
 				console.log(this.rsaM);
 				return;
@@ -64,8 +64,8 @@ export const SocketService = new Vue({
 			// const rsa = new NodeRSA({ e: Buffer.from(this.rsaE, "hex"), n: Buffer.from(this.rsaM, "hex") }, "pkcs1-public", { environment: "browser", encryptionScheme: "pkcs1" });
 
 			// var encrypted = rsa.encrypt(JSON.stringify({
-			//     aesKey: CryptoJS.enc.Base64.stringify(this.key),
-			//     aesIV: CryptoJS.enc.Base64.stringify(this.iv),
+			//	 aesKey: CryptoJS.enc.Base64.stringify(this.key),
+			//	 aesIV: CryptoJS.enc.Base64.stringify(this.iv),
 			// }), "base64");
 
 			// console.log(encrypted);

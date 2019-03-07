@@ -1093,7 +1093,7 @@ var ListView = {
 				this.$refs["frameTitle"].innerText = "";
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
-        },
+		},
 		
 		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container

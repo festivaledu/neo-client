@@ -72,31 +72,31 @@ export default {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 	},
 	methods: {
-        setColors(accentEvent, themeEvent) {
-            let account = this.$store.state.currentAccount;
+		setColors(accentEvent, themeEvent) {
+			let account = this.$store.state.currentAccount;
 
-            if (!account) {
-                return;
-            }
+			if (!account) {
+				return;
+			}
 
-            if (accentEvent) {
-                account.attributes["neo.client.accent"] = accentEvent;
-            }
+			if (accentEvent) {
+				account.attributes["neo.client.accent"] = accentEvent;
+			}
 
-            if (themeEvent) {
-                account.attributes["neo.client.theme"] = themeEvent;
-            }
+			if (themeEvent) {
+				account.attributes["neo.client.theme"] = themeEvent;
+			}
 
-            this.$store.commit("setCurrentAccount", account);
+			this.$store.commit("setCurrentAccount", account);
 
-            SocketService.send({
-                type: PackageType.EditSettings,
-                content: {
-                    scope: "account",
-                    model: account
-                }
-            });
-        },
+			SocketService.send({
+				type: PackageType.EditSettings,
+				content: {
+					scope: "account",
+					model: account
+				}
+			});
+		},
 		showEditAccountFlyout(event) {
 			new metroUI.MenuFlyout(event.target, [
 				{

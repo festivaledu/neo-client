@@ -92,9 +92,9 @@ export default {
 	},
 	methods: {
 		onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
-            
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
+			
 			switch (packageObj.type) {
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
@@ -105,10 +105,10 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
-                    break;
+					break;
 				default: break;
 			}
-        }
+		}
 	}
 }
 </script>

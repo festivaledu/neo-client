@@ -138,10 +138,10 @@ export default {
 	methods: {
 		onPackage(packageObj) {
 			switch (packageObj.type) {
-                case PackageType.MetaResponse:                    
-                    this.$store.commit("setServerName", packageObj.content.name);
-		            this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
-                    break;
+				case PackageType.MetaResponse:					
+					this.$store.commit("setServerName", packageObj.content.name);
+					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
+					break;
 				case PackageType.EnterChannelResponse:
 					this.$store.commit("setCurrentChannel", packageObj.content);
 					this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -175,14 +175,14 @@ export default {
 				content: text
 			});
 		},
-        sortMemberList(memberIds) {
+		sortMemberList(memberIds) {
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
 				}
 				return 0;
 			});
-        },
+		},
 		userListItemClicked(memberId) {
 			let user = this.userList.find(_ => _.internalId === memberId);
 
@@ -214,10 +214,10 @@ export default {
 		},
 		groupList() {
 			return this.$store.state.groupList;
-        },
-        sortedGroupList() {
-            return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
-        },
+		},
+		sortedGroupList() {
+			return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
+		},
 		userList() {
 			return this.$store.state.userList;
 		}

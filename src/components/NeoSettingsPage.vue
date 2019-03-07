@@ -11,12 +11,12 @@
 				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings" />
 				
 				<metro-list-view-menu-separator title="Gruppen" />
-                
-                <template v-for="group in this.sortedGroupList">
-				    <metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
-                </template>
 				
-                <metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" />
+				<template v-for="group in this.sortedGroupList">
+					<metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
+				</template>
+				
+				<metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" />
 			</template>
 			
 			<template slot="pages">
@@ -25,28 +25,28 @@
 				</div>
 				
 				<div class="page" data-page-id="server_settings" data-page-title="Server-Einstellungen">
-                    
-                    <template v-for="(value, key, index) in settingsModel">
-                        <div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
-                            <template v-if="typeof(value) == 'boolean'">
-                                <metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
-                            </template>
-
-                            <template v-if="typeof(value) == 'string' || typeof(value) == 'number'">
-                                <p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
-                                <input type="text" v-model="settingsModel[key]" :key="index + key" />
-                            </template>
-                        </div>
-                    </template>
 					
-                    <button @click="saveSettings('server')">Einstellungen speichern</button>
+					<template v-for="(value, key, index) in settingsModel">
+						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
+							<template v-if="typeof(value) == 'boolean'">
+								<metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
+							</template>
+
+							<template v-if="typeof(value) == 'string' || typeof(value) == 'number'">
+								<p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
+								<input type="text" v-model="settingsModel[key]" :key="index + key" />
+							</template>
+						</div>
+					</template>
+					
+					<button @click="saveSettings('server')">Einstellungen speichern</button>
 				</div>
 
-                <template v-for="group in this.sortedGroupList">
-                    <div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
-                        {{ group }}
-                    </div>
-                </template>
+				<template v-for="group in this.sortedGroupList">
+					<div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
+						{{ group }}
+					</div>
+				</template>
 				
 				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
 					<!-- Insert label to show which group this group inherits from -->
@@ -189,14 +189,14 @@ export default {
 	data() {
 		return {
 			demoPermission: "inherit",
-            demoPermission2: "deny",
-            settingsModel: {},
-            settingsTitles: {}
+			demoPermission2: "deny",
+			settingsModel: {},
+			settingsTitles: {}
 		}
 	},
 	mounted() {
-        this.$refs["settingsView"].navigate("info");        
-        
+		this.$refs["settingsView"].navigate("info");		
+		
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
@@ -244,33 +244,33 @@ export default {
 				}
 			]);
 			flyout.show();
-        },
-        onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
-            
+		},
+		onPackage(packageObj) {
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
+			
 			switch (packageObj.type) {
-                case PackageType.OpenSettingsResponse:
-                    this.settingsModel = packageObj.content.model;
-                    this.settingsTitles = packageObj.content.titles;
-                    break;
+				case PackageType.OpenSettingsResponse:
+					this.settingsModel = packageObj.content.model;
+					this.settingsTitles = packageObj.content.titles;
+					break;
 				default: break;
 			}
-        },
-        openSettings(settings) {
-            SocketService.send({
-                type: PackageType.OpenSettings,
-                content: settings
-            });
+		},
+		openSettings(settings) {
+			SocketService.send({
+				type: PackageType.OpenSettings,
+				content: settings
+			});
 		},
 		saveSettings(settings) {
-            SocketService.send({
-                type: PackageType.EditSettings,
-                content: {
-                    scope: settings,
-                    model: this.settingsModel
-                }
-            });
+			SocketService.send({
+				type: PackageType.EditSettings,
+				content: {
+					scope: settings,
+					model: this.settingsModel
+				}
+			});
 
 			new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
 				{
@@ -302,11 +302,11 @@ export default {
 			
 			var result = await deleteGroupDialog.showAsync();
 		}
-    },
-    computed: {
-        sortedGroupList() {
-            return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
-        }
-    }
+	},
+	computed: {
+		sortedGroupList() {
+			return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
+		}
+	}
 }
 </script>
