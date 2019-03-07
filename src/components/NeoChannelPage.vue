@@ -2,7 +2,7 @@
 	<div class="page" data-page-id="channels">
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" :key="index" @click="enterChannel(channel.internalId)">
+				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" @click="enterChannel(channel.internalId)">
 					<div class="navigation-view-item-inner">
 						<div class="navigation-view-item-icon">
 							<metro-person-picture :displayName="channel.name" />
@@ -14,13 +14,13 @@
 					</div>
 				</div>
 			</template>
-			
+
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
 
-				<metro-list-view class="user-list" acrylic="acrylic-80" :key="userList.length">
+				<metro-list-view class="user-list" acrylic="acrylic-80">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
 						<div v-for="group in sortedGroupList" :key="group.internalId + userList.length" :data-group-identifier="group.internalId">
 							<div v-if="group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)).length">
@@ -28,8 +28,8 @@
 									<p>{{group.name}}</p>
 								</div>
 								
-								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index + userList.length">
-									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked" />
+								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked" :key="index + lastUpdate" />
 								</div>
 							</div>
 						</div>
@@ -44,21 +44,21 @@
 .navigation-view {
 	.navigation-view-menu .navigation-view-items .navigation-view-item.channel-list-item {
 		height: 64px;
-		
+
 		.navigation-view-item-icon {
 			width: 48px;
 			height: 64px;
-			
+
 			.person-picture {
 				width: 32px;
 				height: 32px;
 				margin: 16px 8px;
-				
+
 				&:before {
 					width: 32px;
 					height: 32px;
 				}
-				
+
 				.initials {
 					font-size: 16px;
 					line-height: 14px;
@@ -66,15 +66,15 @@
 				}
 			}
 		}
-		
+
 		.navigation-view-item-content {
 			left: 48px;
-			
+
 			span {
 				display: block;
 				line-height: 22px;
 			}
-			
+
 			.text-label {
 				font-weight: 600;
 			}
@@ -89,13 +89,13 @@
 	.frame-header {
 		right: 320px;
 		background-color: var(--alt-high);
-		
+
 		p.title {
 			font-size: 32px;
 			height: 64px;
 		}
 	}
-	
+
 	.frame-content {
 		width: calc(~"100% - 320px");
 		background-color: var(--alt-high);
@@ -105,7 +105,7 @@
 .page[data-page-id="messages"] {
 	.messages-container {
 		position: relative;
-		
+
 		.messages-input {
 			left: -24px;
 			bottom: -10px;
@@ -138,6 +138,10 @@ export default {
 	methods: {
 		onPackage(packageObj) {
 			switch (packageObj.type) {
+				case PackageType.MetaResponse:
+					this.$store.commit("setServerName", packageObj.content.name);
+					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
+					break;
 				case PackageType.EnterChannelResponse:
 					this.$store.commit("setCurrentChannel", packageObj.content);
 					this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -159,7 +163,7 @@ export default {
 			if (this.currentChannel.internalId === channelId) {
 				return;
 			}
-			
+
 			SocketService.send({
 				type: PackageType.EnterChannel,
 				content: channelId
@@ -171,15 +175,23 @@ export default {
 				content: text
 			});
 		},
-        sortMemberList(memberIds) {
+		sortMemberList(memberIds) {
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
 				}
 				return 0;
 			});
-        },
-		userListItemClicked(event) {
+		},
+		userListItemClicked(memberId) {
+			let user = this.userList.find(_ => _.internalId === memberId);
+
+			if (user && user.identity.id.localeCompare(this.currentIdentity.id) != 0) {
+				this.$refs["messageContainer"].$refs["input"].value += `@${user.identity.id} `;
+				this.$refs["messageContainer"].$refs["input"].focus();
+			}
+		},
+		userListItemContextClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
@@ -191,6 +203,9 @@ export default {
 		}
 	},
 	computed: {
+		currentIdentity() {
+			return this.$store.state.identity;
+		},
 		currentChannel() {
 			return this.$store.state.currentChannel;
 		},
@@ -199,6 +214,9 @@ export default {
 		},
 		groupList() {
 			return this.$store.state.groupList;
+        },
+        lastUpdate() {
+            return this.$store.state.lastUpdate;
         },
         sortedGroupList() {
             return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);

@@ -5,31 +5,31 @@
 				<metro-navigation-view-menu-item page="profile_general" icon="contact" title="Allgemein" />
 				<metro-navigation-view-menu-item page="profile_colors" icon="color" title="Farben" />
 			</template>
-			
+
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
 					<metro-person-picture :displayName="currentIdentity.name" />
 					<button :disabled="!currentAccount">Profilbild wählen</button>
-					
+
 					<h4>Account-Informationen</h4>
 					<p>Benutzername: {{currentIdentity.name}}</p>
 					<p>Benutzer-ID: {{currentIdentity.id}}</p>
 					<p v-if="currentAccount">E-Mail-Adresse: {{currentAccount.email}}</p>
-					
+
 					<div class="control-group">
 						<button @click="this.showEditAccountFlyout">Account bearbeiten</button>
 					</div>
 				</div>
-				
+
 				<div class="page" data-page-id="profile_colors" data-page-title="Farben">
 					<p>Deine Farbeinstellungen werden mit dem Server synchronisiert und stehen dir beim Anmelden wieder zur Verfügung.</p>
 					<br />
 					<h4>Akzentfarbe</h4>
-					<metro-accent-color-selector />
-					
+					<metro-accent-color-selector @accent-select="setColors($event, null)" />
+
 					<h4>App-Modus</h4>
-					<metro-background-theme-selector lightName="Hell" darkName="Dunkel"/>
+					<metro-background-theme-selector @theme-select="setColors(null, $event)" lightName="Hell" darkName="Dunkel"/>
 				</div>
 			</template>
 		</metro-navigation-view>
@@ -42,20 +42,20 @@
 		width: 128px;
 		height: 128px;
 		margin-bottom: 8px;
-		
+
 		&:before {
 			width: 128px;
 			height: 128px;
 			border-radius: 64px;
 		}
-		
+
 		.initials {
 			font-size: 56px;
 			line-height: 78px;
 			padding: 22px 0 28px;
 		}
 	}
-	
+
 	.control-group {
 		margin-top: 30px;
 	}
@@ -63,12 +63,74 @@
 </style>
 
 <script>
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from '@/scripts/PackageType';
+import CryptoJS from "crypto-js";
+
 export default {
-	name: "NeoSettingsPage",
+	name: "NeoProfilePage",
 	mounted() {
-		this.$refs["profileSettingsView"].navigate("profile_general");
+        this.$refs["profileSettingsView"].navigate("profile_general");
+        
+        SocketService.$on("package", this.onPackage);
 	},
 	methods: {
+        onPackage(packageObj) {
+            switch (packageObj.type) {                
+                case PackageType.EditProfileResponse:
+                    if (packageObj.content.account) {
+                        this.$store.commit("setCurrentAccount", packageObj.content.account);
+                    }
+
+                    if (packageObj.content.identity) {
+                        this.$store.commit("setIdentity", packageObj.content.identity);
+                    }
+
+                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
+                        new metroUI.ContentDialog("Profil ändern", `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`, [
+                            {
+                                text: "Ok",
+                                primary: true
+                            }
+                        ]).show();
+                    }
+
+                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
+                        new metroUI.ContentDialog("Profil ändern", "Das aktuelle Passwort ist falsch.", [
+                            {
+                                text: "Ok",
+                                primary: true
+                            }
+                        ]).show();
+                    }
+                    break;
+            }
+        },
+		setColors(accentEvent, themeEvent) {
+			let account = this.$store.state.currentAccount;
+
+			if (!account) {
+				return;
+			}
+
+			if (accentEvent) {
+				account.attributes["neo.client.accent"] = accentEvent;
+			}
+
+			if (themeEvent) {
+				account.attributes["neo.client.theme"] = themeEvent;
+			}
+
+			this.$store.commit("setCurrentAccount", account);
+
+			SocketService.send({
+				type: PackageType.EditSettings,
+				content: {
+					scope: "account",
+					model: account
+				}
+			});
+		},
 		showEditAccountFlyout(event) {
 			new metroUI.MenuFlyout(event.target, [
 				{
@@ -96,7 +158,7 @@ export default {
 			var changeUsernameDialog = new metroUI.ContentDialog("Benutzernamen ändern", (() => {
 				return (
 					<div>
-						<input type="Text" placeholder="Neuer Benutzername" />
+						<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
 					</div>
 				)
 			})(),
@@ -110,16 +172,22 @@ export default {
 				}
 			]);
 			var result = await changeUsernameDialog.showAsync();
-			
+
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeUsernameDialog.text);
+                SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "name",
+                        value: changeUsernameDialog.text
+                    }
+                });
 			}
 		},
 		async changeUserId() {
 			var changeUserIdDialog = new metroUI.ContentDialog("Benutzer-ID ändern", (() => {
 				return (
 					<div>
-						<input type="Text" placeholder="Neue Benutzer-ID" />
+						<input type="Text" placeholder="Neue Benutzer-ID (min. 3 Zeichen)" data-minlength="3" />
 					</div>
 				)
 			})(),
@@ -133,16 +201,22 @@ export default {
 				}
 			]);
 			var result = await changeUserIdDialog.showAsync();
-			
+
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeUserIdDialog.text);
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "id",
+                        value: changeUserIdDialog.text
+                    }
+                });
 			}
 		},
 		async changeEmail() {
 			var changeEmailDialog = new metroUI.ContentDialog("E-Mail-Adresse ändern", (() => {
 				return (
 					<div>
-						<input type="email" placeholder="Neue E-Mail-Adresse" />
+						<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
 					</div>
 				)
 			})(),
@@ -156,9 +230,15 @@ export default {
 				}
 			]);
 			var result = await changeEmailDialog.showAsync();
-			
+
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changeEmailDialog.text);
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "email",
+                        value: changeEmailDialog.text
+                    }
+                });
 			}
 		},
 		async changePassword() {
@@ -166,8 +246,8 @@ export default {
 				return (
 					<div>
 						<input type="password" placeholder="Derzeitiges Passwort" />
-						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" />
-						<input type="password" placeholder="Passwort bestätigen" />
+						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
+						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
 					</div>
 				)
 			})(),
@@ -181,9 +261,31 @@ export default {
 				}
 			]);
 			var result = await changePasswordDialog.showAsync();
-			
+
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(changePasswordDialog.text);
+                let passwords = changePasswordDialog.text;
+
+                if (passwords[1] !== passwords[2]) {
+                    new metroUI.ContentDialog("Profil ändern", "Die angegeben Passwörter stimmen nicht überein.", [
+                        {
+                            text: "Ok",
+                            primary: true
+                        }
+                    ]).show();
+                    return;
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    passwords[i] = CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(passwords[i]));
+                }
+
+				SocketService.send({
+                    type: PackageType.EditProfile,
+                    content: {
+                        key: "password",
+                        value: passwords
+                    }
+                });
 			}
 		}
 	},

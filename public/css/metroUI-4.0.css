@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1169.7_winkit_internal_dev.190306-1105)
+ * metroUI 4.0 (4.0.1171.0_winkit_internal_dev.190307-2318)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1169.7_winkit_internal_dev.190306-1105";
+  content: "metroUI 4.0\A Build 4.0.1171.0_winkit_internal_dev.190307-2318";
   white-space: pre;
 }
 a {
@@ -3398,7 +3398,8 @@ button:not(:disabled):active {
   background-color: var(--base-medium-low);
 }
 button:disabled {
-  color: var(--base-medium-low);
+  color: var(--base-medium-low) !important;
+  background-color: var(--base-low) !important;
 }
 
 .checkbox {
@@ -5173,6 +5174,181 @@ input[type="url"][disabled]::placeholder {
 }
 .menu-flyout.animate-out {
   animation: menu-flyout-out 200ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+@keyframes notification-slide-in {
+  from {
+    transform: translate3d(380px, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes notification-slide-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(380px, 0, 0);
+  }
+}
+.notification-center {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9000;
+}
+.notification-center .notification-wrapper {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  perspective: 1000px;
+  transition: margin-bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+.notification-center .notification {
+  position: relative;
+  width: 364px;
+  padding: 20px 16px 16px;
+  pointer-events: all;
+}
+.notification-center .notification .dismiss-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.notification-center .notification .dismiss-button .icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+}
+.notification-center .notification .dismiss-button:hover:not(:active) .icon {
+  color: #FFFFFF;
+}
+.notification-center .notification .notification-icon {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+}
+.notification-center .notification .notification-icon .icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+.notification-center .notification .notification-icon + .content {
+  padding-left: 35px;
+}
+.notification-center .notification .content {
+  width: 100%;
+  color: #FFF;
+}
+.notification-center .notification .content .title-label {
+  font-weight: 700;
+}
+.notification-center .notification .notification-inputs {
+  margin-top: 16px;
+}
+.notification-center .notification .notification-inputs input[type="email"],
+.notification-center .notification .notification-inputs input[type="number"],
+.notification-center .notification .notification-inputs input[type="password"],
+.notification-center .notification .notification-inputs input[type="search"],
+.notification-center .notification .notification-inputs input[type="tel"],
+.notification-center .notification .notification-inputs input[type="text"],
+.notification-center .notification .notification-inputs input[type="url"] {
+  max-width: initial;
+}
+.notification-center .notification .notification-inputs input[type="email"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="number"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="password"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="search"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="tel"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="text"]:not(:focus),
+.notification-center .notification .notification-inputs input[type="url"]:not(:focus) {
+  color: #FFFFFF;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 2px var(--system-accent-color-light-1);
+}
+.notification-center .notification .notification-inputs input[type="email"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="number"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="password"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="search"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="tel"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="text"]:not(:focus)::placeholder,
+.notification-center .notification .notification-inputs input[type="url"]:not(:focus)::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification .notification-inputs input[type="email"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="number"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="password"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="search"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="tel"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="text"]:hover:not(:active):not(:focus),
+.notification-center .notification .notification-inputs input[type="url"]:hover:not(:active):not(:focus) {
+  background-color: rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 0 2px var(--system-accent-color-light-2);
+}
+.notification-center .notification .notification-inputs .list {
+  max-width: initial;
+}
+.notification-center .notification .notification-inputs .list:not(.open) .list-inner .list-item {
+  color: #FFFFFF;
+}
+.notification-center .notification .notification-inputs .list:not(.open):not(:hover) {
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 2px var(--system-accent-color-light-1);
+}
+.notification-center .notification .notification-inputs .list:not(.open):hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 0 2px var(--system-accent-color-light-2);
+}
+.notification-center .notification .notification-inputs .list:not(.open):after {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%2028%2028'%20version%3D'1.1'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Cpolygon%20points%3D'13.8886719%2016.3613281%2019.25%2011%2019.7773438%2011.5273438%2013.8886719%2017.4160156%208%2011.5273438%208.52734375%2011'%20fill%3D'%23FFFFFF'%20%2F%3E%3C%2Fsvg%3E");
+}
+.notification-center .notification .notification-inputs .list.open .list-inner .list-item {
+  color: var(--base-high);
+}
+.notification-center .notification .notification-buttons {
+  display: flex;
+  margin-top: 16px;
+}
+.notification-center .notification .notification-buttons button {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.2);
+  flex: 1;
+}
+.notification-center .notification .notification-buttons button:first-child:not(:last-child) {
+  margin-right: 2px;
+}
+.notification-center .notification .notification-buttons button:last-child:not(:first-child) {
+  margin-left: 2px;
+}
+.notification-center .notification .notification-buttons button:not(:first-child):not(:last-child) {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.notification-center .notification .notification-buttons button:not(:disabled):hover:not(:active) {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification .notification-buttons button:active {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification.slide-in {
+  animation: notification-slide-in 500ms cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+.notification-center .notification.slide-out {
+  animation: notification-slide-out 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+.notification-center .notification.fade-out {
+  animation: fade-out 3s linear;
+  animation-fill-mode: forwards;
+}
+.notification-center .notification:not(:hover) .dismiss-button {
+  display: none;
 }
 
 .accent-color-selector {

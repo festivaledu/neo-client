@@ -5,16 +5,16 @@ import Login from "./views/Login.vue";
 Vue.use(Router);
 
 export default new Router({
-    routes: [
+	routes: [
 		{
 			path: "/",
 			name: "root",
 			component: () => import(/* webpackChunkName: "root" */ './views/Root.vue')
 		},
-        {
-            path: "/login",
-            name: "login",
-            component: () => import(/* webpackChunkName: "login" */ './views/Login.vue')
+		{
+			path: "/login",
+			name: "login",
+			component: () => import(/* webpackChunkName: "login" */ './views/Login.vue')
 		},
 		// {
 		// 	path: '/controls',
@@ -34,5 +34,5 @@ export default new Router({
 		// 	name: 'NavigationView',
 		// 	component: () => import(/* webpackChunkName: "navigation-view" */ './views/NavigationView.vue')
 		// }
-    ]
+	]
 })

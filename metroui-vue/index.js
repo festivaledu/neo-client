@@ -45,7 +45,7 @@ var cumulativeOffset = (element) => {
 };
 
 /**
- * 
+ *
  */
 HTMLElement.prototype.parentNodeOfClass = function(className) {
 	var node = this.parentNode;
@@ -56,8 +56,33 @@ HTMLElement.prototype.parentNodeOfClass = function(className) {
 		}
 		node = node.parentNode
 	}
-	
+
 	return null;
+}
+
+
+
+/**
+ * Vue NodeRenderer helper
+ */
+const NodeRenderer = class {
+	constructor(element) {
+		const NodeConstructor = Vue.extend({
+			props: ['node'],
+			render(h, context) {
+				return this.node ? this.node : ''
+			}
+		});
+
+		const nodeRenderer = new NodeConstructor({
+			propsData: {
+				node: element
+			}
+		});
+		nodeRenderer.$mount();
+
+		return nodeRenderer.$el;
+	}
 }
 
 
@@ -209,14 +234,14 @@ metroUI.Page = class {
 		for (var param in params) {
 			page.params[param] = params[param];
 		}
-		
+
 		if (page.params.isPrimaryPage) {
 			page.container.classList.add("page-active");
 		}
-		
+
 		page._scrollTop = null;
 	}
-	
+
 	/**
 	 * Show this page while hiding any other page in
 	 * a) the parent page (eg. NavigatioView)
@@ -257,13 +282,13 @@ metroUI.Page = class {
 	get isVisible() {
 		return this.container.classList.contains("page-active");
 	}
-	
+
 	/**
 	 * Get this page's data, mainly used for navigation
 	 */
 	get pageData() {
 		const page = this;
-		
+
 		return {
 			id: page.container.getAttribute("data-page-id"),
 			container: page.container,
@@ -297,65 +322,40 @@ metroUI.ContentDialogResult = {
 /**
  * The 'ContentDialog' class can be used as a replacement for
  * alert(), confirm(). and prompt().
- * 
+ *
  * @param {String} _title The title of the of the dialog
- * @param {String} _content The message of the dialog
+ * @param {String} _content The content of the dialog
  * @param {Array} buttons An array containing the buttons. Buttons have a title and a 'primary' flag
  */
 metroUI.ContentDialog = class {
-	constructor(_title, _content, buttons) {
+	constructor(params) {
 		const dialog = this;
-		
+
 		dialog.background = document.createElement("div");
 		dialog.background.className = "content-dialog-background";
-		
+
 		dialog.container = document.createElement("div");
 		dialog.container.className = "content-dialog";
-		
+
 		let content = document.createElement("div");
 		content.className = "content";
 		dialog.container.appendChild(content);
-		
+
 		if (_title.length) {
 			let title = document.createElement("h4");
-			title.innerHTML = _title;
+			title.innerText = _title;
 			content.appendChild(title);
 		}
-		
-		// if (_content.length) {
-		// 	let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
-		// 	if (parsedHTML.body.children.length) {
-		// 		for (var i=0; i<parsedHTML.body.children.length; i++) {
-		// 			content.appendChild(parsedHTML.body.children[i].cloneNode(true));
-		// 		}
-		// 	} else {
-		// 		let contentText = document.createElement("p");
-		// 		contentText.innerHTML = _content;
-		// 		content.appendChild(contentText);
-		// 	}
-		// }
+
 		if (_content) {
-			if (_content.constructor.name == "VNode") {
-			const NodeConstructor = Vue.extend({
-				props: ['node'],
-				render(h, context) {
-					return this.node ? this.node : ''
-				}
-			});
-			
-			const nodeRenderer = new NodeConstructor({
-				propsData: {
-					node: _content
-			}
-			});
-			nodeRenderer.$mount();
-			content.appendChild(nodeRenderer.$el);
+			if (typeof _content === "object") {
+				content.appendChild(new NodeRenderer(_content));
 			} else {
 				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
 				if (parsedHTML.body.children.length) {
 					for (var i = 0; i < parsedHTML.body.children.length; i++) {
 						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
-		}
+					}
 				} else {
 					let contentText = document.createElement("p");
 					contentText.innerHTML = _content;
@@ -363,18 +363,23 @@ metroUI.ContentDialog = class {
 				}
 			}
 		}
-		
-		if (buttons.length) {
+
+		if (buttons && buttons.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
-			
+
 			buttons.forEach((_button, index) => {
 				let button = document.createElement("button");
 				button.innerHTML = _button.text;
-				button.className = _button.primary ? "primary" : "";
+                button.className = _button.primary ? "primary" : "";
+                
+                if (_button.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength)) {
+                    button.disabled = true;
+                }
+
 				// TODO: Add event listener
-				
+
 				button.addEventListener("click", () => {
 					if (dialog._promiseResolve) {
 						//dialog._promise.resolve(1);
@@ -386,15 +391,28 @@ metroUI.ContentDialog = class {
 							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
 						}
 					}
-					
+
 					dialog.hide();
 				});
-				
+
 				commands.appendChild(button);
 			});
-		}
+        }
+        
+        content.querySelectorAll("input").forEach(el => {
+            el.addEventListener("input", ev => {                
+                document.querySelector(".primary").disabled = false;
+
+                content.querySelectorAll("input").forEach(inputEl => {
+                    if (inputEl.dataset.minlength && inputEl.value.length < inputEl.dataset.minlength) {
+                        document.querySelector(".primary").disabled = true;
+                        return;
+                    }
+                });
+            });
+        });
 	}
-	
+
 	/**
 	 * Shows a dialog if no result is expected
 	 */
@@ -405,10 +423,10 @@ metroUI.ContentDialog = class {
 		} else {
 			document.querySelector(".content-dialog-background").classList.remove("animate-out");
 		}
-		
+
 		document.body.appendChild(dialog.container);
 	}
-	
+
 	/**
 	 * Shows a dialog asynchroneously and returns a promise,
 	 * which later returns a ContentDialogResult value
@@ -416,25 +434,22 @@ metroUI.ContentDialog = class {
 	 */
 	async showAsync() {
 		const dialog = this;
-		if (!document.querySelector("div.content-dialog-background")) {
-			document.body.appendChild(dialog.background);
-		}
-		
-		document.body.appendChild(dialog.container);
-		
+
+		dialog.show();
+
 		let promise = new Promise((resolve, reject) => {
 			dialog._promiseResolve = resolve;
 		});
 		return promise;
 	}
-	
+
 	/**
-	 * Hides the dialog. Mainly used for the buttons, 
+	 * Hides the dialog. Mainly used for the buttons,
 	 * but can also be used externally
 	 */
 	hide() {
 		const dialog = this;
-		
+
 		dialog.container.classList.add("animate-out");
 		if (document.querySelectorAll(".content-dialog").length < 2) {
 			document.querySelector(".content-dialog-background").classList.add("animate-out");
@@ -446,22 +461,25 @@ metroUI.ContentDialog = class {
 			}
 		}, 400);
 	}
-	
+
+	/**
+	 * Returns the text (if only one input/select) or an array of texts (if multiple) entered into the dialog
+	 */
 	get text() {
 		const dialog = this;
-		
+
 		if (dialog.container.querySelectorAll("input, select").length > 1) {
 			var output = [];
-			
+
 			dialog.container.querySelectorAll("input, select").forEach(item => {
 				output.push(item.value);
 			});
-			
+
 			return output;
 		} else if (dialog.container.querySelector("input, select")) {
 			return dialog.container.querySelector("input, select").value;
 		}
-		
+
 		return null;
 	}
 }
@@ -469,77 +487,77 @@ metroUI.ContentDialog = class {
 
 /**
  * Shows a contextual list of simple commands or options.
- * 
+ *
  * @param {HTMLElement} element The element to attach the MenuFlyout to
  * @param {Array} actions A list of actions
  */
 metroUI.MenuFlyout = class {
 	constructor(element, actions) {
 		const flyout = this;
-		
+
 		flyout.targetElement = element;
-		
+
 		flyout.container = document.createElement("div");
 		flyout.container.className = "menu-flyout";
-		
+
 		flyout.itemList = document.createElement("div");
 		flyout.itemList.className = "menu-items";
 		flyout.container.appendChild(flyout.itemList);
-			
+
 		actions.forEach((_action, index) => {
 			let action = document.createElement("div");
 			action.className = "menu-item";
-			
+
 			if (_action.icon) {
 				let icon = document.createElement("i");
 				icon.className = `icon ${_action.icon}`;
 				action.appendChild(icon);
-				
+
 				let title = document.createElement("span");
 				title.innerText = _action.title;
 				action.appendChild(title);
 			} else {
 				action.innerText = _action.title;
 			}
-			
+
 			if (_action.disabled) {
 				action.classList.add("disabled");
 			}
-			
+
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-				_action.action();
+					_action.action();
 				}
-				
+
 				flyout.hide();
 			});
-			
+
 			flyout.itemList.appendChild(action);
 		});
 	}
-	
+
 	_hide_internal(event) {
 		const flyout = this;
 		if (!event.target.parentNodeOfClass("menu-flyout")) {
 			event.preventDefault();
 			event.stopPropagation();
-			
+
 			flyout.hide();
 		}
 		//console.log(event.target.parentNodeOfClass(".menu-flyout"));
 	}
-	
+
 	/**
 	 * Shows the MenuFlyout where the target element is located
 	 */
 	show() {
 		const flyout = this;
 		document.body.appendChild(flyout.container);
-		
+
 		const width = flyout.container.clientWidth;
 		const height = flyout.container.clientHeight;
 		let offset = cumulativeOffset(flyout.targetElement);
-		
+
 		if (offset.top - (height + 8) >= 0) {
 			flyout.container.style.bottom = `${window.innerHeight - (offset.top - 8)}px`;
 			flyout.container.classList.add("animate-bottom");
@@ -547,29 +565,267 @@ metroUI.MenuFlyout = class {
 			flyout.container.style.top = `${offset.top + (flyout.targetElement.clientHeight + 8)}px`;
 			flyout.container.classList.add("animate-bottom");
 		}
-		
+
 		flyout.container.style.left = `${Math.max(Math.min(window.innerWidth - width, (offset.left + (flyout.targetElement.clientWidth / 2)) - width / 2), 0)}px`;
-		
+
 		setTimeout(() => {
 			flyout.container.style.maxHeight = `${height}px`;
 		}, 0);
-		
+
 		flyout.eventListener = this._hide_internal.bind(flyout);
-		
+
 		document.addEventListener("click", flyout.eventListener, true);
 	}
-	
+
 	/**
 	 * Hides the flyout
 	 */
 	hide() {
 		const flyout = this;
-		
+
 		document.removeEventListener("click", flyout.eventListener, true);
 		flyout.container.classList.add("animate-out");
 		setTimeout(() => {
 			document.body.removeChild(flyout.container);
 		}, 400);
+	}
+}
+
+
+/**
+ * Show a notification containing either text or rich content
+ * 
+ * @param {Object} params An object containg all parameters for this notification ([payload], [icon], title, content, [inputs], [buttons])
+ */
+metroUI.Notification = class {
+	constructor(params) {
+		const notification = this;
+
+		notification.notificationCenter = document.createElement("div");
+		notification.notificationCenter.className = "notification-center";
+
+		notification.wrapper = document.createElement("div");
+		notification.wrapper.className = "notification-wrapper";
+
+		notification.container = document.createElement("div");
+		notification.container.className = "notification";
+		notification.wrapper.appendChild(notification.container);
+
+		let dismissButton = document.createElement("div");
+		dismissButton.className = "dismiss-button";
+		dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
+		dismissButton.addEventListener("click", notification.hide.bind(notification));
+		notification.container.appendChild(dismissButton);
+
+		notification.payload = params.payload;
+		notification.displayTimeout = null;
+		notification.container.addEventListener("mouseover", () => {
+			clearTimeout(notification.displayTimeout);
+		});
+		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+
+		if (params.icon) {
+			let iconContainer = document.createElement("div");
+			iconContainer.className = "notification-icon";
+			notification.container.appendChild(iconContainer);
+
+			if (typeof params.icon === "object") {
+				iconContainer.appendChild(new NodeRenderer(params.icon));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.icon, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						iconContainer.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				} else {
+					let icon = document.createElement("i");
+					icon.className = `icon ${params.icon}`;
+					iconContainer.appendChild(icon);
+				}
+			}
+		}
+
+		let content = document.createElement("div");
+		content.className = "content";
+		notification.container.appendChild(content);
+
+		if (params.title && params.title.length) {
+			let title = document.createElement("p");
+			title.className = "title-label";
+			title.innerText = params.title;
+			content.appendChild(title);
+		}
+
+		if (params.content) {
+			if (typeof params.content === "object") {
+				content.appendChild(new NodeRenderer(params.content));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.content, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				} else {
+					let contentText = document.createElement("p");
+					contentText.innerText = params.content;
+					content.appendChild(contentText);
+				}
+			}
+		}
+
+		if (params.inputs) {
+			let inputs = document.createElement("div");
+			inputs.className = "notification-inputs";
+			notification.container.appendChild(inputs);
+
+			if (typeof params.inputs === "object") {
+				inputs.appendChild(new NodeRenderer(params.inputs));
+			} else {
+				let parsedHTML = (new DOMParser()).parseFromString(params.inputs, "text/html");
+				if (parsedHTML.body.children.length) {
+					for (var i = 0; i < parsedHTML.body.children.length; i++) {
+						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
+					}
+				}
+			}
+		}
+
+		if (params.buttons && params.buttons.length) {
+			let buttons = document.createElement("div");
+			buttons.className = "notification-buttons";
+			notification.container.appendChild(buttons);
+
+			params.buttons.forEach((_button, index) => {
+				let button = document.createElement("button");
+				button.innerText = _button.text;
+
+				button.addEventListener("click", () => {
+					if (typeof _button.action === "function") {
+						_button.action(notification.payload);
+					}
+
+					if (notification._promiseResolve) {
+						notification._promiseResolve(findInRow(button));
+					}
+
+					notification.hide();
+				});
+
+				buttons.appendChild(button);
+			});
+		}
+	}
+
+	_resetTimeout() {
+		const notification = this;
+
+		if (notification.container.classList.contains("slide-out")) {
+			return;
+		}
+
+		clearTimeout(notification.displayTimeout);
+		notification.displayTimeout = setTimeout(notification.hide.bind(notification), 6000);
+	}
+
+	/**
+	 * Displays a notification on the screen
+	 */
+	show() {
+		const notification = this;
+
+		if (!document.querySelector(".notification-center")) {
+			document.body.appendChild(notification.notificationCenter);
+		} else {
+			notification.notificationCenter = document.querySelector(".notification-center")
+		}
+
+		notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+			var notificationHeight = 0;
+
+			var node = item;
+			while (node) {
+				notificationHeight += (node.clientHeight + 12);
+				node = node.nextElementSibling;
+			}
+
+			item.style.marginBottom = `${notificationHeight}px`;
+		});
+
+		notification.notificationCenter.appendChild(notification.wrapper);
+		notification.container.classList.add("slide-in");
+
+		this._resetTimeout();
+	}
+
+	/**
+	 * Displays a notification asynchroneously and returns a promise,
+	 * which later returns the index of the pressed button (if any, else -1)
+	 */
+	async showAsync() {
+		const notification = this;
+
+		notification.show();
+
+		notification._promise = new Promise((resolve, reject) => {
+			notification._promiseResolve = resolve;
+		});
+
+		return notification._promise;
+	}
+
+	/**
+	 * Hides a notification and removes it from the screen
+	 */
+	hide() {
+		const notification = this;
+
+		clearTimeout(notification.displayTimeout);
+
+		notification.container.classList.remove("slide-in");
+		notification.container.classList.add("slide-out");
+
+		if (notification._promise && typeof notification._promise.result === "undefined") {
+			notification._promiseResolve(-1);
+		}
+
+		setTimeout(() => {
+			notification.notificationCenter.removeChild(notification.wrapper);
+
+			setTimeout(() => {
+				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+					var notificationHeight = 0;
+
+					var node = item;
+					while (node.nextElementSibling) {
+						notificationHeight += (node.clientHeight + 12);
+						node = node.nextElementSibling;
+					}
+
+					item.style.marginBottom = `${notificationHeight}px`;
+				});
+			});
+		}, 300);
+	}
+
+	/**
+	 * Returns the text (if only one input/select) or an array of texts (if multiple) entered into the dialog
+	 */
+	get text() {
+		const notification = this;
+
+		if (notification.container.querySelectorAll("input, select").length > 1) {
+			var output = [];
+
+			notification.container.querySelectorAll("input, select").forEach(item => {
+				output.push(item.value);
+			});
+
+			return output;
+		} else if (notification.container.querySelector("input, select")) {
+			return notification.container.querySelector("input, select").value;
+		}
+
+		return null;
 	}
 }
 
@@ -582,13 +838,13 @@ var AccentColorSelector = {
 	name: "metro-accent-color-selector",
 	render(h) {
 		const accents = [];
-		
-		for (var i=0; i<48; i++) {
+
+		for (var i = 0; i < 48; i++) {
 			accents.push(
-				<div class="accent-color-item" onClick={this._selectAccent} data-accent={`win10-${i+1 < 10 ? "0" : ""}${i+1}`}></div>
+				<div class="accent-color-item" onClick={this._selectAccent} data-accent={`win10-${i + 1 < 10 ? "0" : ""}${i + 1}`}></div>
 			)
 		}
-		
+
 		return (
 			<div class="accent-color-selector">
 				{accents}
@@ -599,7 +855,7 @@ var AccentColorSelector = {
 		_selectAccent(e) {
 			if (document.body.getAttribute("data-accent") != e.target.getAttribute("data-accent")) {
 				document.body.setAttribute("data-accent", e.target.getAttribute("data-accent"));
-				this.$emit("accentSelect", e.target.getAttribute("data-accent"));
+				this.$emit("accent-select", e.target.getAttribute("data-accent"));
 			}
 		}
 	}
@@ -616,7 +872,7 @@ var AppBarButton = {
 	props: ["disabled", "icon", "title"],
 	render(h) {
 		return (
-			<div class={{'app-bar-button': true, 'disabled': this.$props.disabled}}>
+			<div class={{ 'app-bar-button': true, 'disabled': this.$props.disabled }}>
 				<div class="app-bar-button-icon">
 					<i class={`icon ${this.$props.icon}`}></i>
 				</div>
@@ -644,7 +900,7 @@ var AutoSuggestBox = {
 			_value: this.$props.value,
 			_data: this.$props.data ? this.$props.data : [],
 			_maxResults: this.$props.maxResults ? this.$props.maxResults : 4,
-			
+
 			results: []
 		}
 	},
@@ -653,11 +909,11 @@ var AutoSuggestBox = {
 			<div class="auto-suggest">
 				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
-				{this.$data.results.map(item => {
-					return (
-						<div class="item" onClick={this._itemClicked}>{item}</div>
-					)
-				})}
+					{this.$data.results.map(item => {
+						return (
+							<div class="item" onClick={this._itemClicked}>{item}</div>
+						)
+					})}
 				</div>
 			</div>
 		)
@@ -676,7 +932,7 @@ var AutoSuggestBox = {
 				sender: this,
 				reason: "userInput"
 			});
-			
+
 			this._suggestItems();
 			setTimeout(() => {
 				var node = this.$el;
@@ -705,14 +961,14 @@ var AutoSuggestBox = {
 		},
 		_suggestItems() {
 			if (!this.$data._data) return;
-			
+
 			if (this.$refs["input"].value.length) {
 				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
 			} else {
 				this.$data.results = this.$data._data;
 			}
-			
-			
+
+
 			if (this.$data.results.length) {
 				this.$refs["items"].classList.add("visible");
 			} else {
@@ -722,14 +978,14 @@ var AutoSuggestBox = {
 		_itemClicked(e) {
 			this.$refs["items"].classList.remove("visible");
 			this.$data._value = e.target.innerText;
-			
+
 			this.$emit('input', this.$data._value);
 			this.$emit('suggestionChosen', {
 				sender: this,
 				selectedItem: e.target.innerText
 			});
 		},
-		
+
 		/**
 		 * Sets a new data source
 		 * @param {Array} source The new data source to use
@@ -741,7 +997,7 @@ var AutoSuggestBox = {
 };
 
 /**
- * 
+ *
  */
 var BackgroundThemeSelector = {
 	name: "metro-background-theme-selector",
@@ -771,7 +1027,7 @@ var BackgroundThemeSelector = {
 		_selectTheme(e) {
 			if (e.target.checked) {
 				document.body.setAttribute("data-theme", e.target.getAttribute("data-theme"));
-				this.$emit("themeSelect", e.target.getAttribute("data-theme"));
+				this.$emit("theme-select", e.target.getAttribute("data-theme"));
 			}
 		}
 	}
@@ -849,21 +1105,21 @@ var ComboBox = {
 
 			this.$refs["list"].appendChild(listItem);
 		});
-		
+
 		if (select.elm.selectedIndex >= 0) {
 			this.$refs["list"].children[select.elm.selectedIndex].classList.add("selected");
 			this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(this.$refs["list"].querySelector(".selected")) * 32 + 8)}px, 0)`;
 		} else {
 			this.$refs["list"].style.transform = "translate3d(0, -8px, 0)";
 		}
-		
+
 		this.$el.querySelectorAll("div.list-inner div.list-item").forEach((item, index) => {
 			item.addEventListener("click", (e) => {
 				e.stopPropagation();
 				if (item.hasAttribute("disabled")) {
 					return;
 				}
-				
+
 				if (this.$el.classList.contains("open")) {
 					this.$el.classList.remove("open");
 				}
@@ -875,13 +1131,13 @@ var ComboBox = {
 				item.classList.add("selected");
 				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(item) * 32 + 8)}px, 0)`;
 				this.$refs["list"].style.top = "";
-				
+
 				if (item.hasAttribute("data-value")) {
 					this.$data.value = item.getAttribute("data-value");
 				} else {
 					this.$data.value = null;
 				}
-				
+
 				select.elm.value = this.$data.value;
 				this.$emit('input', this.$data.value);
 			});
@@ -894,7 +1150,7 @@ var ComboBox = {
 			} else {
 				return;
 			}
-			
+
 			var shift = Math.max(findInRow(this.$refs["list"].querySelector(".selected")), 0) * 32 + 8;
 			this.$refs["list"].style.transform = `translate3d(0, -${shift}px, 0)`;
 
@@ -904,14 +1160,14 @@ var ComboBox = {
 				if (!node.parentNode) break;
 				node = node.parentNode;
 			}
-			
+
 			let absolutePosTop = (cumulativeOffset(this.$refs["list"]).top - shift) - (parseInt(node.scrollTop) ? node.scrollTop : 0);
 			let absolutePosBottom = absolutePosTop + this.$refs["list"].offsetHeight;
-			
+
 			if (absolutePosTop < 10) {
 				this.$refs["list"].style.top = `${-absolutePosTop + 10}px`;
 			} else {
-				
+
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
@@ -931,15 +1187,15 @@ var CommandBar = {
 			<div class="command-bar">
 				<div class="command-bar-inner">
 					{this.$slots.content &&
-					<div class="app-bar-content">
-						{this.$slots.content}
-					</div>
+						<div class="app-bar-content">
+							{this.$slots.content}
+						</div>
 					}
-					
+
 					{this.$slots.buttons &&
-					<div class="app-bar-buttons">
-						{this.$slots.buttons}
-					</div>
+						<div class="app-bar-buttons">
+							{this.$slots.buttons}
+						</div>
 					}
 					<div class="more" onClick={this.toggle}></div>
 				</div>
@@ -988,41 +1244,41 @@ var ListView = {
 	render(h) {
 		return (
 			<div class="list-view">
-				<div class={{[`list-view-menu acrylic ${this.$data._acrylic}`]: true}} ref="menu">
+				<div class={{ [`list-view-menu acrylic ${this.$data._acrylic}`]: true }} ref="menu">
 					{this.$props.menuTitle &&
-					<div class="list-view-header">
-						<p class="list-view-title">{this.$props.menuTitle}</p>
-						
-						{this.$slots["actions"]}
-					</div>
+						<div class="list-view-header">
+							<p class="list-view-title">{this.$props.menuTitle}</p>
+
+							{this.$slots["actions"]}
+						</div>
 					}
 
 					<div class="list-view-items">
 						{this.$slots["list-items"]}
 					</div>
-					
+
 					<div class="list-view-bottom-items">
 						{this.$slots["bottom-items"]}
 					</div>
 				</div>
-				
+
 				{this.$slots["pages"] &&
-				<div class="frame-header" ref="frameHeader">
-					<p class="title" ref="frameTitle">{this.$props.title}</p>
-				</div>
-				}
-				
-				{this.$slots["pages"] &&
-				<div class="frame" ref="frame">
-					<div class="frame-content" ref="frameContent">
-						{this.$slots["pages"]}
+					<div class="frame-header" ref="frameHeader">
+						<p class="title" ref="frameTitle">{this.$props.title}</p>
 					</div>
-				</div>
+				}
+
+				{this.$slots["pages"] &&
+					<div class="frame" ref="frame">
+						<div class="frame-content" ref="frameContent">
+							{this.$slots["pages"]}
+						</div>
+					</div>
 				}
 			</div>
 		)
 	},
-	mounted() {
+	updated() {
 		if (this.$refs["frameContent"] && this.$refs["frame"]) {
 			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
 				if (page.hasAttribute("data-page-id")) {
@@ -1032,10 +1288,10 @@ var ListView = {
 					});
 				}
 			});
-			
+
 			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
 		}
-		
+
 		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
 			if (item.hasAttribute("data-page")) {
 				this.$data._items[item.getAttribute("data-page")] = item;
@@ -1070,7 +1326,7 @@ var ListView = {
 			let page = this.$data._pages[pageName];
 			if (page) {
 				if (page.isVisible) return;
-				
+
 				page.show();
 				this.$data._currentPage = page;
 				this.setTitle(page.params.title);
@@ -1106,7 +1362,7 @@ var ListView = {
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
 		},
-		
+
 		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
 		 * @param {String} query The CSS-like query to select
@@ -1150,7 +1406,7 @@ var ListViewMenuItem = {
 			<div class="list-view-item" data-page={this.$props.page}>
 				<div class="list-view-item-inner">
 					{this.$props.icon &&
-					<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
+						<div class="list-view-item-icon"><i class={`icon ${this.$props.icon}`}></i></div>
 					}
 					<p class="list-view-item-content">{this.$props.title}</p>
 				</div>
@@ -1195,28 +1451,28 @@ var Messages = {
 						return (
 							<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
 								{(item.type == "sent" || item.type == "received") &&
-								<div class="message-content">
-									<div class="message-bubble">
-										<p class="message-text">{item.text}</p>
-										<div class="message-info">
-											<p class="message-time">{this._formatTime(item.date)}</p>
-											<p class="message-name">{item.displayName || item.author}</p>
+									<div class="message-content">
+										<div class="message-bubble">
+											<p class="message-text">{item.text}</p>
+											<div class="message-info">
+												<p class="message-time">{this._formatTime(item.date)}</p>
+												<p class="message-name">{item.displayName || item.author}</p>
+											</div>
 										</div>
 									</div>
-								</div>
 								}
-								
+
 								{item.type == "system" &&
-								<span>{item.text}</span>
+									<span>{item.text}</span>
 								}
 							</div>
 						)
 					})}
 				</div>
-				
+
 				<div class="messages-input">
 					<button class="emoji-selector" disabled><i class="icon emoji2"></i></button>
-					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} />
+					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} ref="input" />
 					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
 				</div>
 			</div>
@@ -1224,7 +1480,7 @@ var Messages = {
 	},
 	methods: {
 		_formatTime(date) {
-			return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 		},
 		_onInput(e) {
 			this.$data.messageText = e.target.value;
@@ -1236,11 +1492,11 @@ var Messages = {
 		},
 		_sendMessage() {
 			if (!this.$data.messageText.length) return;
-			
+
 			this.$emit("messageSent", this.$data.messageText);
 			this.$data.messageText = "";
 		},
-		
+
 		/**
 		 * Adds a new message to the conversation.
 		 * Previous messages may be updated to respect the kind of message added
@@ -1249,7 +1505,7 @@ var Messages = {
 		addMessage(message) {
 			if (this.$data.messages.lastObject()) {
 				const lastMessage = this.$data.messages.lastObject();
-				
+
 				if (lastMessage.type != "sent" && message.type == "sent") {
 					message.hasTail = true;
 					message.isFirst = true;
@@ -1257,7 +1513,7 @@ var Messages = {
 					lastMessage.hasTail = false;
 					message.hasTail = true;
 				}
-				
+
 				if (lastMessage.type != "received" && message.type == "received") {
 					message.hasTail = true;
 				} else if (lastMessage.type == "received" && message.type == "received") {
@@ -1272,9 +1528,9 @@ var Messages = {
 				message.hasTail = true;
 				message.isFirst = true;
 			}
-			
+
 			this.$data.messages.push(message);
-			
+
 			setTimeout(() => {
 				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
 			});
@@ -1285,7 +1541,7 @@ var Messages = {
 		 */
 		addSystemMessage(text) {
 			this.$data.messages.push({ type: "system", text: text });
-			
+
 			setTimeout(() => {
 				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
 			});
@@ -1320,32 +1576,32 @@ var NavigationView = {
 	render(h) {
 		return (
 			<div class="navigation-view">
-				<div class={{[`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted}} ref="menu">
-					<div class={{"toggle-pane-button": true, "title": this.$data._menuTitle != null}} ref="toggleButton" onClick={this.toggle}>
+				<div class={{ [`navigation-view-menu acrylic ${this.$data._acrylic}`]: true, "expanded": this.$data._startExpanded, "retracted": this.$data._startRetracted }} ref="menu">
+					<div class={{ "toggle-pane-button": true, "title": this.$data._menuTitle != null }} ref="toggleButton" onClick={this.toggle}>
 						<p>{this.$data._menuTitle}</p>
 					</div>
-					
-					{this.$props.history != false && 
-					<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
+
+					{this.$props.history != false &&
+						<div class="navigation-view-back-button" disabled={this.$data._history.length <= 1} onClick={this.goBack}></div>
 					}
 
 					<div class="navigation-view-items">
 						{this.$slots["navigation-items"]}
 					</div>
-					
+
 					<div class="navigation-view-bottom-items">
 						{this.$slots["bottom-items"]}
 					</div>
 				</div>
-				
+
 				<div class="frame-header" ref="frameHeader">
-					{this.$props.history != false && 
-					<div class="navigation-view-back-button" ref="backButton"></div>
+					{this.$props.history != false &&
+						<div class="navigation-view-back-button" ref="backButton"></div>
 					}
 					<div class="toggle-pane-button" onClick={this.toggle}></div>
 					<p class="title" ref="frameTitle">{this.$props.title}</p>
 				</div>
-				
+
 				<div class="frame" ref="frame">
 					<div class="frame-content" ref="frameContent">
 						{this.$slots["pages"]}
@@ -1363,16 +1619,16 @@ var NavigationView = {
 				});
 			}
 		});
-		
+
 		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-		
+
 		this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
 			if (item.hasAttribute("data-page")) {
 				this.$data._items[item.getAttribute("data-page")] = item;
 
 				item.addEventListener("click", () => {
 					this.navigate(item.getAttribute("data-page"));
-					
+
 					if (window.innerWidth < 1008) {
 						this.$refs["menu"].classList.remove("expanded");
 					} else if (this.$props.startRetracted) {
@@ -1388,7 +1644,7 @@ var NavigationView = {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
 			}
 		},
-		
+
 		/**
 		 * Toggles this NavigationView's open state
 		 */
@@ -1417,7 +1673,7 @@ var NavigationView = {
 			let page = this.$data._pages[pageName];
 			if (page) {
 				if (page.isVisible) return;
-				
+
 				page.show();
 				this.$data._currentPage = page;
 				this.setTitle(page.params.title);
@@ -1450,13 +1706,13 @@ var NavigationView = {
 		goBack() {
 			if (this.$data._history.length > 1) {
 				this.$data._currentPage.hide();
-	
+
 				let lastPage = this.$data._pages[this.$data._history[this.$data._history.length - 2]];
 				if (lastPage) {
 					lastPage.show();
 					this.$data._currentPage = lastPage;
 					this.setTitle(lastPage.params.title);
-	
+
 					let pageName = lastPage.container.getAttribute("data-page-id");
 					let itemName = lastPage.container.getAttribute("data-nav-item");
 					if (this.$data._items[pageName]) {
@@ -1470,13 +1726,13 @@ var NavigationView = {
 						}
 						this.$data._items[itemName].classList.add("selected");
 					}
-					
+
 					if (lastPage._scrollTop !== null) {
 						this.$refs["frame"].scrollTo(0, lastPage._scrollTop);
 					} else {
 						this.$refs["frame"].scrollTo(0, 0);
 					}
-	
+
 					if (this.$props.history != false) {
 						this.$data._history.pop();
 					}
@@ -1496,7 +1752,7 @@ var NavigationView = {
 				this.$refs["frameTitle"].parentElement.classList.add("hidden");
 			}
 		},
-		
+
 		/**
 		 * Set the title string next to the toggle button
 		 * @param {String} title The title to set. Can be empty
@@ -1504,7 +1760,7 @@ var NavigationView = {
 		setMenuTitle(title) {
 			this.$data._menuTitle = title;
 		},
-		
+
 		/**
 		 * INTERNAL: Wrapper for querySelector and querySelectorAll inside the view container
 		 * @param {String} query The CSS-like query to select
@@ -1584,13 +1840,13 @@ var PersonPicture = {
 			this.$data._initials = this.$props.initials.toUpperCase();
 		} else if (this.$props.displayName) {
 			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
-			
+
 			if (initials.length > 1) {
 				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
 			} else if (initials.length) {
 				this.$data._initials = initials[0];
 			}
-			
+
 		} else if (this.$props.profilePicture) {
 			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 		}
@@ -1677,11 +1933,11 @@ var Slider = {
 	methods: {
 		_onInput(e) {
 			this.$refs["fill"].style.width = `${this._getValue() * 100}%`;
-			
+
 			this.$refs["value"].style.left = `${this._getValue() * 100}%`;
 			this.$refs["value"].style.transform = `translate3d(calc((-50% + 4px) - ${this._getValue() * 8}px), 0, 0)`;
 			this.$refs["value"].innerHTML = parseInt(this.$refs["input"].value);
-			
+
 			this.$data._value = this.$refs["input"].value;
 			this.$emit('input', this.$data._value);
 		},
@@ -1723,7 +1979,7 @@ var ToggleSwitch = {
 		return (
 			<div class="toggle-switch">
 				{this.$props.itemHeader &&
-				<p class="item-header">{this.$props.itemHeader}</p>
+					<p class="item-header">{this.$props.itemHeader}</p>
 				}
 				<input type="checkbox" checked={this.$data._checked} id={this.$data.id} onChange={this._onChange} ref="input"></input>
 				<label for={this.$data.id}>
@@ -1742,13 +1998,13 @@ var ToggleSwitch = {
 	methods: {
 		_onChange(e) {
 			this.$data._checked = e.target.checked;
-			
+
 			if (e.target.checked) {
 				this.$refs["itemLabel"].innerHTML = this.$data._onContent;
 			} else {
 				this.$refs["itemLabel"].innerHTML = this.$data._offContent;
 			}
-			
+
 			this.$emit('input', this.$data._checked);
 		}
 	}

@@ -12,19 +12,19 @@
 						</div>
 					</nav>
 					<hr>
-					
+
 					<div class="row mt-3 d-flex">
 						<div class="col progress-indicator-container" >
 							<div class="progress indeterminate" v-show="isConnecting || isWorking" />
 						</div>
 					</div>
-					
+
 					<form novalidate class="mb-5">
 						<div class="form-group">
 							<label>Server-Adresse</label>
 							<metro-auto-suggest v-model="serverAddress" placeholder="127.0.0.1" :data="knownServers" :disabled="isConnecting || socket" @keyup.13="connect" />
 						</div>
-						
+
 						<div class="row mt-3 d-flex">
 							<div class="col col-auto">
 								<button class="btn btn-primary d-block" @click.prevent="connect()" :disabled="$v.serverAddress.$invalid || isConnecting || socket">Verbinden</button>
@@ -39,10 +39,10 @@
 							</div>
 						</div> -->
 					</form>
-					
+
 					<form novalidate>
 						<div class="form-group">
-							<label>Benutzername oder E-Mail-Adresse</label>
+							<label>Benutzer-ID oder E-Mail-Adresse</label>
 							<input type="text" placeholder="Max Mustermann" v-model="user.username" :disabled="!socket" @input="$v.user.username.$touch()" @keyup.13="login">
 						</div>
 						<div class="form-group">
@@ -50,16 +50,16 @@
 							<input type="password" placeholder="Benötigt" v-model="user.password" :disabled="!socket" @input="$v.user.password.$touch()" @keyup.13="login">
 						</div>
 					</form>
-					
+
 					<div class="row mt-3 d-none d-md-flex">
 						<div class="col col-6 text-left">
 							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
 						</div>
-						
+
 						<div class="col col-6 text-right">
 							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
-						
+
 						<div class="col text-right" v-show="!isWorking">
 							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
@@ -67,16 +67,16 @@
 							<div class="loading-indicator" />
 						</div>
 					</div>
-					
+
 					<!-- <div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">
 							<button class="col-12" @click="login()" :disabled="$v.user.$invalid || isWorking">Sign In</button>
 						</div>
-						
+
 						<div class="col col-12" v-show="!isWorking">
 							<button class="col-12" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !guestsAllowed">Connect as guest</button>
 						</div>
-						
+
 						<div class="col col-12 mt-3 text-center" v-show="!isWorking">
 							<router-link class="d-block mt-2 p-0" to="/register" :disabled="!socket || !registrationAllowed">Don't have an account yet?</router-link>
 						</div>
@@ -94,7 +94,7 @@
 .progress-indicator-container {
 	position: relative;
 	height: 24px;
-	
+
 	.progress.indeterminate {
 		position: absolute;
 		left: 0;
@@ -128,10 +128,10 @@ p.block-text {
 		min-height: 100vh;
 		display: flex;
 		align-items: center;
-		
+
 		& > .row {
 			flex: 1;
-			
+
 			& > .acrylic-background {
 				border-radius: 56px;
 			}
@@ -154,7 +154,7 @@ export default {
 			// serverAddress: "192.168.0.16",
 			socket: null,
 			knownServers: JSON.parse(localStorage.getItem("known-servers")) || [],
-			
+
 			user: {
 				username: "",
 				password: ""
@@ -170,7 +170,7 @@ export default {
 				passwordConfirm: ""
 			},
 			serverMetadata: {
-            	guestsAllowed: false,
+				guestsAllowed: false,
 				registrationAllowed: false
 			}
 		}
@@ -193,25 +193,25 @@ export default {
 	methods: {
 		onOpen() {
 			this.socket = SocketService.socket;
-			
+
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-            }
-            
-            SocketService.send({
-                type: PackageType.Meta
+			}
+
+			SocketService.send({
+				type: PackageType.Meta
 			});
-			
+
 			this.isConnecting = false;
 		},
 		onClose() {
 			this.socket = null;
-			this.$router.replace("/");
+			this.$router.replace("/login");
 		},
 		onPackage(packageObj) {
-            console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-            console.debug(packageObj.content);
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
 
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
@@ -220,14 +220,24 @@ export default {
 						registrationAllowed: packageObj.content.registrationAllowed
 					});
 
-                    this.$store.commit("setServerName", packageObj.content.name);
-                    break;
+					this.$store.commit("setServerName", packageObj.content.name);
+					break;
 				case PackageType.LoginResponse:
-                    this.isWorking = false;
-					
+					this.isWorking = false;
+
 					switch (packageObj.content.status) {
 						case 0:
 							this.$store.commit("setCurrentAccount", packageObj.content.account);
+
+							if (packageObj.content.account) {
+								if (packageObj.content.account.attributes["neo.client.accent"]) {
+									document.body.setAttribute("data-accent", packageObj.content.account.attributes["neo.client.accent"]);
+								}
+								if (packageObj.content.account.attributes["neo.client.theme"]) {
+									document.body.setAttribute("data-theme", packageObj.content.account.attributes["neo.client.theme"]);
+								}
+							}
+
 							this.$store.commit("setIdentity", packageObj.content.identity);
 							this.$router.replace("/");
 							break;
@@ -276,21 +286,21 @@ export default {
 				default: break;
 			}
 		},
-		
+
 		connect() {
 			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
-		
+
 		login() {
-            this.isWorking = true;
-            SocketService.send({
-                type: PackageType.MemberLogin,
-                content: {
-                    user: this.user.username,
-                    password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
-                }
-            });
+			this.isWorking = true;
+			SocketService.send({
+				type: PackageType.MemberLogin,
+				content: {
+					user: this.user.username,
+					password: CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(this.user.password))
+				}
+			});
 		},
 		async register() {
 			var registerDialog = new metroUI.ContentDialog("Registrieren", (() => {
@@ -303,7 +313,7 @@ export default {
 						<input type="password" placeholder="Passwort bestätigen" />
 					</div>
 				)
-			})(), 
+			})(),
 			[
 				{
 					text: "Abbrechen"
@@ -313,7 +323,7 @@ export default {
 					primary: true
 				}
 			]);
-			
+
 			var result = await registerDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -329,7 +339,7 @@ export default {
 						return;
 					}
 				}
-				
+
 				if (texts[3].length < 8) {
 					new metroUI.ContentDialog("Fehler", "Das Passwort muss mindestens 8 Zeichen lang sein.", [
 						{
@@ -346,7 +356,7 @@ export default {
 						}
 					]).show();
 				}
-				
+
 				this.isWorking = true;
 				SocketService.send({
 					type: PackageType.Register,
