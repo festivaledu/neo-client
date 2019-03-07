@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1169.7_winkit_internal_dev.190306-1105)
+ * metroUI 4.0 (4.0.1170.43_winkit_internal_dev.190307-1153)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1169.7_winkit_internal_dev.190306-1105";
+  content: "metroUI 4.0\A Build 4.0.1170.43_winkit_internal_dev.190307-1153";
   white-space: pre;
 }
 a {
@@ -5173,6 +5173,156 @@ input[type="url"][disabled]::placeholder {
 }
 .menu-flyout.animate-out {
   animation: menu-flyout-out 200ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+@keyframes notification-slide-in {
+  from {
+    transform: translate3d(380px, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes notification-slide-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(380px, 0, 0);
+  }
+}
+.notification-center {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9000;
+}
+.notification-center .notification-wrapper {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  perspective: 1000px;
+  transition: bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+.notification-center .notification {
+  position: relative;
+  width: 364px;
+  padding: 20px 16px 16px;
+  pointer-events: all;
+}
+.notification-center .notification .dismiss-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+}
+.notification-center .notification .dismiss-button .icon {
+  color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification .notification-icon {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+}
+.notification-center .notification .notification-icon .icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+.notification-center .notification .notification-icon + .content {
+  padding-left: 35px;
+}
+.notification-center .notification .content {
+  width: 100%;
+  color: #FFF;
+}
+.notification-center .notification .content .title-label {
+  font-weight: 700;
+}
+.notification-center .notification .input {
+  margin-top: 16px;
+}
+.notification-center .notification .input input[type="email"],
+.notification-center .notification .input input[type="number"],
+.notification-center .notification .input input[type="password"],
+.notification-center .notification .input input[type="search"],
+.notification-center .notification .input input[type="tel"],
+.notification-center .notification .input input[type="text"],
+.notification-center .notification .input input[type="url"] {
+  max-width: initial;
+}
+.notification-center .notification .input input[type="email"]:not(:focus),
+.notification-center .notification .input input[type="number"]:not(:focus),
+.notification-center .notification .input input[type="password"]:not(:focus),
+.notification-center .notification .input input[type="search"]:not(:focus),
+.notification-center .notification .input input[type="tel"]:not(:focus),
+.notification-center .notification .input input[type="text"]:not(:focus),
+.notification-center .notification .input input[type="url"]:not(:focus) {
+  color: #FFFFFF;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 2px var(--system-accent-color-light-1);
+}
+.notification-center .notification .input input[type="email"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="number"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="password"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="search"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="tel"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="text"]:not(:focus)::placeholder,
+.notification-center .notification .input input[type="url"]:not(:focus)::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification .input input[type="email"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="number"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="password"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="search"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="tel"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="text"]:hover:not(:active):not(:focus),
+.notification-center .notification .input input[type="url"]:hover:not(:active):not(:focus) {
+  background-color: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 2px var(--system-accent-color-light-2);
+}
+.notification-center .notification .buttons {
+  display: flex;
+  margin-top: 16px;
+}
+.notification-center .notification .buttons button {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.2);
+  flex: 1;
+}
+.notification-center .notification .buttons button:first-child:not(:last-child) {
+  margin-right: 2px;
+}
+.notification-center .notification .buttons button:last-child:not(:first-child) {
+  margin-left: 2px;
+}
+.notification-center .notification .buttons button:not(:first-child):not(:last-child) {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.notification-center .notification .buttons button:not(:disabled):hover:not(:active) {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification .buttons button:active {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification.slide-in {
+  animation: notification-slide-in 500ms cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+.notification-center .notification.slide-out {
+  animation: notification-slide-out 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+.notification-center .notification.fade-out {
+  animation: fade-out 3s linear;
+  animation-fill-mode: forwards;
+}
+.notification-center .notification:not(:hover) .dismiss-button {
+  display: none;
 }
 
 .accent-color-selector {
