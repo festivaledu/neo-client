@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1171.0_winkit_internal_dev.190307-2318)
+ * metroUI 4.0 (4.0.1171.3_winkit_internal_dev.190308-0017)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1171.0_winkit_internal_dev.190307-2318";
+  content: "metroUI 4.0\A Build 4.0.1171.3_winkit_internal_dev.190308-0017";
   white-space: pre;
 }
 a {
@@ -3391,15 +3391,14 @@ button:not(.inline) {
 button:not(:disabled) {
   cursor: pointer;
 }
-button:not(:disabled) .colored {
-  color: var(--system-accent-color);
+button:not(:disabled).colored {
+  background-color: var(--system-accent-color);
 }
 button:not(:disabled):active {
   background-color: var(--base-medium-low);
 }
 button:disabled {
-  color: var(--base-medium-low) !important;
-  background-color: var(--base-low) !important;
+  color: var(--base-medium-low);
 }
 
 .checkbox {
@@ -4924,8 +4923,12 @@ input[type="url"][disabled]::placeholder {
   margin-left: 2px;
   margin-right: 2px;
 }
-.content-dialog .commands button.primary:not(:active) {
+.content-dialog .commands button.primary:not(:disabled):not(:active) {
   background-color: var(--system-accent-color);
+}
+.content-dialog .commands button.primary:disabled {
+  color: var(--base-medium-low) !important;
+  background-color: var(--base-low) !important;
 }
 
 .calendar-date-picker {
