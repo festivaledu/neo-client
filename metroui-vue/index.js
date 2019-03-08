@@ -1863,7 +1863,7 @@ var PersonPicture = {
 			if (this.$props.initials) {
 				this.$data._initials = this.$props.initials.toUpperCase();
 			} else if (this.$props.displayName) {
-				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
+				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-0-9_ ]/g, "").match(/\b\w/g);
 	
 				if (initials.length > 1) {
 					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
