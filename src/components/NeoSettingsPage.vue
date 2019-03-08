@@ -44,6 +44,39 @@
 
 				<template v-for="group in this.sortedGroupList">
 					<div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
+                        <template v-if="group.attributes['neo.grouptype']">
+                            <h4>Gruppentyp</h4>
+                            <div style="align-items: center; display: flex">
+                                <template v-if="group.attributes['neo.grouptype'] == 'admin'">
+                                    <i class="icon party-leader" style="display: inline-block; font-size: 20px; margin: 12px"></i>
+                                    <div>
+                                        <p class="text-label">Administratoren</p>
+                                        <p>Dies ist die Standardgruppe für Administratoren. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+                                    </div>
+                                </template>
+                                <template v-if="group.attributes['neo.grouptype'] == 'user'">
+                                    <i class="icon contact" style="display: inline-block; font-size: 20px; margin: 12px"></i>
+                                    <div>
+                                        <p class="text-label">Benutzer</p>
+                                        <p>Dies ist die Standardgruppe für Benutzer. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+                                    </div>
+                                </template>
+                                <template v-if="group.attributes['neo.grouptype'] == 'guest'">
+                                    <i class="icon guest-user" style="display: inline-block; font-size: 20px; margin: 12px"></i>
+                                    <div>
+                                        <p class="text-label">Gäste</p>
+                                        <p>Dies ist die Standardgruppe für Gäste. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <h4>Allgemein</h4>
+                        <p>Gruppen-ID</p>
+                        <input type="text" v-model="group.id" />
+                        <p>Name</p>
+                        <input type="text" v-model="group.name" />
+
 						{{ group }}
 					</div>
 				</template>
