@@ -1075,7 +1075,7 @@ var ComboBox = {
 	},
 	render(h) {
 		return (
-			<div class="list" onClick={this._onClick}>
+			<div class="list" onClick={this._show}>
 				{this.$slots.default}
 				<div class="list-inner" ref="list"></div>
 			</div>
@@ -1115,17 +1115,14 @@ var ComboBox = {
 					return;
 				}
 
-				if (this.$el.classList.contains("open")) {
-					this.$el.classList.remove("open");
-				}
 
 				if (this.$refs["list"].querySelector(".selected")) {
 					this.$refs["list"].querySelector(".selected").classList.remove("selected");
 				}
 
 				item.classList.add("selected");
-				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(item) * 32 + 8)}px, 0)`;
-				this.$refs["list"].style.top = "";
+
+				this._hide();
 
 				if (item.hasAttribute("data-value")) {
 					this.$data.value = item.getAttribute("data-value");
@@ -1139,7 +1136,18 @@ var ComboBox = {
 		});
 	},
 	methods: {
-		_onClick(e) {
+		_hide() {
+			if (this.$el.classList.contains("open")) {
+				this.$el.classList.remove("open");
+			}
+
+			if (this.$refs["list"].querySelector(".selected")) {
+				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(this.$refs["list"].querySelector(".selected")) * 32 + 8)}px, 0)`;
+				this.$refs["list"].style.top = "";
+			}
+		},
+		
+		_show(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
 			} else {
@@ -1166,6 +1174,10 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
+
+			this.eventListener = this._hide.bind(this);
+
+			document.addEventListener("click", this.eventListener, true);
 
 			e.stopPropagation();
 		}
