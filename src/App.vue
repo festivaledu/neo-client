@@ -64,7 +64,10 @@
 	html.electron {
 		background-image: none;
 		background-color: var(--alt-high);
-	
+		
+		::-webkit-scrollbar { 
+			display: none; 
+		}
 	
 		body[data-theme="light"] {
 			.acrylic-80 {
