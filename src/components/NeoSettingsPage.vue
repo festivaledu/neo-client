@@ -16,7 +16,7 @@
 					<metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
 				</template>
 
-				<metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" />
+				<!-- <metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" /> -->
 			</template>
 
 			<template slot="pages">
@@ -45,7 +45,7 @@
 				<template v-for="group in this.sortedGroupList">
 					<div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
                         <template v-if="group.attributes['neo.grouptype']">
-                            <h4>Gruppentyp</h4>
+                            <h4 style="margin-top: 0">Gruppentyp</h4>
                             <div style="align-items: center; display: flex">
                                 <template v-if="group.attributes['neo.grouptype'] == 'admin'">
                                     <i class="icon party-leader" style="display: inline-block; font-size: 20px; margin: 12px"></i>
@@ -149,8 +149,7 @@
 					</div>
 				</template>
 
-				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
-					<!-- Insert label to show which group this group inherits from -->
+				<!-- <div class="page" data-page-id="group_settings" data-page-title="%group_name%">
 					<button @click="deleteGroup">Gruppe löschen</button>
 
 					<h3>Berechtigungen</h3>
@@ -234,7 +233,7 @@
 					</div>
 
 					<p>{{demoPermission2}}</p>
-				</div>
+				</div> -->
 			</template>
 		</metro-list-view>
 	</div>
@@ -391,7 +390,8 @@ export default {
 						content: "Die Einstellungen wurden gespeichert",
 						inputs: "",
 						buttons: [],
-					}).show();
+                    }).show();
+                    break;
 				default: break;
 			}
 		},

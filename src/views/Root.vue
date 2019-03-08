@@ -109,6 +109,22 @@ export default {
                 case PackageType.KnownPermissionsUpdate:
 					this.$store.commit("setKnownPermissions", packageObj.content);
                     break;
+                case PackageType.DisconnectReason:
+                    let reasons = {
+                        "shutdown": "Der Server fährt herunter",
+                        "kick": "Du wurdest gekickt",
+                        "ban": "Du wurdest gebannt"
+                    };
+
+                    new metroUI.Notification({
+                        payload: {},
+                        title: "Verbindung getrennt",
+                        icon: "ethernet-error",
+                        content: reasons[packageObj.content],
+                        inputs: "",
+                        buttons: [],
+					}).show();
+                    break;
 				default: break;
 			}
 		}

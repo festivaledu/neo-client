@@ -520,8 +520,12 @@ metroUI.MenuFlyout = class {
 			}
 
 			action.addEventListener("click", () => {
-				if (typeof _action.action === "function") {
-					_action.action();
+                if (typeof _action.action === "function") {
+                    if (_action.actionParams) {
+                        _action.action(_action.actionParams);
+                    } else {
+					    _action.action();
+                    }
 				}
 
 				flyout.hide();
