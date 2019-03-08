@@ -1369,6 +1369,7 @@ var ListView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 			}
 		},
 		/**
@@ -1722,6 +1723,7 @@ var NavigationView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 
 				if (this.$props.history != false) {
 					this.$data._history.push(pageName);
