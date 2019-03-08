@@ -201,34 +201,29 @@ export default {
 	},
 	methods: {
 		async addGroup() {
-			var addGroupDialog = new metroUI.ContentDialog("Neue Gruppe erstellen",
-			(() => {
-				return (
-					<div>
-						<input type="text" placeholder="Name der neuen Gruppe"/>
+			var addGroupDialog = new metroUI.ContentDialog({
+				title: "Neue Gruppe erstellen",
+				content: (() => {
+					return (
+						<div>
+							<input type="text" placeholder="Name der neuen Gruppe"/>
 
-						<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
-						<metro-combo-box>
-							<select>
-								{[{id:"id",name:"%group_name%"}].map(item => {
-									return (
-										<option value={item.id}>{item.name}</option>
-									)
-								})}
-							</select>
-						</metro-combo-box>
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Abbrechen"
-				},
-				{
-					text: "Gruppe erstellen",
-					primary: true
-				}
-			]);
+							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
+							<metro-combo-box>
+								<select>
+									{[{id:"id",name:"%group_name%"}].map(item => {
+										return (
+											<option value={item.id}>{item.name}</option>
+										)
+									})}
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Gruppe erstellen", primary: true }]
+			});
+			
 			var result = await addGroupDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -270,25 +265,19 @@ export default {
 			});
 		},
 		async deleteGroup() {
-			var deleteGroupDialog = new metroUI.ContentDialog("Gruppe löschen",
-			(() => {
-				return (
-					<div>
-						<p>Bist du sicher, dass du diese Gruppe löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
-						<br />
-						<p>Benutzer in dieser Gruppe werden in die voherige Gruppe verschoben.</p>
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Abbrechen"
-				},
-				{
-					text: "Löschen",
-					primary: true
-				}
-			]);
+			var deleteGroupDialog = new metroUI.ContentDialog({
+				title: "Gruppe löschen",
+				content: (() => {
+					return (
+						<div>
+							<p>Bist du sicher, dass du diese Gruppe löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+							<br />
+							<p>Benutzer in dieser Gruppe werden in die voherige Gruppe verschoben.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
+			});
 
 			var result = await deleteGroupDialog.showAsync();
 		}

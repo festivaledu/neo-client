@@ -244,7 +244,9 @@ export default {
 						case 1:
 						case 2:
 						case 3:
-							new metroUI.ContentDialog("Anmeldefehler", (() => {
+							new metroUI.ContentDialog({
+								title: "Anmeldefehler",
+								content: (() => {
 								return (
 									<div>
 										{(() => {
@@ -260,11 +262,15 @@ export default {
 										})()}
 									</div>
 								)
-							})(), [{ text: "Ok" }]).show();
+								})(),
+								commands: [{ text: "Ok" }]
+							}).show();
 							break;
 						case 4:
 						case 5:
-							new metroUI.ContentDialog("Registrierungsfehler", (() => {
+							new metroUI.ContentDialog({
+								title: "Anmeldefehler",
+								content: (() => {
 								return (
 									<div>
 										{(() => {
@@ -278,7 +284,9 @@ export default {
 										})()}
 									</div>
 								)
-							})(), [{ text: "Ok" }]).show();
+								})(),
+								commands: [{ text: "Ok" }]
+							}).show();
 							break;
 						default: break;
 					}
@@ -303,7 +311,9 @@ export default {
 			});
 		},
 		async register() {
-			var registerDialog = new metroUI.ContentDialog("Registrieren", (() => {
+			var registerDialog = new metroUI.ContentDialog({
+				title: "Registrieren",
+				content: (() => {
 				return (
 					<div>
 						<input type="text" placeholder="Benutzername" />
@@ -314,15 +324,8 @@ export default {
 					</div>
 				)
 			})(),
-			[
-				{
-					text: "Abbrechen"
-				},
-				{
-					text: "Ok",
-					primary: true
-				}
-			]);
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
 
 			var result = await registerDialog.showAsync();
 
@@ -330,31 +333,29 @@ export default {
 				let texts = registerDialog.text;
 				for (var i = 0; i < texts.length; i++) {
 					if (!texts[i].length) {
-						new metroUI.ContentDialog("Fehler", "Du musst alle Felder ausfüllen, um dich zu registieren.", [
-							{
-								text: "Ok",
-								primary: true
-							}
-						]).show();
+						new metroUI.ContentDialog({
+							title: "Fehler", 
+							content: "Du musst alle Felder ausfüllen, um dich zu registieren.",
+							commands: [{ text: "Ok", primary: true }]
+						}).show();
 						return;
 					}
 				}
 
 				if (texts[3].length < 8) {
-					new metroUI.ContentDialog("Fehler", "Das Passwort muss mindestens 8 Zeichen lang sein.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+					new metroUI.ContentDialog({
+						title: "Fehler", 
+						content: "Das Passwort muss mindestens 8 Zeichen lang sein.",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
 					return;
 				} else if (texts[3].localeCompare(texts[4]) != 0) {
-					new metroUI.ContentDialog("Fehler", "Die angegeben Passwörter stimmen nicht überein.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+					new metroUI.ContentDialog({
+						title: "Fehler", 
+						content: "Die angegeben Passwörter stimmen nicht überein.",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
+					return;
 				}
 
 				this.isWorking = true;
