@@ -105,8 +105,7 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
-					break;
-					
+					break;					
 				case PackageType.EditSettingsResponse:
 					new metroUI.ContentDialog({
 						title:"Einstellungen", 

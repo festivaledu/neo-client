@@ -369,7 +369,7 @@ metroUI.ContentDialog = class {
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
 
-			params.commands.slice(0,3).forEach((_command, index) => {
+			params.commands.slice(0, 3).forEach((_command, index) => {
 				let command = document.createElement("button");
 				command.innerText = _command.text;
 				command.className = _command.primary ? "primary" : "";
