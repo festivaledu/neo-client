@@ -6,9 +6,9 @@
 			</template>
 
 			<template slot="list-items">
-				<metro-list-view-menu-separator title="Server" />
-				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
+				<metro-list-view-menu-separator title="Allgemein" />
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
+				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings_general" />
 
 				<metro-list-view-menu-separator title="Gruppen" />
 
@@ -24,7 +24,7 @@
 					<p class="metro-ui-version-string" />
 				</div>
 
-				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein">
+				<div class="page" data-page-id="server_settings_general" data-page-title="Server-Einstellungen">
 
 					<template v-for="(value, key, index) in settingsModel">
 						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
@@ -74,15 +74,25 @@
                         <h4>Allgemein</h4>
                         <p class="text-label">Gruppen-ID</p>
                         <input type="text" v-model="group.id" />
+						
                         <p class="text-label">Name</p>
                         <input type="text" v-model="group.name" />
+						
                         <p class="text-label">Wertigkeit</p>
                         <p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
                         <input type="text" v-model="group.sortValue" />
                         
                         <h4>Mitglieder</h4>
-                        <template v-for="(memberId, index) in group.memberIds">
-                            <p :key="group.internalId + '-member-' + index">{{ memberId }}</p>
+                        <template v-if="userList.length && group.memberIds.length">
+                            <div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
+								<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
+									<div class="col col-5">
+										<metro-person-picture :displayName="_userById(memberId).identity.name" />
+										<p class="text-label">{{ _userById(memberId).identity.name }}</p>
+										<p class="detail-text-label">{{ _userById(memberId).identity.id }}</p>
+									</div>
+								</div>
+							</div>
                         </template>
 
                         <div class="row" style="margin-right: 5px">
@@ -132,7 +142,7 @@
                         </template>
 
                         <p class="text-label" style="margin-top: 24px">Neue Berechtigung hinzufügen</p>
-                        <p class="detail-text-label">Jede Berechtigung die nicht oben nicht definiert ist, wird automatisch von niedrigeren Gruppen übernommen.<br />Wenn keine niedrigere Gruppe die Berechtigung definiert, gilt sie als verweigert.</p>
+                        <p class="detail-text-label">Berechtigungen einer Gruppe, die nicht explizit definiert wurden, werden automatisch von Gruppen mit niedrigerer Wertigkeit übernommen.<br />Wenn keine Gruppe mit niedrigerer Wertigkeit die Berechtigung definiert, gilt sie in diesen Gruppen als verweigert.</p>
                         <metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" /><button @click="addPermission(group)">Hinzufügen</button>
                                                 
 					    <button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
@@ -260,6 +270,23 @@
 	.detail-text-label {
 		color: var(--base-medium)
 	}
+	
+	.row .col .person-picture {
+		float: left;
+		width: 42px;
+		height: 42px;
+		margin-right: 8px;
+		
+		&:before {
+			width: 42px;
+			height: 42px;
+		}
+		
+		.initials {
+			font-size: 22px !important;
+			padding: 1px 0 !important;
+		}
+	}
 }
 
 .list-view-item.single-line {
@@ -292,6 +319,10 @@ export default {
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
+		_userById(userId) {
+			return this.userList.find(_ => _.internalId === userId);
+		},
+		
 		async addGroup() {
 			var addGroupDialog = new metroUI.ContentDialog({
 				title: "Gruppe hinzufügen",
@@ -406,6 +437,9 @@ export default {
         },
 		sortedGroupList() {
 			return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
+		},
+		userList() {
+			return this.$store.state.userList;
 		}
 	}
 }
