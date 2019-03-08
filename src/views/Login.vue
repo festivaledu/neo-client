@@ -316,11 +316,11 @@ export default {
 				content: (() => {
 				return (
 					<div>
-						<input type="text" placeholder="Benutzername" />
-						<input type="text" placeholder="Benutzer-ID" />
-						<input type="email" placeholder="E-Mail-Adresse" />
-						<input type="password" placeholder="Passwort (min. 8 Zeichen)" />
-						<input type="password" placeholder="Passwort bestätigen" />
+						<input type="text" placeholder="Benutzername" data-minlength="1" />
+						<input type="text" placeholder="Benutzer-ID" data-minlength="3" />
+						<input type="email" placeholder="E-Mail-Adresse" data-minlength="6" />
+						<input type="password" placeholder="Passwort (min. 8 Zeichen)" data-minlength="8" />
+						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
 					</div>
 				)
 			})(),
