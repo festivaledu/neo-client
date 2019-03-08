@@ -202,18 +202,18 @@ export default {
 	methods: {
 		async addGroup() {
 			var addGroupDialog = new metroUI.ContentDialog({
-				title: "Neue Gruppe erstellen",
+				title: "Gruppe hinzufügen",
 				content: (() => {
 					return (
 						<div>
-							<input type="text" placeholder="Name der neuen Gruppe"/>
+							<input type="text" data-required="true" placeholder="Name der Gruppe (z.B. Mitarbeiter)"/>
 
 							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
 							<metro-combo-box>
 								<select>
-									{[{id:"id",name:"%group_name%"}].map(item => {
+									{this.sortedGroupList.reverse().map(group => {
 										return (
-											<option value={item.id}>{item.name}</option>
+											<option value={group.internalId}>{group.name}</option>
 										)
 									})}
 								</select>
@@ -233,7 +233,7 @@ export default {
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
-					title: "Neue Gruppe",
+					title: "Gruppe hinzufügen",
 					icon: "add",
 					action: this.addGroup
 				}
