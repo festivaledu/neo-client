@@ -206,6 +206,10 @@ export default {
 			this.isConnecting = false;
 		},
 		onClose() {
+			SocketService.$off("open");
+			SocketService.$off("close");
+			SocketService.$off("package");
+			
 			this.socket = null;
 			this.$router.replace("/login");
 		},
