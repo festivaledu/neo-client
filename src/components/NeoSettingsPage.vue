@@ -351,6 +351,15 @@ export default {
 					this.settingsModel = packageObj.content.model;
 					this.settingsTitles = packageObj.content.titles;
 					break;
+				case PackageType.EditSettingsResponse:
+					new metroUI.Notification({
+						payload: {},
+						title: "Einstellungen",
+						icon: "settings",
+						content: "Die Einstellungen wurden gespeichert",
+						inputs: "",
+						buttons: [],
+					}).show();
 				default: break;
 			}
 		},

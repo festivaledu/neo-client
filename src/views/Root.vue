@@ -109,18 +109,6 @@ export default {
                 case PackageType.KnownPermissionsUpdate:
 					this.$store.commit("setKnownPermissions", packageObj.content);
                     break;
-				case PackageType.EditSettingsResponse:
-					new metroUI.ContentDialog({
-						title:"Einstellungen", 
-						content: "Die Einstellungen wurden gespeichert.",
-						commands: [
-							{
-								text: "Ok",
-								primary: true
-							}
-						]
-					}).show();
-					break;
 				default: break;
 			}
 		}
