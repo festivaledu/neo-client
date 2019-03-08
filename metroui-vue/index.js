@@ -1460,28 +1460,30 @@ var Messages = {
 	render(h) {
 		return (
 			<div class="messages-container">
-				<div class="messages-wrapper">
-					{this.$data.messages.map(item => {
-						return (
-							<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
-								{(item.type == "sent" || item.type == "received") &&
-									<div class="message-content">
-										<div class="message-bubble">
-											<p class="message-text">{item.text}</p>
-											<div class="message-info">
-												<p class="message-time">{this._formatTime(item.date)}</p>
-												<p class="message-name">{item.displayName || item.author}</p>
+				<div class="messages-scroll-container" ref="scrollContainer">
+					<div class="messages-wrapper">
+						{this.$data.messages.map(item => {
+							return (
+								<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
+									{(item.type == "sent" || item.type == "received") &&
+										<div class="message-content">
+											<div class="message-bubble">
+												<p class="message-text">{item.text}</p>
+												<div class="message-info">
+													<p class="message-time">{this._formatTime(item.date)}</p>
+													<p class="message-name">{item.displayName || item.author}</p>
+												</div>
 											</div>
 										</div>
-									</div>
-								}
+									}
 
-								{item.type == "system" &&
-									<span>{item.text}</span>
-								}
-							</div>
-						)
-					})}
+									{item.type == "system" &&
+										<span>{item.text}</span>
+									}
+								</div>
+							)
+						})}
+					</div>
 				</div>
 
 				<div class="messages-input">
@@ -1546,7 +1548,7 @@ var Messages = {
 			this.$data.messages.push(message);
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
 		},
 		/**
@@ -1557,7 +1559,7 @@ var Messages = {
 			this.$data.messages.push({ type: "system", text: text });
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
 		}
 	}
