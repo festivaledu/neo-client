@@ -51,7 +51,7 @@
 						</div>
 					</form>
 
-					<div class="row mt-3 d-none d-md-flex">
+					<div class="row mt-3 d-flex">
 						<div class="col col-6 text-left">
 							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
 						</div>
