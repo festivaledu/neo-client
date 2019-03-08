@@ -16,7 +16,7 @@
 					<metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
 				</template>
 
-				<metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" />
+				<!-- <metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" /> -->
 			</template>
 
 			<template slot="pages">
@@ -139,8 +139,7 @@
 					</div>
 				</template>
 
-				<div class="page" data-page-id="group_settings" data-page-title="%group_name%">
-					<!-- Insert label to show which group this group inherits from -->
+				<!-- <div class="page" data-page-id="group_settings" data-page-title="%group_name%">
 					<button @click="deleteGroup">Gruppe löschen</button>
 
 					<h3>Berechtigungen</h3>
@@ -224,7 +223,7 @@
 					</div>
 
 					<p>{{demoPermission2}}</p>
-				</div>
+				</div> -->
 			</template>
 		</metro-list-view>
 	</div>
