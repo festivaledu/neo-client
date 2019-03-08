@@ -373,7 +373,7 @@ metroUI.ContentDialog = class {
 				let command = document.createElement("button");
 				command.innerText = _command.text;
 				command.className = _command.primary ? "primary" : "";
-				command.disabled = (_command.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength));
+				command.disabled = (_command.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength || inputEl.dataset.required == "true"));
 
 				command.addEventListener("click", () => {
 					if (typeof _command.action === "function") {
@@ -401,7 +401,7 @@ metroUI.ContentDialog = class {
 					let primaryCommand = commands.querySelector(".primary");
 					
 					if (primaryCommand) {
-						primaryCommand.disabled = [...content.querySelectorAll("input")].some(inputEl => inputEl.value.length < inputEl.dataset.minlength);
+						primaryCommand.disabled = [...content.querySelectorAll("input")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 					}
 				});
 			});
