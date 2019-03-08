@@ -5150,11 +5150,11 @@ input[type="url"][disabled]::placeholder {
 .menu-flyout .menu-items .menu-item i.icon {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 6px;
   margin: 6px;
 }
 .menu-flyout .menu-items .menu-item i.icon + span {
-  padding-left: 20px;
+  padding-left: 26px;
 }
 .menu-flyout .menu-items .menu-item.disabled {
   color: var(--base-medium-low);

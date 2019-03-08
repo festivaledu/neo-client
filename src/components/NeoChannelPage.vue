@@ -2,17 +2,19 @@
 	<div class="page" data-page-id="channels">
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" @click="enterChannel(channel.internalId)">
-					<div class="navigation-view-item-inner">
-						<div class="navigation-view-item-icon">
-							<metro-person-picture :displayName="channel.name" />
-						</div>
-						<p class="navigation-view-item-content">
-							<span class="text-label">{{channel.name}}</span>
-							<span class="detail-text-label">{{channel.statusMessage}}</span>
-						</p>
-					</div>
-				</div>
+				<template v-for="(channel, index) in channelList">
+                    <div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked">
+                        <div class="navigation-view-item-inner">
+                            <div class="navigation-view-item-icon">
+                                <metro-person-picture :displayName="channel.name" />
+                            </div>
+                            <p class="navigation-view-item-content">
+                                <span class="text-label">{{channel.name}}</span>
+                                <span class="detail-text-label">{{channel.statusMessage}}</span>
+                            </p>
+                        </div>
+                    </div>
+                </template>
 			</template>
 
 			<template slot="pages">
@@ -158,6 +160,26 @@ export default {
 					break;
 				default: break;
 			}
+        },        
+		channelListItemContextClicked(event) {
+			var flyout = new metroUI.MenuFlyout(event.target, [
+                {
+                    title: "Verlassen",
+                    icon: "leave-chat",
+                    disabled: true
+                },
+				{
+					title: "Bearbeiten",
+					icon: "edit",
+					disabled: true
+                },
+                {
+                    title: "Löschen",
+                    icon: "delete",
+                    disabled: true
+                }
+			]);
+			flyout.show();
 		},
 		enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
@@ -197,7 +219,12 @@ export default {
 					title: "Private Nachricht",
 					icon: "chat-bubbles",
 					disabled: true
-				}
+                },
+                {
+					title: "Bestrafen",
+                    icon: "block-contact",
+                    disabled: true
+                }
 			]);
 			flyout.show();
 		}
