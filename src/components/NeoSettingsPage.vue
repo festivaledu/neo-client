@@ -45,7 +45,7 @@
 				<template v-for="group in this.sortedGroupList">
 					<div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
                         <template v-if="group.attributes['neo.grouptype']">
-                            <h4>Gruppentyp</h4>
+                            <h4 style="margin-top: 0">Gruppentyp</h4>
                             <div style="align-items: center; display: flex">
                                 <template v-if="group.attributes['neo.grouptype'] == 'admin'">
                                     <i class="icon party-leader" style="display: inline-block; font-size: 20px; margin: 12px"></i>
