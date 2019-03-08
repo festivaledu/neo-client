@@ -6,9 +6,9 @@
 			</template>
 
 			<template slot="list-items">
-				<metro-list-view-menu-separator title="Allgemein" />
+				<metro-list-view-menu-separator title="Server" />
+				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
-				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings" />
 
 				<metro-list-view-menu-separator title="Gruppen" />
 
@@ -24,7 +24,7 @@
 					<p class="metro-ui-version-string" />
 				</div>
 
-				<div class="page" data-page-id="server_settings" data-page-title="Server-Einstellungen">
+				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein">
 
 					<template v-for="(value, key, index) in settingsModel">
 						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
@@ -39,7 +39,7 @@
 						</div>
 					</template>
 
-					<button @click="saveSettings('server')">Einstellungen speichern</button>
+					<button @click="saveSettings('server', settingsModel)">Einstellungen speichern</button>
 				</div>
 
 				<template v-for="group in this.sortedGroupList">
@@ -72,12 +72,70 @@
                         </template>
 
                         <h4>Allgemein</h4>
-                        <p>Gruppen-ID</p>
+                        <p class="text-label">Gruppen-ID</p>
                         <input type="text" v-model="group.id" />
-                        <p>Name</p>
+                        <p class="text-label">Name</p>
                         <input type="text" v-model="group.name" />
+                        <p class="text-label">Wertigkeit</p>
+                        <p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
+                        <input type="text" v-model="group.sortValue" />
+                        
+                        <h4>Mitglieder</h4>
+                        <template v-for="(memberId, index) in group.memberIds">
+                            <p :key="group.internalId + '-member-' + index">{{ memberId }}</p>
+                        </template>
 
-						{{ group }}
+                        <div class="row" style="margin-right: 5px">
+                            <div class="col col-5">
+                                <h4>Berechtigungen</h4>
+                            </div>
+                            <div class="col col-2" style="align-items: flex-end; display: flex; justify-content: center">
+                                <h5>Erlauben</h5>
+                            </div>
+                            <div class="col col-2" style="align-items: flex-end; display: flex; justify-content: center">
+                                <h5>Übernehmen</h5>
+                            </div>
+                            <div class="col col-2" style="align-items: flex-end; display: flex; justify-content: center">
+                                <h5>Verweigern</h5>
+                            </div>
+                            <div class="col col-1"></div>
+                        </div>
+
+                        <template v-for="(value, key, index) in group.permissions">
+                            <div class="row" style="margin-bottom: 12px; margin-right: 5px" :key="key">
+                                <div class="col col-5">
+                                    <p class="text-label">{{ knownPermissions[key] ? knownPermissions[key] : key }}</p>
+                                    <p class="detail-text-label">{{ key }}</p>
+                                </div>
+                                <div class="col col-2 text-center">
+                                    <div class="radio">
+                                        <input type="radio" :id="group.internalId + '-permission-' + index + '-allow'" :name="group.internalId + '-permission-' + index" value="Allow" v-model="group.permissions[key]">
+                                        <label :for="group.internalId + '-permission-' + index + '-allow'" />
+                                    </div>
+                                </div>
+                                <div class="col col-2 text-center">
+                                    <div class="radio">
+                                        <input type="radio" :id="group.internalId + '-permission-' + index + '-inherit'" :name="group.internalId + '-permission-' + index" value="Inherit" v-model="group.permissions[key]">
+                                        <label :for="group.internalId + '-permission-' + index + '-inherit'" />
+                                    </div>
+                                </div>
+                                <div class="col col-2 text-center">
+                                    <div class="radio">
+                                        <input type="radio" :id="group.internalId + '-permission-' + index + '-deny'" :name="group.internalId + '-permission-' + index" value="Deny" v-model="group.permissions[key]">
+                                        <label :for="group.internalId + '-permission-' + index + '-deny'" />
+                                    </div>
+                                </div>
+                                <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+                                    <button @click="deletePermission(group, key)" style="margin: 0"><i class="icon delete"></i></button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <p class="text-label" style="margin-top: 24px">Neue Berechtigung hinzufügen</p>
+                        <p class="detail-text-label">Jede Berechtigung die nicht oben nicht definiert ist, wird automatisch von niedrigeren Gruppen übernommen.<br />Wenn keine niedrigere Gruppe die Berechtigung definiert, gilt sie als verweigert.</p>
+                        <metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" /><button @click="addPermission(group)">Hinzufügen</button>
+                                                
+					    <button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
 					</div>
 				</template>
 
@@ -222,7 +280,8 @@ export default {
 	data() {
 		return {
 			demoPermission: "inherit",
-			demoPermission2: "deny",
+            demoPermission2: "deny",
+            permissionToAdd: "",
 			settingsModel: {},
 			settingsTitles: {}
 		}
@@ -262,7 +321,21 @@ export default {
 			if (result == metroUI.ContentDialogResult.Primary) {
 				console.log(addGroupDialog.text);
 			}
-		},
+        },
+        addPermission(group) {
+            let index = this.sortedGroupList.indexOf(group);
+
+            this.$set(group.permissions, this.permissionToAdd, "Inherit");
+            this.$set(this.sortedGroupList, index, group);
+
+            this.permissionToAdd = "";
+        },
+        deletePermission(group, permission) {
+            let index = this.sortedGroupList.indexOf(group);
+
+            this.$delete(group.permissions, permission);
+            this.$set(this.sortedGroupList, index, group);
+        },
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
@@ -288,12 +361,12 @@ export default {
 				content: settings
 			});
 		},
-		saveSettings(settings) {
+		saveSettings(settings, model) {
 			SocketService.send({
 				type: PackageType.EditSettings,
 				content: {
 					scope: settings,
-					model: this.settingsModel
+					model: model
 				}
 			});
 		},
@@ -316,6 +389,12 @@ export default {
 		}
 	},
 	computed: {
+        knownPermissions() {
+            return this.$store.state.knownPermissions;
+        },
+        knownPermissionsKeys() {
+            return Object.keys(this.knownPermissions);
+        },
 		sortedGroupList() {
 			return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
 		}

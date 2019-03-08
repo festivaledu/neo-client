@@ -105,7 +105,10 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
-					break;
+                    break;
+                case PackageType.KnownPermissionsUpdate:
+					this.$store.commit("setKnownPermissions", packageObj.content);
+                    break;
 				default: break;
 			}
 		}
