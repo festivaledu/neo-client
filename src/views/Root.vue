@@ -108,12 +108,16 @@ export default {
 					break;
 					
 				case PackageType.EditSettingsResponse:
-					new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+					new metroUI.ContentDialog({
+						title:"Einstellungen", 
+						content: "Die Einstellungen wurden gespeichert.",
+						commands: [
+							{
+								text: "Ok",
+								primary: true
+							}
+						]
+					}).show();
 					break;
 				default: break;
 			}

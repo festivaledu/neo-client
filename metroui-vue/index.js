@@ -328,7 +328,7 @@ metroUI.ContentDialogResult = {
  * @param {Array} buttons An array containing the buttons. Buttons have a title and a 'primary' flag
  */
 metroUI.ContentDialog = class {
-	constructor(_title, _content, buttons) {
+	constructor(params) {
 		const dialog = this;
 
 		dialog.background = document.createElement("div");
