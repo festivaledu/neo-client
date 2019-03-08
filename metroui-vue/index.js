@@ -988,7 +988,15 @@ var AutoSuggestBox = {
 		setDataSource(source) {
 			this.$data._data = source;
 		}
-	}
+    },
+    watch: {
+        data(newValue, oldValue) {
+            this.$data._data = newValue;
+        },
+        value(newValue, oldValue) {
+            this.$data._value = newValue;
+        }
+    }
 };
 
 /**

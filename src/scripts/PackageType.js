@@ -23,5 +23,6 @@ export default {
 	EditSettings: 21,
 	EditSettingsResponse: 22,
     EditProfile: 23,
-    EditProfileResponse: 24
+    EditProfileResponse: 24,
+    KnownPermissionsUpdate: 25
 }
