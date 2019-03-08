@@ -31,7 +31,7 @@
 								</div>
 								
 								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
-									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked" :key="index + lastUpdate" />
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, memberId)" :key="index + lastUpdate" />
 								</div>
 							</div>
 						</div>
@@ -180,7 +180,16 @@ export default {
                 }
 			]);
 			flyout.show();
-		},
+        },
+        createPunishment(memberId) {
+            SocketService.send({
+                type: PackageType.CreatePunishment,
+                content: {
+                    target: memberId,
+                    action: "kick"
+                }
+            });
+        },
 		enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
 				return;
@@ -213,7 +222,7 @@ export default {
 				this.$refs["messageContainer"].$refs["input"].focus();
 			}
 		},
-		userListItemContextClicked(event) {
+		userListItemContextClicked(event, memberId) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
@@ -223,7 +232,9 @@ export default {
                 {
 					title: "Bestrafen",
                     icon: "block-contact",
-                    disabled: true
+                    disabled: false,
+                    action: this.createPunishment,
+                    actionParams: memberId
                 }
 			]);
 			flyout.show();

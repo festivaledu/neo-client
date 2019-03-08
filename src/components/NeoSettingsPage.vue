@@ -359,7 +359,8 @@ export default {
 						content: "Die Einstellungen wurden gespeichert",
 						inputs: "",
 						buttons: [],
-					}).show();
+                    }).show();
+                    break;
 				default: break;
 			}
 		},
