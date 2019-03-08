@@ -1854,19 +1854,35 @@ var PersonPicture = {
 		)
 	},
 	mounted() {
-		if (this.$props.initials) {
-			this.$data._initials = this.$props.initials.toUpperCase();
-		} else if (this.$props.displayName) {
-			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
-
-			if (initials.length > 1) {
-				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
-			} else if (initials.length) {
-				this.$data._initials = initials[0];
+		this._renderInitials();
+	},
+	methods: {
+		_renderInitials() {
+			if (this.$props.initials) {
+				this.$data._initials = this.$props.initials.toUpperCase();
+			} else if (this.$props.displayName) {
+				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
+	
+				if (initials.length > 1) {
+					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
+				} else if (initials.length) {
+					this.$data._initials = initials[0];
+				}
+	
+			} else if (this.$props.profilePicture) {
+				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}
-
-		} else if (this.$props.profilePicture) {
-			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
+		}
+	},
+	watch: {
+		profilePicture(newValue, oldValue) {
+			this._renderInitials();
+		},
+		displayName(newValue, oldValue) {
+			this._renderInitials();
+		},
+		initials(newValue, oldValue) {
+			this._renderInitials();
 		}
 	}
 };
