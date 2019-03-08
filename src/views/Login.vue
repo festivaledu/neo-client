@@ -205,7 +205,7 @@ export default {
 
 			this.isConnecting = false;
 		},
-		onClose() {
+		onClose(event) {
 			SocketService.$off("open");
 			SocketService.$off("close");
 			SocketService.$off("package");
