@@ -87,21 +87,19 @@ export default {
                     }
 
                     if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
-                        new metroUI.ContentDialog("Profil ändern", `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`, [
-                            {
-                                text: "Ok",
-                                primary: true
-                            }
-                        ]).show();
+                        new metroUI.ContentDialog({
+							title: "Fehler beim Ändern deines Profils",
+							content: `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`,
+							commands: [{ text: "Ok", primary: true }]
+						}).show();
                     }
 
                     if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
-                        new metroUI.ContentDialog("Profil ändern", "Das aktuelle Passwort ist falsch.", [
-                            {
-                                text: "Ok",
-                                primary: true
-                            }
-                        ]).show();
+                        new metroUI.ContentDialog({
+							title: "Fehler beim Ändern deines Profils",
+							content: "Das aktuelle Passwort ist falsch.",
+							commands: [{ text: "Ok", primary: true }]
+						}).show();
                     }
                     break;
             }
@@ -155,22 +153,17 @@ export default {
 			]).show();
 		},
 		async changeUsername() {
-			var changeUsernameDialog = new metroUI.ContentDialog("Benutzernamen ändern", (() => {
-				return (
-					<div>
-						<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Ok",
-					primary: true
-				},
-				{
-					text: "Abbrechen"
-				}
-			]);
+			var changeUsernameDialog = new metroUI.ContentDialog({
+				title: "Benutzernamen ändern",
+				content: (() => {
+					return (
+						<div>
+							<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
 			var result = await changeUsernameDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -184,22 +177,17 @@ export default {
 			}
 		},
 		async changeUserId() {
-			var changeUserIdDialog = new metroUI.ContentDialog("Benutzer-ID ändern", (() => {
-				return (
-					<div>
-						<input type="Text" placeholder="Neue Benutzer-ID (min. 3 Zeichen)" data-minlength="3" />
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Ok",
-					primary: true
-				},
-				{
-					text: "Abbrechen"
-				}
-			]);
+			var changeUserIdDialog = new metroUI.ContentDialog({
+				title: "Benutzer-ID ändern",
+				content: (() => {
+					return (
+						<div>
+							<input type="Text" placeholder="Neue Benutzer-ID (min. 3 Zeichen)" data-minlength="3" />
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
 			var result = await changeUserIdDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -213,22 +201,17 @@ export default {
 			}
 		},
 		async changeEmail() {
-			var changeEmailDialog = new metroUI.ContentDialog("E-Mail-Adresse ändern", (() => {
-				return (
-					<div>
-						<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Ok",
-					primary: true
-				},
-				{
-					text: "Abbrechen"
-				}
-			]);
+			var changeEmailDialog = new metroUI.ContentDialog({
+				title: "E-Mail-Adresse ändern", 
+				content: (() => {
+					return (
+						<div>
+							<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen"}, { text: "Ok", primary: true }]
+			});
 			var result = await changeEmailDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
@@ -242,36 +225,30 @@ export default {
 			}
 		},
 		async changePassword() {
-			var changePasswordDialog = new metroUI.ContentDialog("Passwort ändern", (() => {
-				return (
-					<div>
-						<input type="password" placeholder="Derzeitiges Passwort" />
-						<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
-						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
-					</div>
-				)
-			})(),
-			[
-				{
-					text: "Ok",
-					primary: true
-				},
-				{
-					text: "Abbrechen"
-				}
-			]);
+			var changePasswordDialog = new metroUI.ContentDialog({
+				title: "Passwort ändern",
+				content: (() => {
+					return (
+						<div>
+							<input type="password" placeholder="Derzeitiges Passwort" />
+							<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
+							<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
 			var result = await changePasswordDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
                 let passwords = changePasswordDialog.text;
 
-                if (passwords[1] !== passwords[2]) {
-                    new metroUI.ContentDialog("Profil ändern", "Die angegeben Passwörter stimmen nicht überein.", [
-                        {
-                            text: "Ok",
-                            primary: true
-                        }
-                    ]).show();
+                if (passwords[1].localeCompare(passwords[2]) != 0) {
+                    new metroUI.ContentDialog({
+						title: "Fehler beim Ändern deines Profils",
+						content: "Die angegeben Passwörter stimmen nicht überein.",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
                     return;
                 }
 
