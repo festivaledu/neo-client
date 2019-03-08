@@ -105,12 +105,16 @@ export default {
                         this.$store.commit("setIdentity", packageObj.content.identity);
 					}
 					
-					new metroUI.ContentDialog({
+					new metroUI.Notification({
+						payload: {},
 						title: "Profil geändert",
+						icon: "settings",
 						content: "Dein Profil wurde erfolgreich geändert",
-						commands: [{ text: "Ok", primary: true }]
+						inputs: "",
+						buttons: [],
 					}).show();
-                    break;
+					break;
+				default: break;
             }
         },
 		setColors(accentEvent, themeEvent) {
