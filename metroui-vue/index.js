@@ -1121,7 +1121,7 @@ var ComboBox = {
 				}
 
 				item.classList.add("selected");
-
+				
 				this._hide();
 
 				if (item.hasAttribute("data-value")) {
@@ -1174,7 +1174,7 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
-
+			
 			this.eventListener = this._hide.bind(this);
 
 			document.addEventListener("click", this.eventListener, true);
@@ -1285,31 +1285,38 @@ var ListView = {
 			</div>
 		)
 	},
+	mounted() {
+		this._listRendered();
+	},
 	updated() {
-		if (this.$refs["frameContent"] && this.$refs["frame"]) {
-			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-				if (page.hasAttribute("data-page-id")) {
-					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-						parentPage: this,
-						title: page.getAttribute("data-page-title")
+		this._listRendered();
+	},
+	methods: {
+		_listRendered() {
+			if (this.$refs["frameContent"] && this.$refs["frame"]) {
+				this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+					if (page.hasAttribute("data-page-id")) {
+						this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+							parentPage: this,
+							title: page.getAttribute("data-page-title")
+						});
+					}
+				});
+	
+				this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+			}
+	
+			this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
 					});
 				}
 			});
-
-			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-		}
-
-		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-				});
-			}
-		});
-	},
-	methods: {
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1618,34 +1625,38 @@ var NavigationView = {
 		)
 	},
 	mounted() {
-		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-			if (page.hasAttribute("data-page-id")) {
-				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-					parentPage: this,
-					title: page.getAttribute("data-page-title")
-				});
-			}
-		});
-
-		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-
-		this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-
-					if (window.innerWidth < 1008) {
-						this.$refs["menu"].classList.remove("expanded");
-					} else if (this.$props.startRetracted) {
-						this.$refs["menu"].classList.add("retracted");
-					}
-				});
-			}
-		});
+		this._listRendered();
 	},
 	methods: {
+		_listRendered() {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+	
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+	
+			this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
+	
+						if (window.innerWidth < 1008) {
+							this.$refs["menu"].classList.remove("expanded");
+						} else if (this.$props.startRetracted) {
+							this.$refs["menu"].classList.add("retracted");
+						}
+					});
+				}
+			});
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
