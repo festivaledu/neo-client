@@ -39,7 +39,7 @@
 						</div>
 					</template>
 
-					<button @click="saveSettings('server')">Einstellungen speichern</button>
+					<button @click="saveSettings('server', settingsModel)">Einstellungen speichern</button>
 				</div>
 
 				<template v-for="group in this.sortedGroupList">
@@ -81,9 +81,12 @@
                         <input type="text" v-model="group.sortValue" />
                         
                         <h4>Mitglieder</h4>
+                        <template v-for="(memberId, index) in group.memberIds">
+                            <p :key="group.internalId + '-member-' + index">{{ memberId }}</p>
+                        </template>
 
-                        <div class="row" style="margin-right: 0">
-                            <div class="col col-6">
+                        <div class="row" style="margin-right: 5px">
+                            <div class="col col-5">
                                 <h4>Berechtigungen</h4>
                             </div>
                             <div class="col col-2" style="align-items: flex-end; display: flex; justify-content: center">
@@ -95,13 +98,14 @@
                             <div class="col col-2" style="align-items: flex-end; display: flex; justify-content: center">
                                 <h5>Verweigern</h5>
                             </div>
+                            <div class="col col-1"></div>
                         </div>
 
                         <template v-for="(value, key, index) in group.permissions">
-                            <div class="row" style="margin-right: 0" :key="key">
-                                <div class="col col-6">
-                                    <p class="text-label">{{ key }}</p>
-                                    <p class="detail-text-label">{{ key }} <a @click="deletePermission(group, key)">Löschen</a></p>
+                            <div class="row" style="margin-bottom: 12px; margin-right: 5px" :key="key">
+                                <div class="col col-5">
+                                    <p class="text-label">{{ knownPermissions[key] ? knownPermissions[key] : key }}</p>
+                                    <p class="detail-text-label">{{ key }}</p>
                                 </div>
                                 <div class="col col-2 text-center">
                                     <div class="radio">
@@ -121,14 +125,17 @@
                                         <label :for="group.internalId + '-permission-' + index + '-deny'" />
                                     </div>
                                 </div>
+                                <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+                                    <button @click="deletePermission(group, key)" style="margin: 0"><i class="icon delete"></i></button>
+                                </div>
                             </div>
                         </template>
 
                         <p class="text-label" style="margin-top: 24px">Neue Berechtigung hinzufügen</p>
                         <p class="detail-text-label">Jede Berechtigung die nicht oben nicht definiert ist, wird automatisch von niedrigeren Gruppen übernommen.<br />Wenn keine niedrigere Gruppe die Berechtigung definiert, gilt sie als verweigert.</p>
                         <metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" /><button @click="addPermission(group)">Hinzufügen</button>
-
-						{{ group }}
+                                                
+					    <button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
 					</div>
 				</template>
 
@@ -354,12 +361,12 @@ export default {
 				content: settings
 			});
 		},
-		saveSettings(settings) {
+		saveSettings(settings, model) {
 			SocketService.send({
 				type: PackageType.EditSettings,
 				content: {
 					scope: settings,
-					model: this.settingsModel
+					model: model
 				}
 			});
 		},
