@@ -78,13 +78,6 @@ export default {
         onPackage(packageObj) {
             switch (packageObj.type) {                
                 case PackageType.EditProfileResponse:
-                    if (packageObj.content.account) {
-                        this.$store.commit("setCurrentAccount", packageObj.content.account);
-                    }
-
-                    if (packageObj.content.identity) {
-                        this.$store.commit("setIdentity", packageObj.content.identity);
-                    }
 
                     if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
                         new metroUI.ContentDialog({
@@ -92,6 +85,7 @@ export default {
 							content: `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`,
 							commands: [{ text: "Ok", primary: true }]
 						}).show();
+						return;
                     }
 
                     if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
@@ -100,7 +94,22 @@ export default {
 							content: "Das aktuelle Passwort ist falsch.",
 							commands: [{ text: "Ok", primary: true }]
 						}).show();
+						return;
+					}
+					
+					if (packageObj.content.account) {
+                        this.$store.commit("setCurrentAccount", packageObj.content.account);
                     }
+
+                    if (packageObj.content.identity) {
+                        this.$store.commit("setIdentity", packageObj.content.identity);
+					}
+					
+					new metroUI.ContentDialog({
+						title: "Profil geändert",
+						content: "Dein Profil wurde erfolgreich geändert",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
                     break;
             }
         },
@@ -158,7 +167,7 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
+							<input type="Text" placeholder="Neuer Benutzername" data-required="true" />
 						</div>
 					)
 				})(),
@@ -206,7 +215,7 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
+							<input type="email" placeholder="Neue E-Mail-Adresse" data-required="true" />
 						</div>
 					)
 				})(),
@@ -230,9 +239,9 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="password" placeholder="Derzeitiges Passwort" />
+							<input type="password" placeholder="Derzeitiges Passwort" data-required="true" />
 							<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
-							<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
+							<input type="password" placeholder="Passwort bestätigen" data-required="true" />
 						</div>
 					)
 				})(),
