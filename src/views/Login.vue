@@ -53,20 +53,17 @@
 
 					<div class="row mt-3 d-flex">
 						<div class="col col-6 text-left">
-							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
-						</div>
-
-						<div class="col col-6 text-right">
 							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 
-						<div class="col text-right" v-show="!isWorking">
+						<div class="col col-6 text-right">
+							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
+						</div>
+
+						<div class="col text-left" v-show="!isWorking">
 							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
-						<div class="col text-right" v-show="isWorking">
-							<div class="loading-indicator" />
 						</div>
-					</div>
 
 					<!-- <div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">

@@ -72,11 +72,11 @@
 						</template>
 
 						<h4>Allgemein</h4>
-						<p class="text-label">Gruppen-ID</p>
-						<input type="text" v-model="group.id" />
-						
 						<p class="text-label">Name</p>
 						<input type="text" v-model="group.name" />
+						
+						<p class="text-label">Gruppen-ID</p>
+						<input type="text" v-model="group.id" />
 						
 						<p class="text-label">Wertigkeit</p>
 						<p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
