@@ -70,40 +70,53 @@ import CryptoJS from "crypto-js";
 export default {
 	name: "NeoProfilePage",
 	mounted() {
-        this.$refs["profileSettingsView"].navigate("profile_general");
-        
-        SocketService.$on("package", this.onPackage);
+		this.$refs["profileSettingsView"].navigate("profile_general");
+		
+		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
-        onPackage(packageObj) {
-            switch (packageObj.type) {                
-                case PackageType.EditProfileResponse:
-                    if (packageObj.content.account) {
-                        this.$store.commit("setCurrentAccount", packageObj.content.account);
-                    }
+		onPackage(packageObj) {
+			switch (packageObj.type) {				
+				case PackageType.EditProfileResponse:
 
-                    if (packageObj.content.identity) {
-                        this.$store.commit("setIdentity", packageObj.content.identity);
-                    }
-
-                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
-                        new metroUI.ContentDialog({
+					if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
+						new metroUI.ContentDialog({
 							title: "Fehler beim Ändern deines Profils",
 							content: `"${packageObj.content.request.value}" ist kein erlaubter Wert oder wird bereits verwendet.`,
 							commands: [{ text: "Ok", primary: true }]
 						}).show();
-                    }
+						return;
+					}
 
-                    if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
-                        new metroUI.ContentDialog({
+					if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key === "password") {
+						new metroUI.ContentDialog({
 							title: "Fehler beim Ändern deines Profils",
 							content: "Das aktuelle Passwort ist falsch.",
 							commands: [{ text: "Ok", primary: true }]
 						}).show();
-                    }
-                    break;
-            }
-        },
+						return;
+					}
+					
+					if (packageObj.content.account) {
+						this.$store.commit("setCurrentAccount", packageObj.content.account);
+					}
+
+					if (packageObj.content.identity) {
+						this.$store.commit("setIdentity", packageObj.content.identity);
+					}
+					
+					new metroUI.Notification({
+						payload: {},
+						title: "Profil geändert",
+						icon: "settings",
+						content: "Dein Profil wurde erfolgreich geändert",
+						inputs: "",
+						buttons: [],
+					}).show();
+					break;
+				default: break;
+			}
+		},
 		setColors(accentEvent, themeEvent) {
 			let account = this.$store.state.currentAccount;
 
@@ -158,7 +171,7 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="Text" placeholder="Neuer Benutzername" data-minlength="1" />
+							<input type="Text" placeholder="Neuer Benutzername" data-required="true" />
 						</div>
 					)
 				})(),
@@ -167,13 +180,13 @@ export default {
 			var result = await changeUsernameDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
-                SocketService.send({
-                    type: PackageType.EditProfile,
-                    content: {
-                        key: "name",
-                        value: changeUsernameDialog.text
-                    }
-                });
+				SocketService.send({
+					type: PackageType.EditProfile,
+					content: {
+						key: "name",
+						value: changeUsernameDialog.text
+					}
+				});
 			}
 		},
 		async changeUserId() {
@@ -192,12 +205,12 @@ export default {
 
 			if (result == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
-                    type: PackageType.EditProfile,
-                    content: {
-                        key: "id",
-                        value: changeUserIdDialog.text
-                    }
-                });
+					type: PackageType.EditProfile,
+					content: {
+						key: "id",
+						value: changeUserIdDialog.text
+					}
+				});
 			}
 		},
 		async changeEmail() {
@@ -206,7 +219,7 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="email" placeholder="Neue E-Mail-Adresse" data-minlength="6" />
+							<input type="email" placeholder="Neue E-Mail-Adresse" data-required="true" />
 						</div>
 					)
 				})(),
@@ -216,12 +229,12 @@ export default {
 
 			if (result == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
-                    type: PackageType.EditProfile,
-                    content: {
-                        key: "email",
-                        value: changeEmailDialog.text
-                    }
-                });
+					type: PackageType.EditProfile,
+					content: {
+						key: "email",
+						value: changeEmailDialog.text
+					}
+				});
 			}
 		},
 		async changePassword() {
@@ -230,9 +243,9 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="password" placeholder="Derzeitiges Passwort" />
+							<input type="password" placeholder="Derzeitiges Passwort" data-required="true" />
 							<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
-							<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
+							<input type="password" placeholder="Passwort bestätigen" data-required="true" />
 						</div>
 					)
 				})(),
@@ -241,28 +254,28 @@ export default {
 			var result = await changePasswordDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
-                let passwords = changePasswordDialog.text;
+				let passwords = changePasswordDialog.text;
 
-                if (passwords[1].localeCompare(passwords[2]) != 0) {
-                    new metroUI.ContentDialog({
+				if (passwords[1].localeCompare(passwords[2]) != 0) {
+					new metroUI.ContentDialog({
 						title: "Fehler beim Ändern deines Profils",
 						content: "Die angegeben Passwörter stimmen nicht überein.",
 						commands: [{ text: "Ok", primary: true }]
 					}).show();
-                    return;
-                }
+					return;
+				}
 
-                for (let i = 0; i < 3; i++) {
-                    passwords[i] = CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(passwords[i]));
-                }
+				for (let i = 0; i < 3; i++) {
+					passwords[i] = CryptoJS.enc.Base64.stringify(CryptoJS.SHA512(passwords[i]));
+				}
 
 				SocketService.send({
-                    type: PackageType.EditProfile,
-                    content: {
-                        key: "password",
-                        value: passwords
-                    }
-                });
+					type: PackageType.EditProfile,
+					content: {
+						key: "password",
+						value: passwords
+					}
+				});
 			}
 		}
 	},

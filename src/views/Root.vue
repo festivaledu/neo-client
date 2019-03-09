@@ -106,14 +106,24 @@ export default {
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
 					break;
-					
-				case PackageType.EditSettingsResponse:
-					new metroUI.ContentDialog("Einstellungen", "Die Einstellungen wurden gespeichert.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+				case PackageType.KnownPermissionsUpdate:
+					this.$store.commit("setKnownPermissions", packageObj.content);
+					break;
+				case PackageType.DisconnectReason:
+					let reasons = {
+						"shutdown": "Der Server fährt herunter",
+						"kick": "Du wurdest gekickt",
+						"ban": "Du wurdest gebannt"
+					};
+
+					new metroUI.Notification({
+						payload: {},
+						title: "Verbindung getrennt",
+						icon: "ethernet-error",
+						content: reasons[packageObj.content],
+						inputs: "",
+						buttons: [],
+					}).show();
 					break;
 				default: break;
 			}

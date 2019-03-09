@@ -2,17 +2,19 @@
 	<div class="page" data-page-id="channels">
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" @click="enterChannel(channel.internalId)">
-					<div class="navigation-view-item-inner">
-						<div class="navigation-view-item-icon">
-							<metro-person-picture :displayName="channel.name" />
+				<template v-for="(channel, index) in channelList">
+					<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked">
+						<div class="navigation-view-item-inner">
+							<div class="navigation-view-item-icon">
+								<metro-person-picture :displayName="channel.name" />
+							</div>
+							<p class="navigation-view-item-content">
+								<span class="text-label">{{channel.name}}</span>
+								<span class="detail-text-label">{{channel.statusMessage}}</span>
+							</p>
 						</div>
-						<p class="navigation-view-item-content">
-							<span class="text-label">{{channel.name}}</span>
-							<span class="detail-text-label">{{channel.statusMessage}}</span>
-						</p>
 					</div>
-				</div>
+				</template>
 			</template>
 
 			<template slot="pages">
@@ -29,7 +31,7 @@
 								</div>
 								
 								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
-									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked" :key="index + lastUpdate" />
+									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, memberId)" :key="index + lastUpdate" />
 								</div>
 							</div>
 						</div>
@@ -158,6 +160,35 @@ export default {
 					break;
 				default: break;
 			}
+		},		
+		channelListItemContextClicked(event) {
+			var flyout = new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Verlassen",
+					icon: "leave-chat",
+					disabled: true
+				},
+				{
+					title: "Bearbeiten",
+					icon: "edit",
+					disabled: true
+				},
+				{
+					title: "Löschen",
+					icon: "delete",
+					disabled: true
+				}
+			]);
+			flyout.show();
+		},
+		createPunishment(memberId) {
+			SocketService.send({
+				type: PackageType.CreatePunishment,
+				content: {
+					target: memberId,
+					action: "kick"
+				}
+			});
 		},
 		enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
@@ -191,12 +222,19 @@ export default {
 				this.$refs["messageContainer"].$refs["input"].focus();
 			}
 		},
-		userListItemContextClicked(event) {
+		userListItemContextClicked(event, memberId) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
 					icon: "chat-bubbles",
 					disabled: true
+				},
+				{
+					title: "Bestrafen",
+					icon: "block-contact",
+					disabled: false,
+					action: this.createPunishment,
+					actionParams: memberId
 				}
 			]);
 			flyout.show();
@@ -214,13 +252,13 @@ export default {
 		},
 		groupList() {
 			return this.$store.state.groupList;
-        },
-        lastUpdate() {
-            return this.$store.state.lastUpdate;
-        },
-        sortedGroupList() {
-            return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
-        },
+		},
+		lastUpdate() {
+			return this.$store.state.lastUpdate;
+		},
+		sortedGroupList() {
+			return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
+		},
 		userList() {
 			return this.$store.state.userList;
 		}

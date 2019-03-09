@@ -328,7 +328,7 @@ metroUI.ContentDialogResult = {
  * @param {Array} buttons An array containing the buttons. Buttons have a title and a 'primary' flag
  */
 metroUI.ContentDialog = class {
-	constructor(_title, _content, buttons) {
+	constructor(params) {
 		const dialog = this;
 
 		dialog.background = document.createElement("div");
@@ -369,11 +369,11 @@ metroUI.ContentDialog = class {
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
 
-			params.commands.slice(0,3).forEach((_command, index) => {
+			params.commands.slice(0, 3).forEach((_command, index) => {
 				let command = document.createElement("button");
 				command.innerText = _command.text;
 				command.className = _command.primary ? "primary" : "";
-				command.disabled = (_command.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength));
+				command.disabled = (_command.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength || inputEl.dataset.required == "true"));
 
 				command.addEventListener("click", () => {
 					if (typeof _command.action === "function") {
@@ -401,7 +401,7 @@ metroUI.ContentDialog = class {
 					let primaryCommand = commands.querySelector(".primary");
 					
 					if (primaryCommand) {
-						primaryCommand.disabled = [...content.querySelectorAll("input")].some(inputEl => inputEl.value.length < inputEl.dataset.minlength);
+						primaryCommand.disabled = [...content.querySelectorAll("input")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 					}
 				});
 			});
@@ -521,7 +521,11 @@ metroUI.MenuFlyout = class {
 
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-					_action.action();
+					if (_action.actionParams) {
+						_action.action(_action.actionParams);
+					} else {
+						_action.action();
+					}
 				}
 
 				flyout.hide();
@@ -618,6 +622,16 @@ metroUI.Notification = class {
 			clearTimeout(notification.displayTimeout);
 		});
 		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+
+		notification.container.addEventListener("mousedown", (e) => {
+			console.log(e.target == notification.container)
+		});
+		
+		notification.container.addEventListener("mouseup", (e) => {
+			if (e.target == notification.container) {
+				console.error("We should dismiss notifications here, but we don't. DAMNIT!")
+			}
+		});
 
 		if (params.icon) {
 			let iconContainer = document.createElement("div");
@@ -988,6 +1002,14 @@ var AutoSuggestBox = {
 		setDataSource(source) {
 			this.$data._data = source;
 		}
+	},
+	watch: {
+		data(newValue, oldValue) {
+			this.$data._data = newValue;
+		},
+		value(newValue, oldValue) {
+			this.$data._value = newValue;
+		}
 	}
 };
 
@@ -1075,7 +1097,7 @@ var ComboBox = {
 	},
 	render(h) {
 		return (
-			<div class="list" onClick={this._onClick}>
+			<div class="list" onClick={this._show}>
 				{this.$slots.default}
 				<div class="list-inner" ref="list"></div>
 			</div>
@@ -1115,17 +1137,14 @@ var ComboBox = {
 					return;
 				}
 
-				if (this.$el.classList.contains("open")) {
-					this.$el.classList.remove("open");
-				}
 
 				if (this.$refs["list"].querySelector(".selected")) {
 					this.$refs["list"].querySelector(".selected").classList.remove("selected");
 				}
 
 				item.classList.add("selected");
-				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(item) * 32 + 8)}px, 0)`;
-				this.$refs["list"].style.top = "";
+				
+				this._hide();
 
 				if (item.hasAttribute("data-value")) {
 					this.$data.value = item.getAttribute("data-value");
@@ -1139,7 +1158,18 @@ var ComboBox = {
 		});
 	},
 	methods: {
-		_onClick(e) {
+		_hide() {
+			if (this.$el.classList.contains("open")) {
+				this.$el.classList.remove("open");
+			}
+
+			if (this.$refs["list"].querySelector(".selected")) {
+				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(this.$refs["list"].querySelector(".selected")) * 32 + 8)}px, 0)`;
+				this.$refs["list"].style.top = "";
+			}
+		},
+		
+		_show(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
 			} else {
@@ -1166,6 +1196,10 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
+			
+			this.eventListener = this._hide.bind(this);
+
+			document.addEventListener("click", this.eventListener, true);
 
 			e.stopPropagation();
 		}
@@ -1273,31 +1307,38 @@ var ListView = {
 			</div>
 		)
 	},
+	mounted() {
+		this._listRendered();
+	},
 	updated() {
-		if (this.$refs["frameContent"] && this.$refs["frame"]) {
-			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-				if (page.hasAttribute("data-page-id")) {
-					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-						parentPage: this,
-						title: page.getAttribute("data-page-title")
+		this._listRendered();
+	},
+	methods: {
+		_listRendered() {
+			if (this.$refs["frameContent"] && this.$refs["frame"]) {
+				this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+					if (page.hasAttribute("data-page-id")) {
+						this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+							parentPage: this,
+							title: page.getAttribute("data-page-title")
+						});
+					}
+				});
+	
+				this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+			}
+	
+			this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
 					});
 				}
 			});
-
-			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-		}
-
-		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-				});
-			}
-		});
-	},
-	methods: {
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1342,6 +1383,7 @@ var ListView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 			}
 		},
 		/**
@@ -1441,28 +1483,30 @@ var Messages = {
 	render(h) {
 		return (
 			<div class="messages-container">
-				<div class="messages-wrapper">
-					{this.$data.messages.map(item => {
-						return (
-							<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
-								{(item.type == "sent" || item.type == "received") &&
-									<div class="message-content">
-										<div class="message-bubble">
-											<p class="message-text">{item.text}</p>
-											<div class="message-info">
-												<p class="message-time">{this._formatTime(item.date)}</p>
-												<p class="message-name">{item.displayName || item.author}</p>
+				<div class="messages-scroll-container" ref="scrollContainer">
+					<div class="messages-wrapper">
+						{this.$data.messages.map(item => {
+							return (
+								<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
+									{(item.type == "sent" || item.type == "received") &&
+										<div class="message-content">
+											<div class="message-bubble">
+												<p class="message-text">{item.text}</p>
+												<div class="message-info">
+													<p class="message-time">{this._formatTime(item.date)}</p>
+													<p class="message-name">{item.displayName || item.author}</p>
+												</div>
 											</div>
 										</div>
-									</div>
-								}
+									}
 
-								{item.type == "system" &&
-									<span>{item.text}</span>
-								}
-							</div>
-						)
-					})}
+									{item.type == "system" &&
+										<span>{item.text}</span>
+									}
+								</div>
+							)
+						})}
+					</div>
 				</div>
 
 				<div class="messages-input">
@@ -1527,7 +1571,7 @@ var Messages = {
 			this.$data.messages.push(message);
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
 		},
 		/**
@@ -1538,7 +1582,7 @@ var Messages = {
 			this.$data.messages.push({ type: "system", text: text });
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
 		}
 	}
@@ -1606,34 +1650,38 @@ var NavigationView = {
 		)
 	},
 	mounted() {
-		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-			if (page.hasAttribute("data-page-id")) {
-				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-					parentPage: this,
-					title: page.getAttribute("data-page-title")
-				});
-			}
-		});
-
-		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-
-		this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-
-					if (window.innerWidth < 1008) {
-						this.$refs["menu"].classList.remove("expanded");
-					} else if (this.$props.startRetracted) {
-						this.$refs["menu"].classList.add("retracted");
-					}
-				});
-			}
-		});
+		this._listRendered();
 	},
 	methods: {
+		_listRendered() {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+	
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+	
+			this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
+	
+						if (window.innerWidth < 1008) {
+							this.$refs["menu"].classList.remove("expanded");
+						} else if (this.$props.startRetracted) {
+							this.$refs["menu"].classList.add("retracted");
+						}
+					});
+				}
+			});
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1689,6 +1737,7 @@ var NavigationView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 
 				if (this.$props.history != false) {
 					this.$data._history.push(pageName);
@@ -1831,19 +1880,35 @@ var PersonPicture = {
 		)
 	},
 	mounted() {
-		if (this.$props.initials) {
-			this.$data._initials = this.$props.initials.toUpperCase();
-		} else if (this.$props.displayName) {
-			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
-
-			if (initials.length > 1) {
-				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
-			} else if (initials.length) {
-				this.$data._initials = initials[0];
+		this._renderInitials();
+	},
+	methods: {
+		_renderInitials() {
+			if (this.$props.initials) {
+				this.$data._initials = this.$props.initials.toUpperCase();
+			} else if (this.$props.displayName) {
+				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-0-9_ ]/g, "").match(/\b\w/g);
+	
+				if (initials.length > 1) {
+					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
+				} else if (initials.length) {
+					this.$data._initials = initials[0];
+				}
+	
+			} else if (this.$props.profilePicture) {
+				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}
-
-		} else if (this.$props.profilePicture) {
-			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
+		}
+	},
+	watch: {
+		profilePicture(newValue, oldValue) {
+			this._renderInitials();
+		},
+		displayName(newValue, oldValue) {
+			this._renderInitials();
+		},
+		initials(newValue, oldValue) {
+			this._renderInitials();
 		}
 	}
 };

@@ -36,9 +36,9 @@ export default {
 
 	},
 	computed: {
-        user() {
-            return this.$store.state.userList.find(_ => _.internalId === this.memberId);
-        },
+		user() {
+			return this.$store.state.userList.find(_ => _.internalId === this.memberId);
+		},
 		userList() {
 			return this.$store.state.userList;
 		}

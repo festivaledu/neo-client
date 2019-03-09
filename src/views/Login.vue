@@ -51,22 +51,19 @@
 						</div>
 					</form>
 
-					<div class="row mt-3 d-none d-md-flex">
+					<div class="row mt-3 d-flex">
 						<div class="col col-6 text-left">
-							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
-						</div>
-
-						<div class="col col-6 text-right">
 							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 
-						<div class="col text-right" v-show="!isWorking">
+						<div class="col col-6 text-right">
+							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
+						</div>
+
+						<div class="col text-left" v-show="!isWorking">
 							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
-						<div class="col text-right" v-show="isWorking">
-							<div class="loading-indicator" />
 						</div>
-					</div>
 
 					<!-- <div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">
@@ -205,7 +202,11 @@ export default {
 
 			this.isConnecting = false;
 		},
-		onClose() {
+		onClose(event) {
+			SocketService.$off("open");
+			SocketService.$off("close");
+			SocketService.$off("package");
+			
 			this.socket = null;
 			this.$router.replace("/login");
 		},
@@ -316,11 +317,11 @@ export default {
 				content: (() => {
 				return (
 					<div>
-						<input type="text" placeholder="Benutzername" />
-						<input type="text" placeholder="Benutzer-ID" />
-						<input type="email" placeholder="E-Mail-Adresse" />
-						<input type="password" placeholder="Passwort (min. 8 Zeichen)" />
-						<input type="password" placeholder="Passwort bestätigen" />
+						<input type="text" placeholder="Benutzername" data-required="true" />
+						<input type="text" placeholder="Benutzer-ID" data-minlength="3" />
+						<input type="email" placeholder="E-Mail-Adresse" data-minlength="6" />
+						<input type="password" placeholder="Passwort (min. 8 Zeichen)" data-minlength="8" />
+						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
 					</div>
 				)
 			})(),
