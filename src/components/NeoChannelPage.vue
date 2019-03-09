@@ -195,7 +195,28 @@ export default {
 			]);
 			flyout.show();
 		},
-		createPunishment(memberId) {
+		async createPunishment(memberId) {
+			let punishmentDialog = new metroUI.ContentDialog({
+				title: "Nutzer bestrafen",
+				content: (() => {
+					return (
+						<div>
+							<p>Wähle die Art der Bestrafung:</p>
+							<metro-combo-box>
+								<select>
+									{/*<option value="mute">Stummschalten</option>*/}
+									<option value="kick">Kicken</option>
+									<option value="ban">Bannen</option>
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			})
+			
+			switch(await punishmentDialog.showAsync()) {
+				case metroUI.ContentDialogResult.Primary:
 			SocketService.send({
 				type: PackageType.CreatePunishment,
 				content: {
@@ -203,6 +224,9 @@ export default {
 					action: "kick"
 				}
 			});
+					break;
+				default: break;
+			}
 		},
 		enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {

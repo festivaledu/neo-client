@@ -607,29 +607,40 @@ metroUI.Notification = class {
 		notification.wrapper.className = "notification-wrapper";
 
 		notification.container = document.createElement("div");
-		notification.container.className = "notification";
+		notification.container.className = "notification acrylic acrylic-60";
 		notification.wrapper.appendChild(notification.container);
 
 		let dismissButton = document.createElement("div");
 		dismissButton.className = "dismiss-button";
 		dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
-		dismissButton.addEventListener("click", notification.hide.bind(notification));
+		dismissButton.addEventListener("click", () => {
+			notification.hide("slide-out");
+		});
 		notification.container.appendChild(dismissButton);
 
 		notification.payload = params.payload;
-		notification.displayTimeout = null;
+		notification._displayTimeout = null;
 		notification.container.addEventListener("mouseover", () => {
-			clearTimeout(notification.displayTimeout);
+			clearTimeout(notification._displayTimeout);
 		});
 		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
 
+		notification._dismissAction = params.dismissAction;
 		notification.container.addEventListener("mousedown", (e) => {
-			console.log(e.target == notification.container)
+			if (e.target == notification.container) {
+				notification.container.classList.add("active-state");
+			}
 		});
-		
 		notification.container.addEventListener("mouseup", (e) => {
 			if (e.target == notification.container) {
-				console.error("We should dismiss notifications here, but we don't. DAMNIT!")
+				clearTimeout(notification._displayTimeout);
+				notification.container.classList.remove("active-state");
+				
+				if (typeof notification._dismissAction === "function") {
+					notification._dismissAction(notification.payload);
+			}
+				
+				notification.hide("dismissing");
 			}
 		});
 
@@ -717,7 +728,7 @@ metroUI.Notification = class {
 						notification._promiseResolve(findInRow(button));
 					}
 
-					notification.hide();
+					notification.hide("dismissing-action");
 				});
 
 				buttons.appendChild(button);
@@ -728,12 +739,38 @@ metroUI.Notification = class {
 	_resetTimeout() {
 		const notification = this;
 
-		if (notification.container.classList.contains("slide-out")) {
+		if (notification.container.classList.contains("slide-out") ||
+			notification.container.classList.contains("dismissing") ||
+			notification.container.classList.contains("dismissing-action")) {
 			return;
 		}
 
-		clearTimeout(notification.displayTimeout);
-		notification.displayTimeout = setTimeout(notification.hide.bind(notification), 6000);
+		clearTimeout(notification._displayTimeout);
+		notification._displayTimeout = setTimeout(() => {
+			notification.hide("slide-out");
+		}, 6000);
+	}
+
+	_removeFromParent() {
+		const notification = this;
+		
+		setTimeout(() => {
+			notification.notificationCenter.removeChild(notification.wrapper);
+
+			setTimeout(() => {
+				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+					var notificationHeight = 0;
+
+					var node = item;
+					while (node.nextElementSibling) {
+						notificationHeight += (node.clientHeight + 12);
+						node = node.nextElementSibling;
+					}
+
+					item.style.marginBottom = `${notificationHeight}px`;
+				});
+			});
+		}, 450);
 	}
 
 	/**
@@ -763,6 +800,10 @@ metroUI.Notification = class {
 		notification.notificationCenter.appendChild(notification.wrapper);
 		notification.container.classList.add("slide-in");
 
+		setTimeout(() => {
+			notification.container.classList.remove("slide-in");
+		}, 600);
+
 		this._resetTimeout();
 	}
 
@@ -785,35 +826,19 @@ metroUI.Notification = class {
 	/**
 	 * Hides a notification and removes it from the screen
 	 */
-	hide() {
+	hide(hideType) {
 		const notification = this;
 
-		clearTimeout(notification.displayTimeout);
+		clearTimeout(notification._displayTimeout);
 
 		notification.container.classList.remove("slide-in");
-		notification.container.classList.add("slide-out");
+		notification.container.classList.add(hideType);
 
 		if (notification._promise && typeof notification._promise.result === "undefined") {
 			notification._promiseResolve(-1);
 		}
 
-		setTimeout(() => {
-			notification.notificationCenter.removeChild(notification.wrapper);
-
-			setTimeout(() => {
-				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
-					var notificationHeight = 0;
-
-					var node = item;
-					while (node.nextElementSibling) {
-						notificationHeight += (node.clientHeight + 12);
-						node = node.nextElementSibling;
-					}
-
-					item.style.marginBottom = `${notificationHeight}px`;
-				});
-			});
-		}, 300);
+		this._removeFromParent();
 	}
 
 	/**
@@ -903,7 +928,7 @@ var AppBarButton = {
  */
 var AutoSuggestBox = {
 	name: "metro-auto-suggest",
-	props: ["value", "placeholder", "data", "maxResults"],
+	props: ["value", "placeholder", "data", "maxResults", "disabled"],
 	data() {
 		return {
 			_value: this.$props.value,
@@ -916,7 +941,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} disabled={this.$props.disabled} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 					{this.$data.results.map(item => {
 						return (
@@ -1501,7 +1526,7 @@ var Messages = {
 									}
 
 									{item.type == "system" &&
-										<span>{item.text}</span>
+										<span domPropsInnerHTML={item.text}></span>
 									}
 								</div>
 							)
