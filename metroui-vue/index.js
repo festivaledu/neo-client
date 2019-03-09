@@ -607,7 +607,7 @@ metroUI.Notification = class {
 		notification.wrapper.className = "notification-wrapper";
 
 		notification.container = document.createElement("div");
-		notification.container.className = "notification";
+		notification.container.className = "notification acrylic acrylic-60";
 		notification.wrapper.appendChild(notification.container);
 
 		let dismissButton = document.createElement("div");
