@@ -737,7 +737,9 @@ metroUI.Notification = class {
 	_resetTimeout() {
 		const notification = this;
 
-		if (notification.container.classList.contains("slide-out")) {
+		if (notification.container.classList.contains("slide-out") ||
+			notification.container.classList.contains("dismissing") ||
+			notification.container.classList.contains("dismissing-action")) {
 			return;
 		}
 
@@ -795,6 +797,10 @@ metroUI.Notification = class {
 
 		notification.notificationCenter.appendChild(notification.wrapper);
 		notification.container.classList.add("slide-in");
+
+		setTimeout(() => {
+			notification.container.classList.remove("slide-in");
+		}, 600);
 
 		this._resetTimeout();
 	}
