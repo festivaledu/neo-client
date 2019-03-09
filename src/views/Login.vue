@@ -57,7 +57,7 @@
 						</div>
 
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
+							<button class="btn btn-primary d-inline-block colored" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
 						</div>
 
 						<div class="col text-left" v-show="!isWorking">
