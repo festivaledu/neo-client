@@ -1491,7 +1491,7 @@ var Messages = {
 									{(item.type == "sent" || item.type == "received") &&
 										<div class="message-content">
 											<div class="message-bubble">
-												<p class="message-text">{item.text}</p>
+												<p class="message-text" domPropsInnerHTML={item.text}></p>
 												<div class="message-info">
 													<p class="message-time">{this._formatTime(item.date)}</p>
 													<p class="message-name">{item.displayName || item.author}</p>
@@ -1535,6 +1535,17 @@ var Messages = {
 			this.$emit("messageSent", this.$data.messageText);
 			this.$data.messageText = "";
 		},
+		_renderMessage(messageText) {
+			messageText = messageText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+				return '&#'+i.charCodeAt(0)+';';
+			 });
+			 
+			 if (typeof this.onMessageRender === "function") {
+				messageText = this.onMessageRender(messageText);
+			}
+			
+			return messageText
+		},
 
 		/**
 		 * Adds a new message to the conversation.
@@ -1568,6 +1579,7 @@ var Messages = {
 				message.isFirst = true;
 			}
 
+			message.text = this._renderMessage(message.text);
 			this.$data.messages.push(message);
 
 			setTimeout(() => {
