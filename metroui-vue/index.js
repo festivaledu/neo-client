@@ -613,7 +613,9 @@ metroUI.Notification = class {
 		let dismissButton = document.createElement("div");
 		dismissButton.className = "dismiss-button";
 		dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
-		dismissButton.addEventListener("click", notification.hide.bind(notification));
+		dismissButton.addEventListener("click", () => {
+			notification.hide("slide-out");
+		});
 		notification.container.appendChild(dismissButton);
 
 		notification.payload = params.payload;
