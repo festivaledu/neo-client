@@ -316,11 +316,20 @@ export default {
 		},
 
 		connect() {
+			if (this.socket) {
+				return;
+			}
+			
 			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
 
 		login() {
+			if (this.$v.user.$invalid) {
+				return;
+			}
+			document.activeElement.blur();
+			
 			this.isWorking = true;
 			SocketService.send({
 				type: PackageType.MemberLogin,
