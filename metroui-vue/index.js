@@ -617,19 +617,28 @@ metroUI.Notification = class {
 		notification.container.appendChild(dismissButton);
 
 		notification.payload = params.payload;
-		notification.displayTimeout = null;
+		notification._displayTimeout = null;
 		notification.container.addEventListener("mouseover", () => {
-			clearTimeout(notification.displayTimeout);
+			clearTimeout(notification._displayTimeout);
 		});
 		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
 
+		notification._dismissAction = params.dismissAction;
 		notification.container.addEventListener("mousedown", (e) => {
-			console.log(e.target == notification.container)
+			if (e.target == notification.container) {
+				notification.container.classList.add("active-state");
+			}
 		});
-		
 		notification.container.addEventListener("mouseup", (e) => {
 			if (e.target == notification.container) {
-				console.error("We should dismiss notifications here, but we don't. DAMNIT!")
+				clearTimeout(notification._displayTimeout);
+				notification.container.classList.remove("active-state");
+				
+				if (typeof notification._dismissAction === "function") {
+					notification._dismissAction(notification.payload);
+			}
+				
+				notification.hide("dismissing");
 			}
 		});
 
@@ -717,7 +726,7 @@ metroUI.Notification = class {
 						notification._promiseResolve(findInRow(button));
 					}
 
-					notification.hide();
+					notification.hide("dismissing-action");
 				});
 
 				buttons.appendChild(button);
@@ -732,8 +741,32 @@ metroUI.Notification = class {
 			return;
 		}
 
-		clearTimeout(notification.displayTimeout);
-		notification.displayTimeout = setTimeout(notification.hide.bind(notification), 6000);
+		clearTimeout(notification._displayTimeout);
+		notification._displayTimeout = setTimeout(() => {
+			notification.hide("slide-out");
+		}, 6000);
+	}
+
+	_removeFromParent() {
+		const notification = this;
+		
+		setTimeout(() => {
+			notification.notificationCenter.removeChild(notification.wrapper);
+
+			setTimeout(() => {
+				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+					var notificationHeight = 0;
+
+					var node = item;
+					while (node.nextElementSibling) {
+						notificationHeight += (node.clientHeight + 12);
+						node = node.nextElementSibling;
+					}
+
+					item.style.marginBottom = `${notificationHeight}px`;
+				});
+			});
+		}, 450);
 	}
 
 	/**
@@ -785,35 +818,19 @@ metroUI.Notification = class {
 	/**
 	 * Hides a notification and removes it from the screen
 	 */
-	hide() {
+	hide(hideType) {
 		const notification = this;
 
-		clearTimeout(notification.displayTimeout);
+		clearTimeout(notification._displayTimeout);
 
 		notification.container.classList.remove("slide-in");
-		notification.container.classList.add("slide-out");
+		notification.container.classList.add(hideType);
 
 		if (notification._promise && typeof notification._promise.result === "undefined") {
 			notification._promiseResolve(-1);
 		}
 
-		setTimeout(() => {
-			notification.notificationCenter.removeChild(notification.wrapper);
-
-			setTimeout(() => {
-				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
-					var notificationHeight = 0;
-
-					var node = item;
-					while (node.nextElementSibling) {
-						notificationHeight += (node.clientHeight + 12);
-						node = node.nextElementSibling;
-					}
-
-					item.style.marginBottom = `${notificationHeight}px`;
-				});
-			});
-		}, 300);
+		this._removeFromParent();
 	}
 
 	/**

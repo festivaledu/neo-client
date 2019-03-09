@@ -63,7 +63,7 @@
 						<div class="col text-left" v-show="!isWorking">
 							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
 						</div>
-						</div>
+					</div>
 
 					<!-- <div class="row mt-3 d-md-none">
 						<div class="col col-12" v-show="!isWorking">
@@ -183,6 +183,25 @@ export default {
 		SocketService.$on("open", this.onOpen);
 		SocketService.$on("close", this.onClose);
 		SocketService.$on("package", this.onPackage);
+		
+		new metroUI.Notification({
+			icon: "chat-bubbles",
+			title: "3 Viros may infect your ANDROID PC! Clean now!",
+			content: "/!\\ Warning: Your ANDROID PC may be infected with 3 viros! download revolutionary software \"Sys32CleanTool-TotallyLegit.exe\" now to fix your ANDROID pc or you will lost your much important files/work/etc.",
+			inputs: (() => {
+				return (
+					<input type="text" placeholder="Fuck your response" />
+				)
+			})(),
+			buttons: [
+				{
+					text: "test1"
+				},
+				{
+					text: "test2"
+				}
+			]
+		}).show()
 	},
 	beforeDestroy() {
 		SocketService.$off("package", this.onPackage);
