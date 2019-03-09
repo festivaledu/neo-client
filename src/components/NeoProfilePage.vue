@@ -5,6 +5,10 @@
 				<metro-navigation-view-menu-item page="profile_general" icon="contact" title="Allgemein" />
 				<metro-navigation-view-menu-item page="profile_colors" icon="color" title="Farben" />
 			</template>
+			
+			<template slot="bottom-items">
+				<metro-navigation-view-menu-item icon="ethernet-error" title="Abmelden" @click.native.prevent="signOut" />
+			</template>
 
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
@@ -164,6 +168,25 @@ export default {
 					disabled: this.currentAccount === null
 				},
 			]).show();
+		},
+		async signOut() {
+			var signOutDialog = new metroUI.ContentDialog({
+				title: "Abmelden",
+				content: (() => {
+					return (
+						<div>
+							<p>Möchtest du dich wirklich abmelden?</p>
+							<p>Nicht gespeicherte Änderungen gehen verloren.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
+			var result = await signOutDialog.showAsync();
+			
+			if (result == metroUI.ContentDialogResult.Primary) {
+				SocketService.socket.close();
+			}
 		},
 		async changeUsername() {
 			var changeUsernameDialog = new metroUI.ContentDialog({
