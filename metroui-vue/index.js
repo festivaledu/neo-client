@@ -1526,7 +1526,7 @@ var Messages = {
 									}
 
 									{item.type == "system" &&
-										<span>{item.text}</span>
+										<span domPropsInnerHTML={item.text}></span>
 									}
 								</div>
 							)
