@@ -112,6 +112,10 @@
 			left: -24px;
 			bottom: -10px;
 		}
+		
+		.message-text span.underline {
+			text-decoration: underline;
+		}
 	}
 }
 
@@ -136,6 +140,16 @@ export default {
 		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
 		this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
+		
+		this.$refs["messageContainer"].onMessageRender = (messageText) => {
+			const mentionName = messageText.match(/@(\S+)/) ? messageText.match(/@(\S+)/)[1] : "";
+			
+			if (mentionName && this.userList.filter(_ => _.identity.id === mentionName).length) {
+				return messageText.replace(/(\@\S+)/g, "<span class=\"underline\">$1</span>");
+			}
+			
+			return messageText;
+		}
 	},
 	methods: {
 		onPackage(packageObj) {
