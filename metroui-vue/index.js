@@ -520,12 +520,12 @@ metroUI.MenuFlyout = class {
 			}
 
 			action.addEventListener("click", () => {
-                if (typeof _action.action === "function") {
-                    if (_action.actionParams) {
-                        _action.action(_action.actionParams);
-                    } else {
-					    _action.action();
-                    }
+				if (typeof _action.action === "function") {
+					if (_action.actionParams) {
+						_action.action(_action.actionParams);
+					} else {
+						_action.action();
+					}
 				}
 
 				flyout.hide();
@@ -992,15 +992,15 @@ var AutoSuggestBox = {
 		setDataSource(source) {
 			this.$data._data = source;
 		}
-    },
-    watch: {
-        data(newValue, oldValue) {
-            this.$data._data = newValue;
-        },
-        value(newValue, oldValue) {
-            this.$data._value = newValue;
-        }
-    }
+	},
+	watch: {
+		data(newValue, oldValue) {
+			this.$data._data = newValue;
+		},
+		value(newValue, oldValue) {
+			this.$data._value = newValue;
+		}
+	}
 };
 
 /**

@@ -19,7 +19,7 @@ export const SocketService = new Vue({
 			this.socket = new WebSocket(url);
 			this.socket.onopen = this.onOpen;
 			this.socket.onclose = this.onClose;
-            this.socket.onmessage = this.onMessage;
+			this.socket.onmessage = this.onMessage;
 		},
 		encrypt(data) {
 			let encrypted = CryptoJS.AES.encrypt(data, this.key, { iv: this.iv }).toString();
@@ -32,7 +32,7 @@ export const SocketService = new Vue({
 		},
 		onClose(event) {
 			this.$emit("close", event);
-        },
+		},
 		onMessage(event) {
 			let container = JSON.parse(event.data);
 			let packageObj = {};
