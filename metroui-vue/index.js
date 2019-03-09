@@ -623,6 +623,16 @@ metroUI.Notification = class {
 		});
 		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
 
+		notification.container.addEventListener("mousedown", (e) => {
+			console.log(e.target == notification.container)
+		});
+		
+		notification.container.addEventListener("mouseup", (e) => {
+			if (e.target == notification.container) {
+				console.error("We should dismiss notifications here, but we don't. DAMNIT!")
+			}
+		});
+
 		if (params.icon) {
 			let iconContainer = document.createElement("div");
 			iconContainer.className = "notification-icon";

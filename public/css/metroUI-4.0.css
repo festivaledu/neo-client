@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1172.2_winkit_internal_dev.190308-1134)
+ * metroUI 4.0 (4.0.1172.3_winkit_internal_dev.190309-0906)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1172.2_winkit_internal_dev.190308-1134";
+  content: "metroUI 4.0\A Build 4.0.1172.3_winkit_internal_dev.190309-0906";
   white-space: pre;
 }
 a {
@@ -5157,11 +5157,11 @@ input[type="url"][disabled]::placeholder {
 .menu-flyout .menu-items .menu-item i.icon {
   position: absolute;
   top: 0;
-  left: 6px;
+  left: 0;
   margin: 6px;
 }
 .menu-flyout .menu-items .menu-item i.icon + span {
-  padding-left: 26px;
+  padding-left: 20px;
 }
 .menu-flyout .menu-items .menu-item.disabled {
   color: var(--base-medium-low);
@@ -5245,6 +5245,7 @@ input[type="url"][disabled]::placeholder {
   left: 16px;
   width: 20px;
   height: 20px;
+  pointer-events: none;
 }
 .notification-center .notification .notification-icon .icon {
   color: rgba(255, 255, 255, 0.8);
@@ -5255,6 +5256,7 @@ input[type="url"][disabled]::placeholder {
 .notification-center .notification .content {
   width: 100%;
   color: #FFF;
+  pointer-events: none;
 }
 .notification-center .notification .content .title-label {
   font-weight: 700;

@@ -41,6 +41,7 @@
 		pointer-events: none;
 	}
 
+	.navigation-view-item > *,
 	.list-view-item > * {
 		pointer-events: none;
 	}
