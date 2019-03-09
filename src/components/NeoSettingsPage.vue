@@ -83,7 +83,8 @@
                         <input type="text" v-model="group.sortValue" />
                         
                         <h4>Mitglieder</h4>
-                        <template v-if="userList.length && group.memberIds.length">
+						<p class="detail-text-label" v-if="!group.memberIds.length || !_filteredGroupUserList(group.memberIds).length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
+						<template v-if="userList.length && group.memberIds.length && _filteredGroupUserList(group.memberIds.length)">
                             <div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
 								<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
 									<div class="col col-5">
