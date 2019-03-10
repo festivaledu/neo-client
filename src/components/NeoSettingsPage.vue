@@ -82,23 +82,25 @@
 						<p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
 						<input type="text" v-model="group.sortValue" />
 						
-						<h4>Mitglieder</h4>
-						<p class="detail-text-label" v-if="!group.memberIds.length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
-						<template v-if="accountList.length && group.memberIds.length">
-							<div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
-								<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
-									<div class="col col-4">
-										<metro-person-picture :displayName="_userById(memberId).identity.name" />
-										<p class="text-label">{{ _userById(memberId).identity.name }}</p>
-										<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
-									</div>
-                                    <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
-                                        <button style="margin: 0"><i class="icon delete"></i></button>
+                        <template v-if="!group.attributes['neo.grouptype'] || group.attributes['neo.grouptype'] != 'guest'">
+                            <h4>Mitglieder</h4>
+                            <p class="detail-text-label" v-if="!group.memberIds.length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
+                            <template v-if="accountList.length && group.memberIds.length">
+                                <div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
+                                    <div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
+                                        <div class="col col-4">
+                                            <metro-person-picture :displayName="_userById(memberId).identity.name" />
+                                            <p class="text-label">{{ _userById(memberId).identity.name }}</p>
+                                            <p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
+                                        </div>
+                                        <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+                                            <button @click="deleteMember(group, memberId)" style="margin: 0"><i class="icon delete"></i></button>
+                                        </div>
                                     </div>
-								</div>
-							</div>
-						</template>
-                        <button @click="addMember(group)" style="margin-top: 6px">Mitglied hinzufügen</button>
+                                </div>
+                            </template>
+                            <button @click="addMember(group)" style="margin-top: 6px" :disabled="group.memberIds.length >= accountList.length - 1">Mitglied hinzufügen</button>
+                        </template>
 
 						<div class="row" style="margin-right: 5px">
 							<div class="col col-5">
@@ -374,7 +376,7 @@ export default {
 							<p>Wählen den Benutzer, den du der Gruppe hinzufügen möchtest:</p>
 							<metro-combo-box>
 								<select>
-									{this.accountList.filter(a => !group.memberIds.includes(a.internalId)).map(a => {
+									{this.accountList.filter(a => !group.memberIds.includes(a.internalId) && (!a.attributes["neo.usertype"] || a.attributes["neo.usertype"] != "root")).map(a => {
 										return (
 											<option value={a.internalId}>{a.identity.name} (@{a.identity.id})</option>
 										)
@@ -402,7 +404,13 @@ export default {
 			this.$set(this.sortedGroupList, index, group);
 
 			this.permissionToAdd = "";
-		},
+        },
+        deleteMember(group, memberId) {
+            let index = this.sortedGroupList.indexOf(group);
+
+			this.$delete(group.memberIds, group.memberIds.indexOf(memberId));
+			this.$set(this.sortedGroupList, index, group);
+        },
 		deletePermission(group, permission) {
 			let index = this.sortedGroupList.indexOf(group);
 
