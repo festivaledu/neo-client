@@ -8,7 +8,7 @@
 			<template slot="list-items">
 				<metro-list-view-menu-separator title="Server" />
 				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
-				<metro-list-view-menu-item class="single-line" title="Banns" page="server_settings_bans" />
+				<metro-list-view-menu-item class="single-line" title="Gebannte Benutzer" page="server_settings_bans" />
 
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
 
@@ -41,9 +41,9 @@
 					<button @click="saveSettings('server', settingsModel)">Einstellungen speichern</button>
 				</div>
 
-				<div class="page" data-page-id="server_settings_bans" data-page-title="Banns">
-                    <h4>Aktive Banns</h4>
-                    <p class="detail-text-label" v-if="bannedAccountList.length == 0">Es sind derzeit keine Banns aktiv.</p>
+				<div class="page" data-page-id="server_settings_bans" data-page-title="Gebannte Benutzer">
+                    <!-- <h4>Aktive Banns</h4> -->
+                    <p v-if="!bannedAccountList.length">Es sind derzeit keine Benutzer gebannt.</p>
                     <template v-else>
                         <div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
                             <div class="row" style="margin-bottom: 12px; margin-right: 5px">
@@ -255,7 +255,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.$refs["settingsView"].navigate("info");
+		this.$refs["settingsView"].navigate("server_settings_general");
 
 		SocketService.$on("package", this.onPackage);
 	},
@@ -270,8 +270,8 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="text" data-required="true" placeholder="Name der Gruppe (z.B. Mitarbeiter)"/>
-							<input type="text" data-minlength="3" placeholder="Id der Gruppe (z.B. employees)"/>
+							<input type="text" data-required="true" placeholder="Gruppen-Name (z.B. Mitarbeiter)"/>
+							<input type="text" data-minlength="3" placeholder="Gruppen-ID (z.B. employees)"/>
 
 							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
 							<metro-combo-box>
@@ -399,7 +399,7 @@ export default {
                                             case "NotAllowed":
                                                 return <p>Du bist nicht berechtigt Gruppen zu erstellen.</p>;
                                             case "IdInUse":
-                                                return <p>Eine Gruppe mit dieser Id existiert bereits.</p>;
+                                                return <p>Eine Gruppe mit dieser ID existiert bereits.</p>;
                                             default: return null
                                         }
                                     })()}
@@ -432,7 +432,7 @@ export default {
                                             case "NotAllowed":
                                                 return <p>Du bist nicht berechtigt diese Gruppe zu löschen.</p>;
                                             case "NotFound":
-                                                return <p>Eine Gruppe mit dieser Id existiert nicht.</p>;
+                                                return <p>Eine Gruppe mit dieser ID existiert nicht.</p>;
                                             default: return null
                                         }
                                     })()}
