@@ -179,7 +179,10 @@ export default {
 								type: this.currentIdentity.id === messageObj.identity.id ? "sent" : "received"
 							}
 						});
-						this.$refs["messageContainer"].setMessages(messages);
+						
+						if (this.$refs["messageContainer"]) {
+							this.$refs["messageContainer"].setMessages(messages);
+						}
 						
                         this.$store.commit("setCurrentChannel", packageObj.content.channel);
                         this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -526,7 +529,7 @@ export default {
                     content: channel.internalId
                 });
             }
-        },
+		},
 		emojiPickerRequested(target) {
 			this.$refs["emojiPicker"].toggle(target);
 		},
