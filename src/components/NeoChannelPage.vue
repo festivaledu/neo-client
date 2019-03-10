@@ -550,7 +550,7 @@ export default {
 			}
 		},
 		userListItemContextClicked(event, memberId) {
-            let isCurrentUser = memberId == this.$store.state.currentAccount.internalId;
+			let isCurrentUser = this.userList.find(_ => _.internalId === memberId).identity.id == this.currentIdentity.id;
 
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
