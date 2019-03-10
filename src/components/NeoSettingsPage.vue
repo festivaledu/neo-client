@@ -334,6 +334,7 @@ export default {
 					return (
 						<div>
 							<input type="text" data-required="true" placeholder="Name der Gruppe (z.B. Mitarbeiter)"/>
+							<input type="text" data-minlength="3" placeholder="Id der Gruppe (z.B. employees)"/>
 
 							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
 							<metro-combo-box>
@@ -354,7 +355,14 @@ export default {
 			var result = await addGroupDialog.showAsync();
 
 			if (result == metroUI.ContentDialogResult.Primary) {
-				console.log(addGroupDialog.text);
+                SocketService.send({
+                    type: PackageType.CreateGroup,
+                    content: {
+                        name: addGroupDialog.text[0],
+                        id: addGroupDialog.text[1],
+                        sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
+                    }
+                });
 			}
 		},
 		addPermission(group) {
@@ -396,7 +404,39 @@ export default {
 						inputs: "",
 						buttons: [],
 					}).show();
-					break;
+                    break;
+                case PackageType.CreateGroupResponse:
+                    if (packageObj.content === "Success") {
+                        new metroUI.Notification({
+                            payload: {},
+                            title: "Einstellungen",
+                            icon: "group",
+                            content: "Die Gruppe wurde erfolgreich erstellt",
+                            inputs: "",
+                            buttons: [],
+                        }).show();
+                    } else {
+                        new metroUI.ContentDialog({
+                            title: "Gruppe konnte nicht erstellt werden",
+                            content: (() => {
+                            return (
+                                <div>
+                                    {(() => {
+                                        switch (packageObj.content) {
+                                            case "NotAllowed":
+                                                return <p>Du bist nicht berechtigt Gruppen zu erstellen.</p>;
+                                            case "IdInUse":
+                                                return <p>Eine Gruppe mit dieser Id existiert bereits.</p>;
+                                            default: return null
+                                        }
+                                    })()}
+                                </div>
+                            )
+                            })(),
+                            commands: [{ text: "Ok" }]
+                        }).show();
+                    }
+                    break;
 				default: break;
 			}
 		},

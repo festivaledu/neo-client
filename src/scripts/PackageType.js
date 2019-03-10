@@ -29,5 +29,7 @@ export default {
 	CreatePunishment: 27,
 	AccountListUpdate: 28,
 	CreateChannel: 29,
-	Mention: 30
+    Mention: 30,
+    CreateGroup: 31,
+    CreateGroupResponse: 32
 }
