@@ -36,5 +36,6 @@ export default {
     DeleteGroup: 34,
     DeleteGroupResponse: 35,
     DeleteChannel: 36,
-    DeleteChannelResponse: 37
+    DeleteChannelResponse: 37,
+    DeletePunishment: 38
 }

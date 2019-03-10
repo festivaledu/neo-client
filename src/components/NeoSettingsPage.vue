@@ -8,15 +8,14 @@
 			<template slot="list-items">
 				<metro-list-view-menu-separator title="Server" />
 				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
+				<metro-list-view-menu-item class="single-line" title="Banns" page="server_settings_bans" />
+
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
 
 				<metro-list-view-menu-separator title="Gruppen" />
-
 				<template v-for="group in this.sortedGroupList">
 					<metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
 				</template>
-
-				<!-- <metro-list-view-menu-item class="single-line" title="Testgruppe" page="group_settings" /> -->
 			</template>
 
 			<template slot="pages">
@@ -40,6 +39,25 @@
 					</template>
 
 					<button @click="saveSettings('server', settingsModel)">Einstellungen speichern</button>
+				</div>
+
+				<div class="page" data-page-id="server_settings_bans" data-page-title="Banns">
+                    <h4>Aktive Banns</h4>
+                    <p class="detail-text-label" v-if="bannedAccountList.length == 0">Es sind derzeit keine Banns aktiv.</p>
+                    <template v-else>
+                        <div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
+                            <div class="row" style="margin-bottom: 12px; margin-right: 5px">
+                                <div class="col col-4">
+                                    <metro-person-picture :displayName="_userById(banned.internalId).identity.name" />
+                                    <p class="text-label">{{ _userById(banned.internalId).identity.name }}</p>
+                                    <p class="detail-text-label">@{{ _userById(banned.internalId).identity.id }}</p>
+                                </div>
+                                <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+                                    <button @click="deleteBan(banned.internalId)" style="margin: 0"><i class="icon delete"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
 				</div>
 
 				<template v-for="group in this.sortedGroupList">
@@ -158,92 +176,6 @@
 						<button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
 					</div>
 				</template>
-
-				<!-- <div class="page" data-page-id="group_settings" data-page-title="%group_name%">
-					<button @click="deleteGroup">Gruppe löschen</button>
-
-					<h3>Berechtigungen</h3>
-					<div class="row">
-						<div class="col col-6"></div>
-						<div class="col col-2 text-center">
-							<h5>Gestattet</h5>
-						</div>
-						<div class="col col-2 text-center">
-							<h5>Geerbt</h5>
-						</div>
-						<div class="col col-2 text-center">
-							<h5>Verweigert</h5>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="col col-6">
-							<p class="text-label">Nachrichten lesen</p>
-							<p class="detail-text-label">neo.global.read</p>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo1_radio1" name="demo1_radio" value="permit" v-model="demoPermission">
-								<label for="demo1_radio1" />
-							</div>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo1_radio2" name="demo1_radio" value="inherit" v-model="demoPermission">
-								<label for="demo1_radio2" />
-							</div>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo1_radio3" name="demo1_radio" value="deny" v-model="demoPermission">
-								<label for="demo1_radio3" />
-							</div>
-						</div>
-					</div>
-
-					<p>{{demoPermission}}</p>
-
-					<h3>Plugin-Berechtigungen</h3>
-					<div class="row">
-						<div class="col col-6"></div>
-						<div class="col col-2 text-center">
-							<h5>Gestattet</h5>
-						</div>
-						<div class="col col-2 text-center">
-							<h5>Geerbt</h5>
-						</div>
-						<div class="col col-2 text-center">
-							<h5>Verweigert</h5>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="col col-6">
-							<p class="text-label">Plugin 1: %permission%</p>
-							<p class="detail-text-label">neo.plugin1.permission</p>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo2_radio1" name="demo2_radio" value="permit" v-model="demoPermission2">
-								<label for="demo2_radio1" />
-							</div>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo2_radio2" name="demo2_radio" value="inherit" v-model="demoPermission2">
-								<label for="demo2_radio2" />
-							</div>
-						</div>
-						<div class="col col-2 text-center">
-							<div class="radio">
-								<input type="radio" id="demo2_radio3" name="demo2_radio" value="deny" v-model="demoPermission2">
-								<label for="demo2_radio3" />
-							</div>
-						</div>
-					</div>
-
-					<p>{{demoPermission2}}</p>
-				</div> -->
 			</template>
 		</metro-list-view>
 	</div>
@@ -552,11 +484,20 @@ export default {
                     content: group.internalId
                 });
             }
-		}
+        },
+        deleteBan(bannedId) {
+            SocketService.send({
+                type: PackageType.DeletePunishment,
+                content: bannedId
+            });
+        }
 	},
 	computed: {
         accountList() {
             return this.$store.state.accountList;
+        },
+        bannedAccountList() {
+            return this.$store.state.accountList.filter(a => a.attributes["neo.banned"]);
         },
 		knownPermissions() {
 			return this.$store.state.knownPermissions;
