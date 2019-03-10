@@ -205,14 +205,13 @@ export default {
 				content: (() => {
 					return (
                         <div>
-                            <input type="text" placeholder="Name des Channels"/>
-                            <input type="text" placeholder="Id des Channels"/>
-                            <input type="number" placeholder="Maximale Benutzeranzahl"/>
-                            <input type="password" placeholder="Passwort"/>
+                            <input type="text" placeholder="Name des Channels" data-required />
+                            <input type="text" placeholder="Id des Channels" data-minlength="3" />
+                            <input type="text" placeholder="Benutzerlimit (-1 für unbegrenzt)" data-required />
+                            <input type="password" placeholder="Passwort (optional)" />
 							<p>Wähle die Art des Channels:</p>
 							<metro-combo-box>
 								<select>
-									<option value="Volatile">Volatil</option>
 									<option value="Temporary">Temporär</option>
 									<option value="Permanent">Permanent</option>
 								</select>
@@ -224,15 +223,15 @@ export default {
 			});
 			
 			switch (await channelDialog.showAsync()) {
-				case metroUI.ContentDialogResult.Primary:
+                case metroUI.ContentDialogResult.Primary:
                     SocketService.send({
                         type: PackageType.CreateChannel,
                         content: {
-                            name: "",
-                            id: "",
-                            limit: -1,
-                            password: "",
-                            lifetime: "Temporary"
+                            name: channelDialog.text[0],
+                            id: channelDialog.text[1],
+                            limit: new Number(channelDialog.text[2]),
+                            password: channelDialog.text[3],
+                            lifetime: channelDialog.text[4]
                         }
 			        });
 					break;
