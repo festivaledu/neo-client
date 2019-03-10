@@ -162,9 +162,33 @@ export default {
 					this.$store.commit("setServerName", packageObj.content.name);
 					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 					break;
-				case PackageType.EnterChannelResponse:
-					this.$store.commit("setCurrentChannel", packageObj.content);
-					this.$refs["channelView"].setTitle(this.currentChannel.name);
+                case PackageType.EnterChannelResponse:                
+                    if (packageObj.content.result === "Success") {
+                        this.$store.commit("setCurrentChannel", packageObj.content.channel);
+                        this.$refs["channelView"].setTitle(this.currentChannel.name);
+                    } else {
+                        new metroUI.ContentDialog({
+                            title: "Channel kann nicht betreten werden",
+                            content: (() => {
+                            return (
+                                <div>
+                                    {(() => {
+                                        switch (packageObj.content.result) {
+                                            case "NotAllowed":
+                                                return <p>Du bist nicht berechtigt Channel zu betreten.</p>;
+                                            case "IncorrectPassword":
+                                                return <p>Das Passwort ist falsch.</p>;
+                                            case "Full":
+                                                return <p>Der Channel hat die maximale Anzahl an Mitgliedern erreicht.</p>;
+                                            default: return null
+                                        }
+                                    })()}
+                                </div>
+                            )
+                            })(),
+                            commands: [{ text: "Ok" }]
+                        }).show();
+                    }
 					break;
 				case PackageType.Message:
 					// Message Object received
@@ -271,15 +295,46 @@ export default {
 				default: break;
 			}
 		},
-		enterChannel(channelId) {
+		async enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
 				return;
-			}
-
-			SocketService.send({
-				type: PackageType.EnterChannel,
-				content: channelId
-			});
+            }
+            
+            if (this.channelList.find(c => c.internalId === channelId).password) {
+                let channelPasswordDialog = new metroUI.ContentDialog({
+                    title: "Passwort eingeben",
+                    content: (() => {
+                        return (
+                            <div>
+                                <p>Dieser Channel ist mit einem Passwort geschützt:</p>
+                                <input type="password" placeholder="Channel-Passwort" />
+                            </div>
+                        )
+                    })(),
+                    commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+                });
+                
+                switch (await channelPasswordDialog.showAsync()) {
+                    case metroUI.ContentDialogResult.Primary:
+                        SocketService.send({
+                            type: PackageType.EnterChannel,
+                            content: {
+                                channelId: channelId,
+                                password: channelPasswordDialog.text
+                            }
+                        });
+                        break;
+                    default: break;
+                }
+            } else {
+                SocketService.send({
+                    type: PackageType.EnterChannel,
+                    content: {
+                        channelId: channelId,
+                        password: ""
+                    }
+                });
+            }
 		},
 		sendMessage(text) {
 			SocketService.send({
