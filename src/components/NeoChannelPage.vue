@@ -211,6 +211,49 @@ export default {
 						type: packageObj.content.messageType
 					});
 					break;
+				case PackageType.Mention:
+					if (packageObj.content.channelId === this.currentChannel.internalId) {
+						return;
+					}
+				
+					let mentionNotification = new metroUI.Notification({
+                        payload: packageObj.content,
+                        icon: "accounts",
+						//title: packageObj.content.identity.name + " (in #" + this.channelList.find(_ => _.internalId == packageObj.content.channelId).id + ")",
+						title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in #${this.channelList.find(_ => _.internalId == packageObj.content.channelId).id}`,
+						content: packageObj.content.message,
+						inputs: (() => {
+							return (
+								<input type="text" placeholder="Antworten..." data-required="true" />
+							)
+						})(),
+						buttons: [
+							{
+								text: "Senden",
+								validate: true,
+								action: (payload) => {
+									// alert(`Answering ${payload.identity.id} in channel ${payload.channelId} with text ${mentionNotification.text}`)
+									SocketService.send({
+										type: PackageType.Input,
+										content: {
+											input: mentionNotification.text,
+											targetChannel: payload.channelId
+										}
+									});
+								}
+							}
+						],
+						dismissAction: (payload) => {
+							// alert(`Entering channel ${payload.channelId}`)
+							if (this.currentChannel.internalId === payload.channelId) {
+								return;
+							}
+							
+							this.enterChannel(payload.channelId);
+						}
+					});
+					mentionNotification.show();
+					break;
 				default: break;
 			}
 		},		
