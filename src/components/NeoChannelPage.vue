@@ -18,7 +18,7 @@
 			</template>
 
             <template slot="bottom-items">
-				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="" />
+				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="createChannel" />
 			</template>
 
 			<template slot="pages">
@@ -198,7 +198,44 @@ export default {
 				}
 			]);
 			flyout.show();
-		},
+        },
+        async createChannel() {
+            let channelDialog = new metroUI.ContentDialog({
+				title: "Channel erstellen",
+				content: (() => {
+					return (
+                        <div>
+                            <input type="text" placeholder="Name des Channels"/>
+                            <input type="text" placeholder="Id des Channels"/>
+                            <input type="number" placeholder="Maximale Benutzeranzahl"/>
+                            <input type="password" placeholder="Passwort"/>
+							<p>Wähle die Art des Channels:</p>
+							<metro-combo-box>
+								<select>
+									<option value="Volatile">Volatil</option>
+									<option value="Temporary">Temporär</option>
+									<option value="Permanent">Permanent</option>
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
+			
+			switch (await channelDialog.showAsync()) {
+				case metroUI.ContentDialogResult.Primary:
+                    SocketService.send({
+                        type: PackageType.CreatePunishment,
+                        content: {
+                            target: memberId,
+                            action: "kick"
+                        }
+			        });
+					break;
+				default: break;
+			}
+        },
 		async createPunishment(memberId) {
 			let punishmentDialog = new metroUI.ContentDialog({
 				title: "Nutzer bestrafen",
@@ -217,17 +254,17 @@ export default {
 					)
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
-			})
-			
-			switch(await punishmentDialog.showAsync()) {
-				case metroUI.ContentDialogResult.Primary:
-			SocketService.send({
-				type: PackageType.CreatePunishment,
-				content: {
-					target: memberId,
-					action: "kick"
-				}
 			});
+			
+			switch (await punishmentDialog.showAsync()) {
+				case metroUI.ContentDialogResult.Primary:
+                    SocketService.send({
+                        type: PackageType.CreatePunishment,
+                        content: {
+                            target: memberId,
+                            action: "kick"
+                        }
+			        });
 					break;
 				default: break;
 			}

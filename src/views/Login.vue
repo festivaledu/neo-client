@@ -201,7 +201,7 @@ export default {
 					text: "test2"
 				}
 			]
-		}).show()
+		}).show();
 	},
 	beforeDestroy() {
 		SocketService.$off("package", this.onPackage);
