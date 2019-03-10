@@ -65,30 +65,46 @@
 	html.electron {
 		background-image: none;
 		background-color: var(--alt-high);
-	
+		
+		::-webkit-scrollbar { 
+			display: none; 
+		}
+		
+		.acrylic {
+			backdrop-filter: none;
+			-webkit-backdrop-filter: none;
+		}
 	
 		body[data-theme="light"] {
-			.acrylic-80 {
-				background-color: darken(#FFF, 5%) !important;
-			}
-			.acrylic-70 {
-				background-color: darken(#FFF, 10%) !important;
-			}
-			.acrylic-60 {
-				background-color: darken(#FFF, 15%) !important;
+			.acrylic:not(.notification) {
+				&.acrylic-80 {
+					background-color: darken(#FFF, 5%) !important;
+				}
+				&.acrylic-70 {
+					background-color: darken(#FFF, 10%) !important;
+				}
+				&.acrylic-60 {
+					background-color: darken(#FFF, 15%) !important;
+				}
 			}
 		}
 		
 		body[data-theme="dark"] {
-			.acrylic-80 {
-				background-color: lighten(#000, 5%) !important;
+			.acrylic:not(.notification) {
+				&.acrylic-80 {
+					background-color: lighten(#000, 5%) !important;
+				}
+				&.acrylic-70 {
+					background-color: lighten(#000, 10%) !important;
+				}
+				&.acrylic-60 {
+					background-color: lighten(#000, 15%) !important;
+				}
 			}
-			.acrylic-70 {
-				background-color: lighten(#000, 10%) !important;
-			}
-			.acrylic-60 {
-				background-color: lighten(#000, 15%) !important;
-			}
+		}
+		
+		.notification-center .notification {
+			background-color: var(--system-accent-color-dark-1) !important;
 		}
 		
 		button {
