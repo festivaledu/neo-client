@@ -340,52 +340,50 @@ metroUI.ContentDialog = class {
 		let content = document.createElement("div");
 		content.className = "content";
 		dialog.container.appendChild(content);
-
-		if (_title.length) {
+		
+		if (params.title && params.title.length) {
 			let title = document.createElement("h4");
-			title.innerText = _title;
+			title.innerText = params.title;
 			content.appendChild(title);
 		}
-
-		if (_content) {
-			if (typeof _content === "object") {
-				content.appendChild(new NodeRenderer(_content));
+		
+		if (params.content) {
+			if (typeof params.content === "object") {
+				content.appendChild(new NodeRenderer(params.content));
 			} else {
-				let parsedHTML = (new DOMParser()).parseFromString(_content, "text/html");
+				let parsedHTML = (new DOMParser()).parseFromString(params.content, "text/html");
 				if (parsedHTML.body.children.length) {
 					for (var i = 0; i < parsedHTML.body.children.length; i++) {
 						content.appendChild(parsedHTML.body.children[i].cloneNode(true));
 					}
 				} else {
 					let contentText = document.createElement("p");
-					contentText.innerHTML = _content;
+					contentText.innerText = params.content;
 					content.appendChild(contentText);
 				}
 			}
 		}
-
-		if (buttons && buttons.length) {
+		
+		if (params.commands && params.commands.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
 			dialog.container.appendChild(commands);
 
-			buttons.forEach((_button, index) => {
-				let button = document.createElement("button");
-				button.innerHTML = _button.text;
-                button.className = _button.primary ? "primary" : "";
-                
-                if (_button.primary && [...content.querySelectorAll("input")].some(inputEl => inputEl.dataset.minlength)) {
-                    button.disabled = true;
-                }
+			params.commands.slice(0, 3).forEach((_command, index) => {
+				let command = document.createElement("button");
+				command.innerText = _command.text;
+				command.className = _command.primary ? "primary" : "";
+				command.disabled = (_command.primary && [...content.querySelectorAll("input, select")].some(inputEl => inputEl.dataset.minlength || inputEl.dataset.required == "true"));
 
-				// TODO: Add event listener
+				command.addEventListener("click", () => {
+					if (typeof _command.action === "function") {
+						_command.action();
+					}
 
-				button.addEventListener("click", () => {
 					if (dialog._promiseResolve) {
-						//dialog._promise.resolve(1);
-						if (_button.primary) {
+						if (_command.primary) {
 							dialog._promiseResolve(metroUI.ContentDialogResult.Primary);
-						} else if (index == buttons.length - 1) {
+						} else if (index == commands.length - 1) {
 							dialog._promiseResolve(metroUI.ContentDialogResult.None);
 						} else {
 							dialog._promiseResolve(metroUI.ContentDialogResult.Secondary);
@@ -395,22 +393,19 @@ metroUI.ContentDialog = class {
 					dialog.hide();
 				});
 
-				commands.appendChild(button);
+				commands.appendChild(command);
 			});
-        }
-        
-        content.querySelectorAll("input").forEach(el => {
-            el.addEventListener("input", ev => {                
-                document.querySelector(".primary").disabled = false;
-
-                content.querySelectorAll("input").forEach(inputEl => {
-                    if (inputEl.dataset.minlength && inputEl.value.length < inputEl.dataset.minlength) {
-                        document.querySelector(".primary").disabled = true;
-                        return;
-                    }
-                });
-            });
-        });
+			
+			content.querySelectorAll("input, select").forEach(item => {
+				item.addEventListener("input", () => {
+					let primaryCommand = commands.querySelector(".primary");
+					
+					if (primaryCommand) {
+						primaryCommand.disabled = [...content.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
+					}
+				});
+			});
+		}
 	}
 
 	/**
@@ -425,6 +420,11 @@ metroUI.ContentDialog = class {
 		}
 
 		document.body.appendChild(dialog.container);
+		
+		dialog.container.style.width = `${Math.round(dialog.container.clientWidth / 2) * 2}px`;
+		dialog.container.style.height = `${Math.round(dialog.container.clientHeight / 2) * 2}px`;
+		
+		dialog.container.classList.add("animate-in");
 	}
 
 	/**
@@ -526,7 +526,11 @@ metroUI.MenuFlyout = class {
 
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-					_action.action();
+					if (_action.actionParams) {
+						_action.action(_action.actionParams);
+					} else {
+						_action.action();
+					}
 				}
 
 				flyout.hide();
@@ -608,21 +612,43 @@ metroUI.Notification = class {
 		notification.wrapper.className = "notification-wrapper";
 
 		notification.container = document.createElement("div");
-		notification.container.className = "notification";
+		notification.container.className = "notification acrylic acrylic-60";
 		notification.wrapper.appendChild(notification.container);
 
 		let dismissButton = document.createElement("div");
 		dismissButton.className = "dismiss-button";
 		dismissButton.innerHTML = "<i class=\"icon chrome-back-mirrored\"></i>";
-		dismissButton.addEventListener("click", notification.hide.bind(notification));
+		dismissButton.addEventListener("click", () => {
+			notification.hide("slide-out");
+		});
 		notification.container.appendChild(dismissButton);
 
 		notification.payload = params.payload;
-		notification.displayTimeout = null;
+		notification._displayTimeout = null;
 		notification.container.addEventListener("mouseover", () => {
-			clearTimeout(notification.displayTimeout);
+			clearTimeout(notification._displayTimeout);
 		});
-		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+		notification.___mousoutListener = notification._resetTimeout.bind(notification)
+		notification.container.addEventListener("mouseout", notification.___mouseoutListener);
+
+		notification._dismissAction = params.dismissAction;
+		notification.container.addEventListener("mousedown", (e) => {
+			if (e.target == notification.container) {
+				notification.container.classList.add("active-state");
+			}
+		});
+		notification.container.addEventListener("mouseup", (e) => {
+			if (e.target == notification.container) {
+				clearTimeout(notification._displayTimeout);
+				notification.container.classList.remove("active-state");
+				
+				if (typeof notification._dismissAction === "function") {
+					notification._dismissAction(notification.payload);
+			}
+				
+				notification.hide("dismissing");
+			}
+		});
 
 		if (params.icon) {
 			let iconContainer = document.createElement("div");
@@ -673,9 +699,9 @@ metroUI.Notification = class {
 			}
 		}
 
+		let inputs = document.createElement("div");
+		inputs.className = "notification-inputs";
 		if (params.inputs) {
-			let inputs = document.createElement("div");
-			inputs.className = "notification-inputs";
 			notification.container.appendChild(inputs);
 
 			if (typeof params.inputs === "object") {
@@ -690,14 +716,16 @@ metroUI.Notification = class {
 			}
 		}
 
+		let buttons = document.createElement("div");
+		buttons.className = "notification-buttons";
 		if (params.buttons && params.buttons.length) {
-			let buttons = document.createElement("div");
-			buttons.className = "notification-buttons";
 			notification.container.appendChild(buttons);
 
 			params.buttons.forEach((_button, index) => {
 				let button = document.createElement("button");
 				button.innerText = _button.text;
+				button.className = _button.validate ? "validated" : "";
+				button.disabled = (_button.validate && [...inputs.querySelectorAll("input, select")].some(inputEl => inputEl.dataset.minlength || inputEl.dataset.required == "true"));
 
 				button.addEventListener("click", () => {
 					if (typeof _button.action === "function") {
@@ -708,23 +736,63 @@ metroUI.Notification = class {
 						notification._promiseResolve(findInRow(button));
 					}
 
-					notification.hide();
+					notification.hide("dismissing-action");
 				});
 
 				buttons.appendChild(button);
 			});
 		}
+		
+		inputs.querySelectorAll("input, select").forEach(item => {
+			item.addEventListener("input", () => {
+				clearTimeout(notification._displayTimeout);
+				notification._displayTimeout = null;
+				notification.container.removeEventListener("mouseout", notification.___mouseoutListener);
+				
+				let validatedButton = buttons.querySelector(".validated");
+				
+				if (validatedButton) {
+					validatedButton.disabled = [...inputs.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
+				}
+			});
+		});
 	}
 
 	_resetTimeout() {
 		const notification = this;
 
-		if (notification.container.classList.contains("slide-out")) {
+		if (notification.container.classList.contains("slide-out") ||
+			notification.container.classList.contains("dismissing") ||
+			notification.container.classList.contains("dismissing-action")) {
 			return;
 		}
 
-		clearTimeout(notification.displayTimeout);
-		notification.displayTimeout = setTimeout(notification.hide.bind(notification), 6000);
+		clearTimeout(notification._displayTimeout);
+		notification._displayTimeout = setTimeout(() => {
+			notification.hide("slide-out");
+		}, 6000);
+	}
+
+	_removeFromParent() {
+		const notification = this;
+		
+		setTimeout(() => {
+			notification.notificationCenter.removeChild(notification.wrapper);
+
+			setTimeout(() => {
+				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
+					var notificationHeight = 0;
+
+					var node = item;
+					while (node.nextElementSibling) {
+						notificationHeight += (node.clientHeight + 12);
+						node = node.nextElementSibling;
+					}
+
+					item.style.marginBottom = `${notificationHeight}px`;
+				});
+			});
+		}, 450);
 	}
 
 	/**
@@ -754,6 +822,10 @@ metroUI.Notification = class {
 		notification.notificationCenter.appendChild(notification.wrapper);
 		notification.container.classList.add("slide-in");
 
+		setTimeout(() => {
+			notification.container.classList.remove("slide-in");
+		}, 600);
+
 		this._resetTimeout();
 	}
 
@@ -776,35 +848,20 @@ metroUI.Notification = class {
 	/**
 	 * Hides a notification and removes it from the screen
 	 */
-	hide() {
+	hide(hideType) {
 		const notification = this;
 
-		clearTimeout(notification.displayTimeout);
+		clearTimeout(notification._displayTimeout);
+		notification._displayTimeout = null;
 
 		notification.container.classList.remove("slide-in");
-		notification.container.classList.add("slide-out");
+		notification.container.classList.add(hideType);
 
 		if (notification._promise && typeof notification._promise.result === "undefined") {
 			notification._promiseResolve(-1);
 		}
 
-		setTimeout(() => {
-			notification.notificationCenter.removeChild(notification.wrapper);
-
-			setTimeout(() => {
-				notification.notificationCenter.querySelectorAll(".notification-wrapper").forEach((item, index) => {
-					var notificationHeight = 0;
-
-					var node = item;
-					while (node.nextElementSibling) {
-						notificationHeight += (node.clientHeight + 12);
-						node = node.nextElementSibling;
-					}
-
-					item.style.marginBottom = `${notificationHeight}px`;
-				});
-			});
-		}, 300);
+		this._removeFromParent();
 	}
 
 	/**
@@ -894,7 +951,7 @@ var AppBarButton = {
  */
 var AutoSuggestBox = {
 	name: "metro-auto-suggest",
-	props: ["value", "placeholder", "data", "maxResults"],
+	props: ["value", "placeholder", "data", "maxResults", "disabled"],
 	data() {
 		return {
 			_value: this.$props.value,
@@ -907,7 +964,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} disabled={this.$props.disabled} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 					{this.$data.results.map(item => {
 						return (
@@ -992,6 +1049,14 @@ var AutoSuggestBox = {
 		 */
 		setDataSource(source) {
 			this.$data._data = source;
+		}
+	},
+	watch: {
+		data(newValue, oldValue) {
+			this.$data._data = newValue;
+		},
+		value(newValue, oldValue) {
+			this.$data._value = newValue;
 		}
 	}
 };
@@ -1080,7 +1145,7 @@ var ComboBox = {
 	},
 	render(h) {
 		return (
-			<div class="list" onClick={this._onClick}>
+			<div class="list" onClick={this._show}>
 				{this.$slots.default}
 				<div class="list-inner" ref="list"></div>
 			</div>
@@ -1120,17 +1185,14 @@ var ComboBox = {
 					return;
 				}
 
-				if (this.$el.classList.contains("open")) {
-					this.$el.classList.remove("open");
-				}
 
 				if (this.$refs["list"].querySelector(".selected")) {
 					this.$refs["list"].querySelector(".selected").classList.remove("selected");
 				}
 
 				item.classList.add("selected");
-				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(item) * 32 + 8)}px, 0)`;
-				this.$refs["list"].style.top = "";
+				
+				this._hide();
 
 				if (item.hasAttribute("data-value")) {
 					this.$data.value = item.getAttribute("data-value");
@@ -1144,7 +1206,18 @@ var ComboBox = {
 		});
 	},
 	methods: {
-		_onClick(e) {
+		_hide() {
+			if (this.$el.classList.contains("open")) {
+				this.$el.classList.remove("open");
+			}
+
+			if (this.$refs["list"].querySelector(".selected")) {
+				this.$refs["list"].style.transform = `translate3d(0, -${(findInRow(this.$refs["list"].querySelector(".selected")) * 32 + 8)}px, 0)`;
+				this.$refs["list"].style.top = "";
+			}
+		},
+		
+		_show(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
 			} else {
@@ -1171,6 +1244,10 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
+			
+			this.eventListener = this._hide.bind(this);
+
+			document.addEventListener("click", this.eventListener, true);
 
 			e.stopPropagation();
 		}
@@ -1278,31 +1355,38 @@ var ListView = {
 			</div>
 		)
 	},
+	mounted() {
+		this._listRendered();
+	},
 	updated() {
-		if (this.$refs["frameContent"] && this.$refs["frame"]) {
-			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-				if (page.hasAttribute("data-page-id")) {
-					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-						parentPage: this,
-						title: page.getAttribute("data-page-title")
+		this._listRendered();
+	},
+	methods: {
+		_listRendered() {
+			if (this.$refs["frameContent"] && this.$refs["frame"]) {
+				this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+					if (page.hasAttribute("data-page-id")) {
+						this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+							parentPage: this,
+							title: page.getAttribute("data-page-title")
+						});
+					}
+				});
+	
+				this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+			}
+	
+			this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
 					});
 				}
 			});
-
-			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-		}
-
-		this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-				});
-			}
-		});
-	},
-	methods: {
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1347,6 +1431,7 @@ var ListView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 			}
 		},
 		/**
@@ -1446,28 +1531,30 @@ var Messages = {
 	render(h) {
 		return (
 			<div class="messages-container">
-				<div class="messages-wrapper">
-					{this.$data.messages.map(item => {
-						return (
-							<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
-								{(item.type == "sent" || item.type == "received") &&
-									<div class="message-content">
-										<div class="message-bubble">
-											<p class="message-text">{item.text}</p>
-											<div class="message-info">
-												<p class="message-time">{this._formatTime(item.date)}</p>
-												<p class="message-name">{item.displayName || item.author}</p>
+				<div class="messages-scroll-container" ref="scrollContainer">
+					<div class="messages-wrapper">
+						{this.$data.messages.map(item => {
+							return (
+								<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
+									{(item.type == "sent" || item.type == "received") &&
+										<div class="message-content">
+											<div class="message-bubble">
+												<p class="message-text" domPropsInnerHTML={item.text}></p>
+												<div class="message-info">
+													<p class="message-time">{this._formatTime(item.date)}</p>
+													<p class="message-name">{item.displayName || item.author}</p>
+												</div>
 											</div>
 										</div>
-									</div>
-								}
+									}
 
-								{item.type == "system" &&
-									<span>{item.text}</span>
-								}
-							</div>
-						)
-					})}
+									{item.type == "system" &&
+										<span domPropsInnerHTML={item.text}></span>
+									}
+								</div>
+							)
+						})}
+					</div>
 				</div>
 
 				<div class="messages-input">
@@ -1495,6 +1582,17 @@ var Messages = {
 
 			this.$emit("messageSent", this.$data.messageText);
 			this.$data.messageText = "";
+		},
+		_renderMessage(messageText) {
+			messageText = messageText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+				return '&#'+i.charCodeAt(0)+';';
+			 });
+			 
+			 if (typeof this.onMessageRender === "function") {
+				messageText = this.onMessageRender(messageText);
+			}
+			
+			return messageText
 		},
 
 		/**
@@ -1529,10 +1627,11 @@ var Messages = {
 				message.isFirst = true;
 			}
 
+			message.text = this._renderMessage(message.text);
 			this.$data.messages.push(message);
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
 		},
 		/**
@@ -1543,7 +1642,16 @@ var Messages = {
 			this.$data.messages.push({ type: "system", text: text });
 
 			setTimeout(() => {
-				this.$el.parentElement.scrollTo(0, this.$el.scrollHeight);
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
+			});
+		},
+		/**
+		 * 
+		 */
+		setMessages(messageData) {
+			this.$data.messages = [];
+			messageData.forEach(messageObj => {
+				this.addMessage(messageObj);
 			});
 		}
 	}
@@ -1611,34 +1719,38 @@ var NavigationView = {
 		)
 	},
 	mounted() {
-		this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
-			if (page.hasAttribute("data-page-id")) {
-				this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
-					parentPage: this,
-					title: page.getAttribute("data-page-title")
-				});
-			}
-		});
-
-		this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-
-		this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
-			if (item.hasAttribute("data-page")) {
-				this.$data._items[item.getAttribute("data-page")] = item;
-
-				item.addEventListener("click", () => {
-					this.navigate(item.getAttribute("data-page"));
-
-					if (window.innerWidth < 1008) {
-						this.$refs["menu"].classList.remove("expanded");
-					} else if (this.$props.startRetracted) {
-						this.$refs["menu"].classList.add("retracted");
-					}
-				});
-			}
-		});
+		this._listRendered();
 	},
 	methods: {
+		_listRendered() {
+			this.$refs["frameContent"].querySelectorAll(".page").forEach((page, index) => {
+				if (page.hasAttribute("data-page-id")) {
+					this.$data._pages[page.getAttribute("data-page-id")] = new metroUI.Page(page, {
+						parentPage: this,
+						title: page.getAttribute("data-page-title")
+					});
+				}
+			});
+	
+			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
+	
+			this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
+				if (item.hasAttribute("data-page")) {
+					this.$data._items[item.getAttribute("data-page")] = item;
+	
+					item.addEventListener("click", () => {
+						this.navigate(item.getAttribute("data-page"));
+	
+						if (window.innerWidth < 1008) {
+							this.$refs["menu"].classList.remove("expanded");
+						} else if (this.$props.startRetracted) {
+							this.$refs["menu"].classList.add("retracted");
+						}
+					});
+				}
+			});
+		},
+		
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1694,6 +1806,7 @@ var NavigationView = {
 				}
 
 				this.$refs["frame"].scrollTo(0, 0);
+				page.container.scrollTo(0, 0);
 
 				if (this.$props.history != false) {
 					this.$data._history.push(pageName);
@@ -1836,19 +1949,35 @@ var PersonPicture = {
 		)
 	},
 	mounted() {
-		if (this.$props.initials) {
-			this.$data._initials = this.$props.initials.toUpperCase();
-		} else if (this.$props.displayName) {
-			let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-_ ]/g, "").match(/\b\w/g);
-
-			if (initials.length > 1) {
-				this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
-			} else if (initials.length) {
-				this.$data._initials = initials[0];
+		this._renderInitials();
+	},
+	methods: {
+		_renderInitials() {
+			if (this.$props.initials) {
+				this.$data._initials = this.$props.initials.toUpperCase();
+			} else if (this.$props.displayName) {
+				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-0-9_ ]/g, "").match(/\b\w/g);
+	
+				if (initials.length > 1) {
+					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
+				} else if (initials.length) {
+					this.$data._initials = initials[0];
+				}
+	
+			} else if (this.$props.profilePicture) {
+				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}
-
-		} else if (this.$props.profilePicture) {
-			this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
+		}
+	},
+	watch: {
+		profilePicture(newValue, oldValue) {
+			this._renderInitials();
+		},
+		displayName(newValue, oldValue) {
+			this._renderInitials();
+		},
+		initials(newValue, oldValue) {
+			this._renderInitials();
 		}
 	}
 };

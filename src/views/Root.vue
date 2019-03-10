@@ -71,8 +71,9 @@ import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
+import { SocketService } from "@/scripts/SocketService"
+import PackageType from '@/scripts/PackageType'
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
 
 export default {
 	name: "Root",
@@ -96,6 +97,9 @@ export default {
 			console.debug(packageObj.content);
 
 			switch (packageObj.type) {
+				case PackageType.AccountListUpdate:
+					this.$store.commit("setAccountList", packageObj.content);
+					break;
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
 					break;
@@ -105,9 +109,39 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
+                    break;
+                case PackageType.GrantedPermissionsUpdate:
+                    this.$store.commit("setGrantedPermissions", packageObj.content);
+                    break;
+				case PackageType.KnownPermissionsUpdate:
+					this.$store.commit("setKnownPermissions", packageObj.content);
+                    break;
+				case PackageType.DisconnectReason:
+					let reasons = {
+						"shutdown": "Der Server fährt herunter",
+						"kick": "Du wurdest gekickt",
+						"ban": "Du wurdest gebannt"
+					};
+
+					NotificationDelegate.sendNotification({
+						payload: {},
+						title: "Verbindung getrennt",
+						icon: "ethernet-error",
+						content: reasons[packageObj.content],
+						inputs: "",
+						buttons: [],
+					});
 					break;
 				default: break;
 			}
+		}
+	},
+	computed: {
+        channelList() {
+            return this.$store.state.channelList;
+        },
+		currentChannel() {
+			return this.$store.state.currentChannel;
 		}
 	}
 }

@@ -51,20 +51,17 @@
 						</div>
 					</form>
 
-					<div class="row mt-3 d-none d-md-flex">
+					<div class="row mt-3 d-flex">
 						<div class="col col-6 text-left">
-							<button class="btn btn-primary d-inline-block" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="!socket || $v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
+							<button class="btn btn-primary d-inline-block colored" @click="login()" :disabled="!socket || $v.user.$invalid || isWorking">Anmelden</button>
 						</div>
 
-						<div class="col text-right" v-show="!isWorking">
+						<div class="col text-left" v-show="!isWorking">
 							<a href="#" class="d-inline-block mt-2 p-0" @click.prevent="register" :disabled="!socket || !serverMetadata.registrationAllowed">Noch kein Account?</a>
-						</div>
-						<div class="col text-right" v-show="isWorking">
-							<div class="loading-indicator" />
 						</div>
 					</div>
 
@@ -141,10 +138,12 @@ p.block-text {
 </style>
 
 <script>
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
-import { required } from 'vuelidate/lib/validators';
-import CryptoJS from "crypto-js";
+import { SocketService } from "@/scripts/SocketService"
+import PackageType from '@/scripts/PackageType'
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
+
+import { required } from 'vuelidate/lib/validators'
+import CryptoJS from "crypto-js"
 
 export default {
 	name: 'Login',
@@ -205,7 +204,11 @@ export default {
 
 			this.isConnecting = false;
 		},
-		onClose() {
+		onClose(event) {
+			SocketService.$off("open");
+			SocketService.$off("close");
+			SocketService.$off("package");
+			
 			this.socket = null;
 			this.$router.replace("/login");
 		},
@@ -244,7 +247,9 @@ export default {
 						case 1:
 						case 2:
 						case 3:
-							new metroUI.ContentDialog("Anmeldefehler", (() => {
+							new metroUI.ContentDialog({
+								title: "Anmeldefehler",
+								content: (() => {
 								return (
 									<div>
 										{(() => {
@@ -260,11 +265,15 @@ export default {
 										})()}
 									</div>
 								)
-							})(), [{ text: "Ok" }]).show();
+								})(),
+								commands: [{ text: "Ok" }]
+							}).show();
 							break;
 						case 4:
 						case 5:
-							new metroUI.ContentDialog("Registrierungsfehler", (() => {
+							new metroUI.ContentDialog({
+								title: "Anmeldefehler",
+								content: (() => {
 								return (
 									<div>
 										{(() => {
@@ -278,7 +287,9 @@ export default {
 										})()}
 									</div>
 								)
-							})(), [{ text: "Ok" }]).show();
+								})(),
+								commands: [{ text: "Ok" }]
+							}).show();
 							break;
 						default: break;
 					}
@@ -288,11 +299,23 @@ export default {
 		},
 
 		connect() {
+			if (this.socket) {
+				return;
+			}
+			
 			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
 
 		login() {
+			if (this.$v.user.$invalid) {
+				if (!this.$v.user.username.$invalid && this.serverMetadata.guestsAllowed) {
+					this.connectAsGuest();
+				}
+				return;
+			}
+			document.activeElement.blur();
+			
 			this.isWorking = true;
 			SocketService.send({
 				type: PackageType.MemberLogin,
@@ -303,26 +326,21 @@ export default {
 			});
 		},
 		async register() {
-			var registerDialog = new metroUI.ContentDialog("Registrieren", (() => {
+			var registerDialog = new metroUI.ContentDialog({
+				title: "Registrieren",
+				content: (() => {
 				return (
 					<div>
-						<input type="text" placeholder="Benutzername" />
-						<input type="text" placeholder="Benutzer-ID" />
-						<input type="email" placeholder="E-Mail-Adresse" />
-						<input type="password" placeholder="Passwort (min. 8 Zeichen)" />
-						<input type="password" placeholder="Passwort bestätigen" />
+						<input type="text" placeholder="Benutzername" data-required="true" />
+						<input type="text" placeholder="Benutzer-ID" data-minlength="3" />
+						<input type="email" placeholder="E-Mail-Adresse" data-minlength="6" />
+						<input type="password" placeholder="Passwort (min. 8 Zeichen)" data-minlength="8" />
+						<input type="password" placeholder="Passwort bestätigen" data-minlength="8" />
 					</div>
 				)
 			})(),
-			[
-				{
-					text: "Abbrechen"
-				},
-				{
-					text: "Ok",
-					primary: true
-				}
-			]);
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
 
 			var result = await registerDialog.showAsync();
 
@@ -330,31 +348,29 @@ export default {
 				let texts = registerDialog.text;
 				for (var i = 0; i < texts.length; i++) {
 					if (!texts[i].length) {
-						new metroUI.ContentDialog("Fehler", "Du musst alle Felder ausfüllen, um dich zu registieren.", [
-							{
-								text: "Ok",
-								primary: true
-							}
-						]).show();
+						new metroUI.ContentDialog({
+							title: "Fehler", 
+							content: "Du musst alle Felder ausfüllen, um dich zu registieren.",
+							commands: [{ text: "Ok", primary: true }]
+						}).show();
 						return;
 					}
 				}
 
 				if (texts[3].length < 8) {
-					new metroUI.ContentDialog("Fehler", "Das Passwort muss mindestens 8 Zeichen lang sein.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+					new metroUI.ContentDialog({
+						title: "Fehler", 
+						content: "Das Passwort muss mindestens 8 Zeichen lang sein.",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
 					return;
 				} else if (texts[3].localeCompare(texts[4]) != 0) {
-					new metroUI.ContentDialog("Fehler", "Die angegeben Passwörter stimmen nicht überein.", [
-						{
-							text: "Ok",
-							primary: true
-						}
-					]).show();
+					new metroUI.ContentDialog({
+						title: "Fehler", 
+						content: "Die angegeben Passwörter stimmen nicht überein.",
+						commands: [{ text: "Ok", primary: true }]
+					}).show();
+					return;
 				}
 
 				this.isWorking = true;

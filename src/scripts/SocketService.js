@@ -31,7 +31,7 @@ export const SocketService = new Vue({
 			this.$emit("open", event);
 		},
 		onClose(event) {
-			this.$emit("close");
+			this.$emit("close", event);
 		},
 		onMessage(event) {
 			let container = JSON.parse(event.data);

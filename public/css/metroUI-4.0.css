@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1171.0_winkit_internal_dev.190307-2318)
+ * metroUI 4.0 (4.0.1173.1_winkit_internal_dev.190310-1459)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1171.0_winkit_internal_dev.190307-2318";
+  content: "metroUI 4.0\A Build 4.0.1173.1_winkit_internal_dev.190310-1459";
   white-space: pre;
 }
 a {
@@ -3391,15 +3391,14 @@ button:not(.inline) {
 button:not(:disabled) {
   cursor: pointer;
 }
-button:not(:disabled) .colored {
-  color: var(--system-accent-color);
+button:not(:disabled).colored {
+  background-color: var(--system-accent-color);
 }
 button:not(:disabled):active {
   background-color: var(--base-medium-low);
 }
 button:disabled {
-  color: var(--base-medium-low) !important;
-  background-color: var(--base-low) !important;
+  color: var(--base-medium-low);
 }
 
 .checkbox {
@@ -4890,13 +4889,15 @@ input[type="url"][disabled]::placeholder {
   box-shadow: inset 0 0 0 1px var(--system-accent-color);
   padding: 18px 24px 24px;
   z-index: 1100;
-  animation: dialog-in 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
 @media all and (max-width: 640px) {
   .content-dialog {
     width: 100%;
     max-width: initial;
   }
+}
+.content-dialog.animate-in {
+  animation: dialog-in 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
 .content-dialog.animate-out {
   animation: dialog-out 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
@@ -4924,8 +4925,12 @@ input[type="url"][disabled]::placeholder {
   margin-left: 2px;
   margin-right: 2px;
 }
-.content-dialog .commands button.primary:not(:active) {
+.content-dialog .commands button.primary:not(:disabled):not(:active) {
   background-color: var(--system-accent-color);
+}
+.content-dialog .commands button.primary:disabled {
+  color: var(--base-medium-low) !important;
+  background-color: var(--base-low) !important;
 }
 
 .calendar-date-picker {
@@ -4980,8 +4985,14 @@ input[type="url"][disabled]::placeholder {
 }
 
 .messages-container {
+  height: 100%;
   min-height: 100%;
   display: flex;
+}
+.messages-container .messages-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
 }
 .messages-container .messages-wrapper {
   flex: 1;
@@ -5084,6 +5095,7 @@ input[type="url"][disabled]::placeholder {
   right: 0;
   bottom: 0;
   height: 48px;
+  background-color: var(--alt-high);
 }
 .messages-container .messages-input input[type="text"] {
   max-width: initial;
@@ -5147,11 +5159,11 @@ input[type="url"][disabled]::placeholder {
 .menu-flyout .menu-items .menu-item i.icon {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 6px;
   margin: 6px;
 }
 .menu-flyout .menu-items .menu-item i.icon + span {
-  padding-left: 20px;
+  padding-left: 26px;
 }
 .menu-flyout .menu-items .menu-item.disabled {
   color: var(--base-medium-low);
@@ -5192,6 +5204,32 @@ input[type="url"][disabled]::placeholder {
     transform: translate3d(380px, 0, 0);
   }
 }
+@keyframes notification-dismiss {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(0.64) translate3d(0, 0, 0);
+  }
+}
+@keyframes notification-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes notification-fade-out-slide {
+  from {
+    opacity: 1;
+    transform: scale(0.64) translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.64) translate3d(0, -64px, 0);
+  }
+}
 .notification-center {
   position: fixed;
   top: 0;
@@ -5213,6 +5251,7 @@ input[type="url"][disabled]::placeholder {
   width: 364px;
   padding: 20px 16px 16px;
   pointer-events: all;
+  transition: transform 200ms cubic-bezier(0.15, 0.97, 0.44, 0.9);
 }
 .notification-center .notification .dismiss-button {
   position: absolute;
@@ -5235,6 +5274,7 @@ input[type="url"][disabled]::placeholder {
   left: 16px;
   width: 20px;
   height: 20px;
+  pointer-events: none;
 }
 .notification-center .notification .notification-icon .icon {
   color: rgba(255, 255, 255, 0.8);
@@ -5245,6 +5285,7 @@ input[type="url"][disabled]::placeholder {
 .notification-center .notification .content {
   width: 100%;
   color: #FFF;
+  pointer-events: none;
 }
 .notification-center .notification .content .title-label {
   font-weight: 700;
@@ -5333,19 +5374,26 @@ input[type="url"][disabled]::placeholder {
 .notification-center .notification .notification-buttons button:not(:disabled):hover:not(:active) {
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
-.notification-center .notification .notification-buttons button:active {
+.notification-center .notification .notification-buttons button:not(:disabled):active {
   background-color: rgba(255, 255, 255, 0.4);
 }
+.notification-center .notification .notification-buttons button:disabled {
+  color: rgba(255, 255, 255, 0.4);
+}
+.notification-center .notification.active-state {
+  transform: scale(0.98) translate3d(0, 0, 0);
+}
 .notification-center .notification.slide-in {
-  animation: notification-slide-in 500ms cubic-bezier(0.1, 0.9, 0.2, 1);
+  animation: notification-slide-in 550ms cubic-bezier(0.12, 0.87, 0.15, 1) forwards;
 }
 .notification-center .notification.slide-out {
-  animation: notification-slide-out 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
-  animation-fill-mode: forwards;
+  animation: notification-slide-out 450ms cubic-bezier(0.09, 0.36, 0.17, 0.91) forwards;
 }
-.notification-center .notification.fade-out {
-  animation: fade-out 3s linear;
-  animation-fill-mode: forwards;
+.notification-center .notification.dismissing {
+  animation: notification-dismiss 200ms cubic-bezier(0.15, 0.97, 0.44, 0.9) forwards, notification-fade-out 100ms 200ms ease-out forwards;
+}
+.notification-center .notification.dismissing-action {
+  animation: notification-dismiss 200ms cubic-bezier(0.15, 0.97, 0.44, 0.9) forwards, notification-fade-out-slide 100ms 200ms ease-out forwards;
 }
 .notification-center .notification:not(:hover) .dismiss-button {
   display: none;

@@ -22,6 +22,15 @@ export default {
 	OpenSettingsResponse: 20,
 	EditSettings: 21,
 	EditSettingsResponse: 22,
-    EditProfile: 23,
-    EditProfileResponse: 24
+	EditProfile: 23,
+	EditProfileResponse: 24,
+	KnownPermissionsUpdate: 25,
+	DisconnectReason: 26,
+	CreatePunishment: 27,
+	AccountListUpdate: 28,
+	CreateChannel: 29,
+    Mention: 30,
+    CreateGroup: 31,
+    CreateGroupResponse: 32,
+    GrantedPermissionsUpdate: 33
 }
