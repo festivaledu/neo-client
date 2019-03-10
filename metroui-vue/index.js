@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import Vue from "vue";
 
+import emoji from '@/scripts/emoji.json'
+
 /**
  * Helper methods to get the first and last objects in an array
  */
@@ -1462,6 +1464,42 @@ var ListView = {
 };
 
 /**
+ * A popup that shows a list of selectable emojis (Unicode 11.0)
+ * 
+ */
+var EmojiPicker = {
+	name: "metro-emoji-picker",
+	render(h) {
+		return (
+			<div class="emoji-picker" ref="picker">				
+				<div class="emoji-container">
+					{emoji.map(item => {
+						return (
+							<div class="emoji-item" data-item={item.no} data-char={item.char} onClick={this._emojiPicked}>
+								<span>{item.char}</span>
+							</div>
+						)
+					})}
+				</div>
+			</div>
+		)
+	},
+	methods: {
+		_emojiPicked(event) {
+			this.$emit("emojiPicked", event.target.dataset.char)
+		},
+		
+		toggle(eventTarget) {
+			this.$refs["picker"].classList.toggle("show");
+			
+			let offset = (cumulativeOffset(eventTarget));
+			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
+			this.$el.style.left = `${offset.left - (this.$el.clientWidth / 2) - (eventTarget.clientWidth / 2)}px`;
+		},
+	}
+};
+
+/**
  * Represents an action located in a ListView header
  * @param {String} icon The icon to show next to the title
  */
@@ -1558,7 +1596,7 @@ var Messages = {
 				</div>
 
 				<div class="messages-input">
-					<button class="emoji-selector" disabled><i class="icon emoji2"></i></button>
+					<button class="emoji-selector" onClick={this._showEmojiSelector}><i class="icon emoji2"></i></button>
 					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} ref="input" />
 					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
 				</div>
@@ -1576,6 +1614,9 @@ var Messages = {
 			if (e.keyCode == 13) {
 				this._sendMessage();
 			}
+		},
+		_showEmojiSelector(event) {
+			this.$emit("emojiPickerRequested", event.target);
 		},
 		_sendMessage() {
 			if (!this.$data.messageText.length) return;
@@ -2152,6 +2193,7 @@ export default {
 				[Checkbox.name]: Checkbox,
 				[ComboBox.name]: ComboBox,
 				[CommandBar.name]: CommandBar,
+				[EmojiPicker.name]: EmojiPicker,
 				[ListView.name]: ListView,
 				[ListViewAction.name]: ListViewAction,
 				[ListViewMenuItem.name]: ListViewMenuItem,

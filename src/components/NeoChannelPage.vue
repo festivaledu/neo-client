@@ -1,5 +1,7 @@
 <template>
 	<div class="page" data-page-id="channels">
+		<metro-emoji-picker @emojiPicked="emojiPicked" ref="emojiPicker" />
+		
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
 				<template v-for="(channel, index) in channelList">
@@ -23,7 +25,7 @@
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%"> 
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
 				</div>
 
 				<metro-list-view class="user-list" acrylic="acrylic-80">
@@ -92,6 +94,8 @@
 }
 
 .page[data-page-id="channels"] {
+	position: relative;
+	
 	.frame-header {
 		right: 320px;
 		background-color: var(--alt-high);
@@ -523,6 +527,14 @@ export default {
                 });
             }
         },
+		emojiPickerRequested(target) {
+			this.$refs["emojiPicker"].toggle(target);
+		},
+		emojiPicked(char) {
+			this.$refs["messageContainer"].$refs["input"].value += `${char} `;
+			this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
+			this.$refs["messageContainer"].$refs["input"].focus();
+		},
 		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,
