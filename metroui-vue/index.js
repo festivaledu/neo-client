@@ -1560,10 +1560,14 @@ var ListViewMenuSeparator = {
  */
 var Messages = {
 	name: "metro-messages",
+	props: ["inputDisabled", "placeholder"],
 	data() {
+		console.log(this.$props.inputDisabled || false)
 		return {
 			messages: [],
-			messageText: ""
+			messageText: "",
+			_inputDisabled: this.$props.inputDisabled || false,
+			_placeholder: this.$props.placeholder || "Type a text message"
 		}
 	},
 	render(h) {
@@ -1596,9 +1600,9 @@ var Messages = {
 				</div>
 
 				<div class="messages-input">
-					<button class="emoji-selector" onClick={this._showEmojiSelector}><i class="icon emoji2"></i></button>
-					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} ref="input" />
-					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
+					<button class="emoji-selector" onClick={this._showEmojiSelector} disabled={this.$data._inputDisabled}><i class="icon emoji2"></i></button>
+					<input type="text" placeholder={this.$data._placeholder} value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown}  disabled={this.$data._inputDisabled} ref="input" />
+					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length || this.$data._inputDisabled}><i class="icon send"></i></button>
 				</div>
 			</div>
 		)
