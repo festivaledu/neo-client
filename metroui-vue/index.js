@@ -607,7 +607,7 @@ metroUI.Notification = class {
 		notification.wrapper.className = "notification-wrapper";
 
 		notification.container = document.createElement("div");
-		notification.container.className = "notification";
+		notification.container.className = "notification acrylic acrylic-60";
 		notification.wrapper.appendChild(notification.container);
 
 		let dismissButton = document.createElement("div");
@@ -928,7 +928,7 @@ var AppBarButton = {
  */
 var AutoSuggestBox = {
 	name: "metro-auto-suggest",
-	props: ["value", "placeholder", "data", "maxResults"],
+	props: ["value", "placeholder", "data", "maxResults", "disabled"],
 	data() {
 		return {
 			_value: this.$props.value,
@@ -941,7 +941,7 @@ var AutoSuggestBox = {
 	render(h) {
 		return (
 			<div class="auto-suggest">
-				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
+				<input type="text" value={this.$data._value} placeholder={this.$props.placeholder} disabled={this.$props.disabled} ref="input" onInput={this._onInput} onFocus={this._onFocus}></input>
 				<div class="items" ref="items">
 					{this.$data.results.map(item => {
 						return (
@@ -1526,7 +1526,7 @@ var Messages = {
 									}
 
 									{item.type == "system" &&
-										<span>{item.text}</span>
+										<span domPropsInnerHTML={item.text}></span>
 									}
 								</div>
 							)
