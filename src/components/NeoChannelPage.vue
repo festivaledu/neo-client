@@ -254,7 +254,39 @@ export default {
 							this.enterChannel(payload.channelId);
 						}
 					});
-					break;
+                    break;
+                case PackageType.DeleteChannelResponse:
+                    if (packageObj.content === "Success") {
+                        new metroUI.Notification({
+                            payload: {},
+                            title: "Channel",
+                            icon: "delete",
+                            content: "Der Channel wurde erfolgreich gelöscht",
+                            inputs: "",
+                            buttons: [],
+                        }).show();
+                    } else {
+                        new metroUI.ContentDialog({
+                            title: "Channel konnte nicht gelöscht werden",
+                            content: (() => {
+                            return (
+                                <div>
+                                    {(() => {
+                                        switch (packageObj.content) {
+                                            case "NotAllowed":
+                                                return <p>Du bist nicht berechtigt diesen Channel zu löschen.</p>;
+                                            case "NotFound":
+                                                return <p>Der Channel existiert nicht.</p>;
+                                            default: return null
+                                        }
+                                    })()}
+                                </div>
+                            )
+                            })(),
+                            commands: [{ text: "Ok" }]
+                        }).show();
+                    }
+                    break;
 				default: break;
 			}
 		},		
@@ -274,7 +306,9 @@ export default {
 				{
 					title: "Löschen",
                     icon: "delete",
-                    disabled: channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main'
+                    disabled: channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main',                    
+					action: this.deleteChannel,
+					actionParams: channel
 				}
 			]);
 			flyout.show();
@@ -379,7 +413,7 @@ export default {
                                 } else {
                                     return <div style="align-items: center; display: flex">
                                         <i class="icon report-hacked" style="display: inline-block; font-size: 20px; margin: 12px"></i>
-                                        <p>Dies ist der Standardchannel. Du kannst daher nicht alle Eigenschaften bearbeiten und den Channel auch nicht entfernen.</p>
+                                        <p>Dies ist der Mainchannel. Du kannst daher nicht alle Eigenschaften bearbeiten und den Channel auch nicht entfernen.</p>
                                     </div>
                                 }
                             })()}
@@ -464,7 +498,31 @@ export default {
                     buttons: [],
                 }).show();
             }
-		},
+        },
+        async deleteChannel(channel) {
+            var deleteChannelDialog = new metroUI.ContentDialog({
+				title: "Channel löschen",
+				content: (() => {
+					return (
+						<div>
+							<p>Bist du sicher, dass du diesen Channel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+							<br />
+							<p>Alle Mitglieder, die diesen Channel aktuell geöffnet haben, werden in den Mainchannel verschoben.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
+			});
+
+            var result = await deleteChannelDialog.showAsync();
+            
+            if (result == metroUI.ContentDialogResult.Primary) {
+                SocketService.send({
+                    type: PackageType.DeleteChannel,
+                    content: channel.internalId
+                });
+            }
+        },
 		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,

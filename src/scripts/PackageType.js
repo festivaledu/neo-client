@@ -34,5 +34,7 @@ export default {
     CreateGroupResponse: 32,
     GrantedPermissionsUpdate: 33,
     DeleteGroup: 34,
-    DeleteGroupResponse: 35
+    DeleteGroupResponse: 35,
+    DeleteChannel: 36,
+    DeleteChannelResponse: 37
 }
