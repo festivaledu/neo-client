@@ -304,6 +304,7 @@ export default {
 
 			if (user && user.identity.id.localeCompare(this.currentIdentity.id) != 0) {
 				this.$refs["messageContainer"].$refs["input"].value += `@${user.identity.id} `;
+				this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
 				this.$refs["messageContainer"].$refs["input"].focus();
 			}
 		},

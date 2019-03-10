@@ -183,25 +183,6 @@ export default {
 		SocketService.$on("open", this.onOpen);
 		SocketService.$on("close", this.onClose);
 		SocketService.$on("package", this.onPackage);
-		
-		new metroUI.Notification({
-			icon: "chat-bubbles",
-			title: "3 Viros may infect your ANDROID PC! Clean now!",
-			content: "/!\\ Warning: Your ANDROID PC may be infected with 3 viros! download revolutionary software \"Sys32CleanTool-TotallyLegit.exe\" now to fix your ANDROID pc or you will lost your much important files/work/etc.",
-			inputs: (() => {
-				return (
-					<input type="text" placeholder="Fuck your response" />
-				)
-			})(),
-			buttons: [
-				{
-					text: "test1"
-				},
-				{
-					text: "test2"
-				}
-			]
-		}).show();
 	},
 	beforeDestroy() {
 		SocketService.$off("package", this.onPackage);
