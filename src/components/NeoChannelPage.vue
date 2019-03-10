@@ -390,6 +390,17 @@ export default {
                     }
                 });
             }
+
+            if (channel.password && PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions)) {
+                new metroUI.Notification({
+                    payload: {},
+                    title: "Info",
+                    icon: "info",
+                    content: "Du hast diesen Channel ohne Passwort betreten. Du könntest eventuell unerwünscht sein.",
+                    inputs: "",
+                    buttons: [],
+                }).show();
+            }
 		},
 		sendMessage(text) {
 			SocketService.send({
