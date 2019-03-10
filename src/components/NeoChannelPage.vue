@@ -17,6 +17,10 @@
 				</template>
 			</template>
 
+            <template slot="bottom-items">
+				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="" />
+			</template>
+
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
