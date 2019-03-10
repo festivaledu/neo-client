@@ -20,7 +20,7 @@
 			</template>
 
             <template slot="bottom-items">
-				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="createChannel" />
+				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="createChannel" :disabled="!canCreateChannel" />
 			</template>
 
 			<template slot="pages">
@@ -162,6 +162,16 @@ export default {
 		}
 	},
 	methods: {
+        getUser(internalId) {
+            return this.userList.find(_ => _.internalId === internalId);
+        },
+        isChannelOwner(channel) {
+            if (this.getUser(channel.owner)) {
+                return this.getUser(channel.owner).identity.id == this.currentIdentity.id;
+            }
+
+            return false;
+        },
 		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
@@ -296,7 +306,7 @@ export default {
                     break;
 				default: break;
 			}
-		},		
+		},
 		channelListItemContextClicked(event, channel) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				// {
@@ -306,14 +316,15 @@ export default {
 				// },
 				{
 					title: "Bearbeiten",
-					icon: "edit",
+                    icon: "edit",
+                    disabled: !this.isChannelOwner(channel) && !PermissionService.hasPermission("neo.channel.edit", this.$store.state.grantedPermissions),
 					action: this.editChannel,
 					actionParams: channel
 				},
 				{
 					title: "Löschen",
                     icon: "delete",
-                    disabled: channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main',                    
+                    disabled: (channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main') || (!this.isChannelOwner(channel) && !PermissionService.hasPermission("neo.channel.delete", this.$store.state.grantedPermissions)),                    
 					action: this.deleteChannel,
 					actionParams: channel
 				}
@@ -360,7 +371,7 @@ export default {
 			}
         },
 		async createPunishment(memberId) {
-			let punishmentDialog = new metroUI.ContentDialog({
+			var punishmentDialog = new metroUI.ContentDialog({
 				title: "Nutzer bestrafen",
 				content: (() => {
 					return (
@@ -368,9 +379,12 @@ export default {
 							<p>Wähle die Art der Bestrafung:</p>
 							<metro-combo-box>
 								<select>
-									{/*<option value="mute">Stummschalten</option>*/}
-									<option value="kick">Kicken</option>
-									<option value="ban">Bannen</option>
+                                    {/*<option value="mute">Stummschalten</option>*/}
+                                    {this.allowedPunishments.map(p => {
+                                        return (
+                                            <option value={p.value}>{p.label}</option>
+                                        )})
+                                    }
 								</select>
 							</metro-combo-box>
 						</div>
@@ -576,7 +590,7 @@ export default {
 				{
 					title: "Bestrafen",
                     icon: "block-contact",
-                    disabled: isCurrentUser,
+                    disabled: isCurrentUser || !PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions),
 					action: this.createPunishment,
 					actionParams: memberId
 				}
@@ -585,6 +599,25 @@ export default {
 		}
 	},
 	computed: {
+        allowedPunishments() {
+            let punishments = [];
+
+            if (PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions)) {
+                punishments.push({ value: "kick", label: "Kicken" });
+            }
+            
+            if (PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions)) {                
+                punishments.push({ value: "ban", label: "Bannen" });
+            }
+
+            return punishments;
+        },
+        canCreateChannel() {
+            return PermissionService.hasPermission("neo.channel.create", this.$store.state.grantedPermissions);
+        },
+        canWrite() {
+            return PermissionService.hasPermission("neo.global.write", this.$store.state.grantedPermissions);
+        },
 		currentIdentity() {
 			return this.$store.state.identity;
 		},
