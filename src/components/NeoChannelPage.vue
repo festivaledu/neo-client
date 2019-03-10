@@ -164,6 +164,17 @@ export default {
 					break;
                 case PackageType.EnterChannelResponse:                
                     if (packageObj.content.result === "Success") {
+						let messages = packageObj.content.channel.messages.map(messageObj => {
+							return {
+								author: messageObj.identity.id,
+								displayName: messageObj.identity.name,
+								date: new Date(messageObj.timestamp),
+								text: messageObj.message,
+								type: this.currentIdentity.id === messageObj.identity.id ? "sent" : "received"
+							}
+						});
+						this.$refs["messageContainer"].setMessages(messages);
+						
                         this.$store.commit("setCurrentChannel", packageObj.content.channel);
                         this.$refs["channelView"].setTitle(this.currentChannel.name);
                     } else {
@@ -229,8 +240,8 @@ export default {
 				content: (() => {
 					return (
                         <div>
-                            <input type="text" placeholder="Name des Channels" data-required />
-                            <input type="text" placeholder="Id des Channels" data-minlength="3" />
+                            <input type="text" placeholder="Channel-Name" data-required />
+                            <input type="text" placeholder="Channel-ID (min. 3 Zeichen)" data-minlength="3" />
                             <input type="text" placeholder="Benutzerlimit (-1 für unbegrenzt)" data-required />
                             <input type="password" placeholder="Passwort (optional)" />
 							<p>Wähle die Art des Channels:</p>

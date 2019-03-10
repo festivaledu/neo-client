@@ -1639,6 +1639,15 @@ var Messages = {
 			setTimeout(() => {
 				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
 			});
+		},
+		/**
+		 * 
+		 */
+		setMessages(messageData) {
+			this.$data.messages = [];
+			messageData.forEach(messageObj => {
+				this.addMessage(messageObj);
+			});
 		}
 	}
 };
