@@ -8,8 +8,8 @@ export default new Vuex.Store({
 		serverName: "",
 		currentAccount: null,
 		identity: null,
-        currentChannel: null,
-        accountList: [],
+		currentChannel: null,
+		accountList: [],
 		channelList: [],
 		groupList: [],
 		knownPermissions: {},
@@ -26,12 +26,12 @@ export default new Vuex.Store({
 			state.identity = identity;
 			
 			state.lastUpdate = new Date();
-        },
-        setAccountList(state, accountList) {
-            state.accountList = accountList;
+		},
+		setAccountList(state, accountList) {
+			state.accountList = accountList;
 
-            state.lastUpdate = new Date();
-        },
+			state.lastUpdate = new Date();
+		},
 		setCurrentChannel(state, channel) {
 			state.currentChannel = channel;
 			
