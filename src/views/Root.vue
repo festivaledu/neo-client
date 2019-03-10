@@ -131,7 +131,7 @@ export default {
 				case PackageType.Mention:
 					let mentionNotification = new metroUI.Notification({
 						payload: packageObj.content,
-						title: packageObj.content.identity.name,
+						title: packageObj.content.identity.name + " hat dich in #" + this.channelList.find(_ => _.internalId == packageObj.content.channelId).id + " erwähnt",
 						content: packageObj.content.message,
 						inputs: (() => {
 							return (
@@ -173,6 +173,9 @@ export default {
 		}
 	},
 	computed: {
+        channelList() {
+            return this.$store.state.channelList;
+        },
 		currentChannel() {
 			return this.$store.state.currentChannel;
 		}
