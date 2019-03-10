@@ -70,6 +70,11 @@
 			display: none; 
 		}
 	
+		.acrylic {
+			backdrop-filter: none;
+			-webkit-backdrop-filter: none;
+		}
+	
 		body[data-theme="light"] {
 			.acrylic-80 {
 				background-color: darken(#FFF, 5%) !important;
