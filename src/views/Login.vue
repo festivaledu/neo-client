@@ -53,11 +53,11 @@
 
 					<div class="row mt-3 d-flex">
 						<div class="col col-6 text-left">
-							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="$v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
+							<button class="btn btn-primary d-inline-block" @click="connectAsGuest()" :disabled="!socket || $v.user.username.$invalid || isWorking || !serverMetadata.guestsAllowed">Als Gast anmelden</button>
 						</div>
 
 						<div class="col col-6 text-right">
-							<button class="btn btn-primary d-inline-block colored" @click="login()" :disabled="$v.user.$invalid || isWorking">Anmelden</button>
+							<button class="btn btn-primary d-inline-block colored" @click="login()" :disabled="!socket || $v.user.$invalid || isWorking">Anmelden</button>
 						</div>
 
 						<div class="col text-left" v-show="!isWorking">
@@ -307,6 +307,9 @@ export default {
 
 		login() {
 			if (this.$v.user.$invalid) {
+				if (!this.$v.user.username.$invalid && this.serverMetadata.guestsAllowed) {
+					this.connectAsGuest();
+				}
 				return;
 			}
 			document.activeElement.blur();
