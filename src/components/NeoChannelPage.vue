@@ -326,7 +326,7 @@ export default {
 							<p>Wähle die Art des Channels:</p>
 							<metro-combo-box>
 								<select>
-									<option value="Temporary">Temporär</option>
+									{ /* <option value="Temporary">Temporär</option> */ }
 									<option value="Permanent">Permanent</option>
 								</select>
 							</metro-combo-box>
@@ -405,7 +405,7 @@ export default {
                                         <p>Art des Channels</p>
                                         <metro-combo-box>
                                             <select>
-                                                <option value="Temporary" selected={channel.lifetime == 'Temporary'}>Temporär</option>
+                                                { /* <option value="Temporary" selected={channel.lifetime == 'Temporary'}>Temporär</option> */ }
                                                 <option value="Permanent" selected={channel.lifetime == 'Permanent'}>Permanent</option>
                                             </select>
                                         </metro-combo-box>
