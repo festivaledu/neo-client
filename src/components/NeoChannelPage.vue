@@ -10,7 +10,7 @@
 							</div>
 							<p class="navigation-view-item-content">
 								<span class="text-label">{{channel.name}}</span>
-								<span class="detail-text-label">{{channel.statusMessage}}</span>
+								<span class="detail-text-label">#{{channel.id}}</span>
 							</p>
 						</div>
 					</div>
@@ -22,7 +22,7 @@
 			</template>
 
 			<template slot="pages">
-				<div class="page" data-page-id="messages" data-page-title="%channelName%">
+				<div class="page" data-page-id="messages" data-page-title="%channelName%"> 
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" />
 				</div>
 
@@ -130,11 +130,12 @@
 </style>
 
 <script>
-import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue"
+import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue";
 
-import { SocketService } from "@/scripts/SocketService"
-import PackageType from '@/scripts/PackageType'
-import { NotificationDelegate } from '@/scripts/NotificationDelegate'
+import { PermissionService } from "@/scripts/PermissionService";
+import { SocketService } from "@/scripts/SocketService";
+import PackageType from "@/scripts/PackageType";
+import { NotificationDelegate } from "@/scripts/NotificationDelegate";
 
 export default {
 	name: "NeoChannelPage",
@@ -259,20 +260,18 @@ export default {
 		},		
 		channelListItemContextClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
-				{
-					title: "Verlassen",
-					icon: "leave-chat",
-					disabled: true
-				},
+				// {
+				// 	title: "Verlassen",
+				// 	icon: "leave-chat",
+				// 	disabled: true
+				// },
 				{
 					title: "Bearbeiten",
-					icon: "edit",
-					disabled: true
+					icon: "edit"
 				},
 				{
 					title: "Löschen",
-					icon: "delete",
-					disabled: true
+					icon: "delete"
 				}
 			]);
 			flyout.show();
@@ -353,15 +352,17 @@ export default {
 			if (this.currentChannel.internalId === channelId) {
 				return;
             }
+
+            let channel = this.channelList.find(c => c.internalId === channelId);
             
-            if (this.channelList.find(c => c.internalId === channelId).password) {
+            if (channel.password && (!this.$store.state.currentAccount || channel.owner !== this.$store.state.currentAccount.internalId) && !PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions)) {
                 let channelPasswordDialog = new metroUI.ContentDialog({
                     title: "Passwort eingeben",
                     content: (() => {
                         return (
                             <div>
                                 <p>Dieser Channel ist mit einem Passwort geschützt:</p>
-                                <input type="password" placeholder="Channel-Passwort" />
+                                <input type="password" placeholder="Channel-Passwort" data-required />
                             </div>
                         )
                     })(),
