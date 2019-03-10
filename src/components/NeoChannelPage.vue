@@ -220,16 +220,19 @@ export default {
 						</div>
 					)
 				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+				commands: [{ text: "Abbrechen" }, { text: "Channel erstellen", primary: true }]
 			});
 			
 			switch (await channelDialog.showAsync()) {
 				case metroUI.ContentDialogResult.Primary:
                     SocketService.send({
-                        type: PackageType.CreatePunishment,
+                        type: PackageType.CreateChannel,
                         content: {
-                            target: memberId,
-                            action: "kick"
+                            name: "",
+                            id: "",
+                            limit: -1,
+                            password: "",
+                            lifetime: "Temporary"
                         }
 			        });
 					break;
@@ -262,7 +265,7 @@ export default {
                         type: PackageType.CreatePunishment,
                         content: {
                             target: memberId,
-							action: punishmentDialog.text
+                            action: "kick"
                         }
 			        });
 					break;
@@ -283,8 +286,9 @@ export default {
 			SocketService.send({
 				type: PackageType.Input,
 				content: {
-					input: text
-				}
+                    input: text,
+                    targetChannel: this.currentChannel.internalId
+                }
 			});
 		},
 		sortMemberList(memberIds) {
