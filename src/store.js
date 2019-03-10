@@ -11,7 +11,8 @@ export default new Vuex.Store({
 		currentChannel: null,
 		accountList: [],
 		channelList: [],
-		groupList: [],
+        groupList: [],
+        grantedPermissions: {},
 		knownPermissions: {},
 		userList: [],
 		lastUpdate: new Date()
@@ -50,7 +51,12 @@ export default new Vuex.Store({
 			state.groupList = groupList;
 			
 			state.lastUpdate = new Date();
-		},
+        },
+        setGrantedPermissions(state, permissions) {
+            state.grantedPermissions = permissions;
+
+            state.lastUpdate = new Date();
+        },
 		setKnownPermissions(state, permissions) {
 			state.knownPermissions = permissions;
 			
