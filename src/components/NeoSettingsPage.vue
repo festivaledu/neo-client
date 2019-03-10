@@ -487,11 +487,11 @@ export default {
         },
         async deleteBan(bannedId) {
 			let deleteBanDialog = new metroUI.ContentDialog({
-				title: "Ban aufheben",
+				title: "Bann aufheben",
 				content: (() => {
 					return (
 						<div>
-							<p>Bist du dir sicher, dass du diesen Ban aufheben möchtest?</p>
+							<p>Bist du dir sicher, dass du diesen Bann aufheben möchtest?</p>
 							<br />
 							<p>Der Benutzer kann dann wieder den Server betreten.</p>
 						</div>

@@ -413,7 +413,7 @@ export default {
                                 } else {
                                     return <div style="align-items: center; display: flex">
                                         <i class="icon report-hacked" style="display: inline-block; font-size: 20px; margin: 12px"></i>
-                                        <p>Dies ist der Haupt-Channel. Du kannst daher nicht alle Eigenschaften bearbeiten und den Channel auch nicht entfernen.</p>
+                                        <p>Dies ist der Hauptchannel. Du kannst daher nicht alle Eigenschaften bearbeiten und den Channel auch nicht entfernen.</p>
                                     </div>
                                 }
                             })()}
@@ -507,7 +507,7 @@ export default {
 						<div>
 							<p>Bist du sicher, dass du diesen Channel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
 							<br />
-							<p>Alle Mitglieder, die diesen Channel aktuell geöffnet haben, werden in den Channel "#main" verschoben.</p>
+							<p>Alle Mitglieder, die diesen Channel aktuell geöffnet haben, werden in den Hauptchannel verschoben.</p>
 						</div>
 					)
 				})(),
