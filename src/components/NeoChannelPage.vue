@@ -262,7 +262,7 @@ export default {
                         type: PackageType.CreatePunishment,
                         content: {
                             target: memberId,
-                            action: "kick"
+							action: punishmentDialog.text
                         }
 			        });
 					break;
