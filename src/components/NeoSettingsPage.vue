@@ -83,18 +83,22 @@
 						<input type="text" v-model="group.sortValue" />
 						
 						<h4>Mitglieder</h4>
-						<p class="detail-text-label" v-if="!group.memberIds.length || !_filteredGroupUserList(group.memberIds).length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
-						<template v-if="userList.length && group.memberIds.length && _filteredGroupUserList(group.memberIds).length">
+						<p class="detail-text-label" v-if="!group.memberIds.length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
+						<template v-if="accountList.length && group.memberIds.length">
 							<div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
 								<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
-									<div class="col col-5">
+									<div class="col col-4">
 										<metro-person-picture :displayName="_userById(memberId).identity.name" />
 										<p class="text-label">{{ _userById(memberId).identity.name }}</p>
 										<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
 									</div>
+                                    <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+                                        <button style="margin: 0"><i class="icon delete"></i></button>
+                                    </div>
 								</div>
 							</div>
 						</template>
+                        <button @click="addMember(group)" style="margin-top: 6px">Mitglied hinzufügen</button>
 
 						<div class="row" style="margin-right: 5px">
 							<div class="col col-5">
@@ -322,10 +326,6 @@ export default {
 		_userById(userId) {
 			return this.accountList.find(_ => _.internalId === userId);
 		},
-		_filteredGroupUserList(members) {
-			// console.log(this.userList.map(_ => _.internalId).indexOf);
-			return members.filter(_ => this.userList.map(__ => __.internalId).indexOf(_) >= 0);
-		},
 		
 		async addGroup() {
 			var addGroupDialog = new metroUI.ContentDialog({
@@ -363,6 +363,36 @@ export default {
                         sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
                     }
                 });
+			}
+        },
+        async addMember(group) {
+			var addMemberDialog = new metroUI.ContentDialog({
+				title: "Mitglied hinzufügen",
+				content: (() => {
+					return (
+						<div>
+							<p>Wählen den Benutzer, den du der Gruppe hinzufügen möchtest:</p>
+							<metro-combo-box>
+								<select>
+									{this.accountList.filter(a => !group.memberIds.includes(a.internalId)).map(a => {
+										return (
+											<option value={a.internalId}>{a.identity.name} (@{a.identity.id})</option>
+										)
+									})}
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Mitglied hinzufügen", primary: true }]
+			});
+			
+			var result = await addMemberDialog.showAsync();
+
+			if (result == metroUI.ContentDialogResult.Primary) {
+			    let index = this.sortedGroupList.indexOf(group);
+                this.$set(group.memberIds, group.memberIds.length, addMemberDialog.text);
+			    this.$set(this.sortedGroupList, index, group);
 			}
 		},
 		addPermission(group) {
@@ -410,7 +440,7 @@ export default {
                         new metroUI.Notification({
                             payload: {},
                             title: "Einstellungen",
-                            icon: "group",
+                            icon: "settings",
                             content: "Die Gruppe wurde erfolgreich erstellt",
                             inputs: "",
                             buttons: [],
