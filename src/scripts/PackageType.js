@@ -26,5 +26,6 @@ export default {
 	EditProfileResponse: 24,
 	KnownPermissionsUpdate: 25,
 	DisconnectReason: 26,
-	CreatePunishment: 27
+    CreatePunishment: 27,
+    AccountListUpdate: 28,
 }

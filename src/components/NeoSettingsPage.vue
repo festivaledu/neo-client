@@ -6,9 +6,9 @@
 			</template>
 
 			<template slot="list-items">
-				<metro-list-view-menu-separator title="Allgemein" />
+				<metro-list-view-menu-separator title="Server" />
+				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
-				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Server-Einstellungen" page="server_settings_general" />
 
 				<metro-list-view-menu-separator title="Gruppen" />
 
@@ -24,7 +24,7 @@
 					<p class="metro-ui-version-string" />
 				</div>
 
-				<div class="page" data-page-id="server_settings_general" data-page-title="Server-Einstellungen">
+				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein">
 
 					<template v-for="(value, key, index) in settingsModel">
 						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
@@ -90,7 +90,7 @@
 									<div class="col col-5">
 										<metro-person-picture :displayName="_userById(memberId).identity.name" />
 										<p class="text-label">{{ _userById(memberId).identity.name }}</p>
-										<p class="detail-text-label">{{ _userById(memberId).identity.id }}</p>
+										<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
 									</div>
 								</div>
 							</div>
@@ -320,7 +320,7 @@ export default {
 	},
 	methods: {
 		_userById(userId) {
-			return this.userList.find(_ => _.internalId === userId);
+			return this.accountList.find(_ => _.internalId === userId);
 		},
 		_filteredGroupUserList(members) {
 			// console.log(this.userList.map(_ => _.internalId).indexOf);
@@ -434,6 +434,9 @@ export default {
 		}
 	},
 	computed: {
+        accountList() {
+            return this.$store.state.accountList;
+        },
 		knownPermissions() {
 			return this.$store.state.knownPermissions;
 		},

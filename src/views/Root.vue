@@ -96,6 +96,9 @@ export default {
 			console.debug(packageObj.content);
 
 			switch (packageObj.type) {
+                case PackageType.AccountListUpdate:
+                    this.$store.commit("setAccountList", packageObj.content);
+                    break;
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
 					break;
