@@ -31,5 +31,6 @@ export default {
 	CreateChannel: 29,
     Mention: 30,
     CreateGroup: 31,
-    CreateGroupResponse: 32
+    CreateGroupResponse: 32,
+    GrantedPermissionsUpdate: 33
 }
