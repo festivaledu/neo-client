@@ -623,7 +623,8 @@ metroUI.Notification = class {
 		notification.container.addEventListener("mouseover", () => {
 			clearTimeout(notification._displayTimeout);
 		});
-		notification.container.addEventListener("mouseout", notification._resetTimeout.bind(notification));
+		notification.___mousoutListener = notification._resetTimeout.bind(notification)
+		notification.container.addEventListener("mouseout", notification.___mouseoutListener);
 
 		notification._dismissAction = params.dismissAction;
 		notification.container.addEventListener("mousedown", (e) => {
@@ -693,8 +694,8 @@ metroUI.Notification = class {
 			}
 		}
 
-			let inputs = document.createElement("div");
-			inputs.className = "notification-inputs";
+		let inputs = document.createElement("div");
+		inputs.className = "notification-inputs";
 		if (params.inputs) {
 			notification.container.appendChild(inputs);
 
@@ -710,8 +711,8 @@ metroUI.Notification = class {
 			}
 		}
 
-			let buttons = document.createElement("div");
-			buttons.className = "notification-buttons";
+		let buttons = document.createElement("div");
+		buttons.className = "notification-buttons";
 		if (params.buttons && params.buttons.length) {
 			notification.container.appendChild(buttons);
 
@@ -739,6 +740,10 @@ metroUI.Notification = class {
 		
 		inputs.querySelectorAll("input, select").forEach(item => {
 			item.addEventListener("input", () => {
+				clearTimeout(notification._displayTimeout);
+				notification._displayTimeout = null;
+				notification.container.removeEventListener("mouseout", notification.___mouseoutListener);
+				
 				let validatedButton = buttons.querySelector(".validated");
 				
 				if (validatedButton) {
@@ -842,6 +847,7 @@ metroUI.Notification = class {
 		const notification = this;
 
 		clearTimeout(notification._displayTimeout);
+		notification._displayTimeout = null;
 
 		notification.container.classList.remove("slide-in");
 		notification.container.classList.add(hideType);

@@ -96,9 +96,9 @@ export default {
 			console.debug(packageObj.content);
 
 			switch (packageObj.type) {
-                case PackageType.AccountListUpdate:
-                    this.$store.commit("setAccountList", packageObj.content);
-                    break;
+				case PackageType.AccountListUpdate:
+					this.$store.commit("setAccountList", packageObj.content);
+					break;
 				case PackageType.ChannelListUpdate:
 					this.$store.commit("setChannelList", packageObj.content);
 					break;
@@ -128,8 +128,53 @@ export default {
 						buttons: [],
 					}).show();
 					break;
+				case PackageType.Mention:
+					let mentionNotification = new metroUI.Notification({
+						payload: packageObj.content,
+						title: packageObj.content.identity.name,
+						content: packageObj.content.message,
+						inputs: (() => {
+							return (
+								<input type="text" placeholder="Antworten..." data-required="true" />
+							)
+						})(),
+						buttons: [
+							{
+								text: "Senden",
+								validate: true,
+								action: (payload) => {
+									// alert(`Answering ${payload.identity.id} in channel ${payload.channelId} with text ${mentionNotification.text}`)
+									SocketService.send({
+										type: PackageType.Input,
+										content: {
+											input: mentionNotification.text,
+											targetChannel: payload.channelId
+										}
+									});
+								}
+							}
+						],
+						dismissAction: (payload) => {
+							// alert(`Entering channel ${payload.channelId}`)
+							if (this.currentChannel.internalId === payload.channelId) {
+								return;
+							}
+							
+							SocketService.send({
+								type: PackageType.EnterChannel,
+								content: payload.channelId
+							});
+						}
+					});
+					mentionNotification.show();
+					break;
 				default: break;
 			}
+		}
+	},
+	computed: {
+		currentChannel() {
+			return this.$store.state.currentChannel;
 		}
 	}
 }

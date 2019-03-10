@@ -282,7 +282,9 @@ export default {
 		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,
-				content: text
+				content: {
+					input: text
+				}
 			});
 		},
 		sortMemberList(memberIds) {
