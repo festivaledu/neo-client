@@ -28,4 +28,6 @@ export default {
 	DisconnectReason: 26,
     CreatePunishment: 27,
     AccountListUpdate: 28,
+    CreateChannel: 29,
+    Mention: 30
 }
