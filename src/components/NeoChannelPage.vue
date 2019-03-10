@@ -3,7 +3,7 @@
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
 				<template v-for="(channel, index) in channelList">
-					<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked">
+					<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked($event, channel)">
 						<div class="navigation-view-item-inner">
 							<div class="navigation-view-item-icon">
 								<metro-person-picture :displayName="channel.name" />
@@ -258,7 +258,7 @@ export default {
 				default: break;
 			}
 		},		
-		channelListItemContextClicked(event) {
+		channelListItemContextClicked(event, channel) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				// {
 				// 	title: "Verlassen",
@@ -267,11 +267,14 @@ export default {
 				// },
 				{
 					title: "Bearbeiten",
-					icon: "edit"
+					icon: "edit",
+					action: this.editChannel,
+					actionParams: channel
 				},
 				{
 					title: "Löschen",
-					icon: "delete"
+                    icon: "delete",
+                    disabled: channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main'
 				}
 			]);
 			flyout.show();
@@ -347,7 +350,67 @@ export default {
 					break;
 				default: break;
 			}
-		},
+        },
+        async editChannel(channel) {
+            let channelDialog = new metroUI.ContentDialog({
+				title: "Channel bearbeiten",
+				content: (() => {
+					return (
+                        <div>
+                            <p>Channel-Name</p>
+                            <input type="text" placeholder="Channel-Name" value={channel.name} data-required />
+                            <p>Channel-ID</p>
+                            <input type="text" placeholder="Channel-ID (min. 3 Zeichen)" value={channel.id} data-minlength="3" />
+                            {(() => {
+                                if (!channel.attributes['neo.channeltype'] || channel.attributes['neo.channeltype'] != 'main') {
+                                    return <div>
+                                        <p>Benutzerlimit</p>
+                                        <input type="text" placeholder="Benutzerlimit (-1 für unbegrenzt)" value={channel.limit} data-required />
+                                        <p>Passwort</p>
+                                        <input type="password" placeholder="Passwort (optional)" value={channel.password} />
+                                        <p>Art des Channels</p>
+                                        <metro-combo-box>
+                                            <select>
+                                                <option value="Temporary" selected={channel.lifetime == 'Temporary'}>Temporär</option>
+                                                <option value="Permanent" selected={channel.lifetime == 'Permanent'}>Permanent</option>
+                                            </select>
+                                        </metro-combo-box>
+                                    </div>
+                                } else {
+                                    return <div style="align-items: center; display: flex">
+                                        <i class="icon report-hacked" style="display: inline-block; font-size: 20px; margin: 12px"></i>
+                                        <p>Dies ist der Standardchannel. Du kannst daher nicht alle Eigenschaften bearbeiten und den Channel auch nicht entfernen.</p>
+                                    </div>
+                                }
+                            })()}
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Speichern", primary: true }]
+			});
+			
+			switch (await channelDialog.showAsync()) {
+                case metroUI.ContentDialogResult.Primary:
+                    channel.name = channelDialog.text[0];
+                    channel.id = channelDialog.text[1];
+
+                    if (!channel.attributes['neo.channeltype'] || channel.attributes['neo.channeltype'] != 'main') {
+                        channel.limit = new Number(channelDialog.text[2]),
+                        channel.password = channelDialog.text[3],
+                        channel.lifetime = channelDialog.text[4]
+                    }
+
+                    SocketService.send({
+                        type: PackageType.EditSettings,
+                        content: {
+                            scope: "channel",
+                            model: channel,
+                        }
+                    });
+					break;
+				default: break;
+			}
+        },
 		async enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
 				return;
@@ -429,16 +492,18 @@ export default {
 			}
 		},
 		userListItemContextClicked(event, memberId) {
+            let isCurrentUser = memberId == this.$store.state.currentAccount.internalId;
+
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
 					icon: "chat-bubbles",
-					disabled: true
+					disabled: true || isCurrentUser
 				},
 				{
 					title: "Bestrafen",
-					icon: "block-contact",
-					disabled: false,
+                    icon: "block-contact",
+                    disabled: isCurrentUser,
 					action: this.createPunishment,
 					actionParams: memberId
 				}
