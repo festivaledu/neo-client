@@ -693,9 +693,9 @@ metroUI.Notification = class {
 			}
 		}
 
-		if (params.inputs) {
 			let inputs = document.createElement("div");
 			inputs.className = "notification-inputs";
+		if (params.inputs) {
 			notification.container.appendChild(inputs);
 
 			if (typeof params.inputs === "object") {
@@ -710,14 +710,16 @@ metroUI.Notification = class {
 			}
 		}
 
-		if (params.buttons && params.buttons.length) {
 			let buttons = document.createElement("div");
 			buttons.className = "notification-buttons";
+		if (params.buttons && params.buttons.length) {
 			notification.container.appendChild(buttons);
 
 			params.buttons.forEach((_button, index) => {
 				let button = document.createElement("button");
 				button.innerText = _button.text;
+				button.className = _button.validate ? "validated" : "";
+				button.disabled = (_button.validate && [...inputs.querySelectorAll("input, select")].some(inputEl => inputEl.dataset.minlength || inputEl.dataset.required == "true"));
 
 				button.addEventListener("click", () => {
 					if (typeof _button.action === "function") {
@@ -734,6 +736,16 @@ metroUI.Notification = class {
 				buttons.appendChild(button);
 			});
 		}
+		
+		inputs.querySelectorAll("input, select").forEach(item => {
+			item.addEventListener("input", () => {
+				let validatedButton = buttons.querySelector(".validated");
+				
+				if (validatedButton) {
+					validatedButton.disabled = [...inputs.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
+				}
+			});
+		});
 	}
 
 	_resetTimeout() {
