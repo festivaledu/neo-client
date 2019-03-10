@@ -1,16 +1,9 @@
 import Vue from "vue";
 
 export const NotificationDelegate = new Vue({
-	data: {
-		iv: [],
-		key: [],
-		rsaE: "",
-		rsaM: "",
-		socket: null,
-	},
 	created() {
 		Notification.requestPermission(permission => {
-			console.log(permission);
+			console.debug(`Notification permission: ${permission}`);
 		});
 	},
 	methods: {
@@ -22,9 +15,15 @@ export const NotificationDelegate = new Vue({
 				
 				return notification;
 			} else {
-				return new Notification(params.title, {
+				let notification = new Notification(params.title, {
 					body: params.content
 				});
+				
+				notification.onclick = () => {
+					params.dismissAction(params.payload);
+				};
+				
+				return notification
 			}
 		}
 	},

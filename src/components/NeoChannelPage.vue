@@ -132,8 +132,9 @@
 <script>
 import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue"
 
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
+import { SocketService } from "@/scripts/SocketService"
+import PackageType from '@/scripts/PackageType'
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
 
 export default {
 	name: "NeoChannelPage",
@@ -216,7 +217,7 @@ export default {
 						return;
 					}
 				
-					let mentionNotification = new metroUI.Notification({
+					NotificationDelegate.sendNotification({
                         payload: packageObj.content,
                         icon: "accounts",
 						//title: packageObj.content.identity.name + " (in #" + this.channelList.find(_ => _.internalId == packageObj.content.channelId).id + ")",
@@ -252,7 +253,6 @@ export default {
 							this.enterChannel(payload.channelId);
 						}
 					});
-					mentionNotification.show();
 					break;
 				default: break;
 			}
