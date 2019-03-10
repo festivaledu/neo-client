@@ -70,6 +70,9 @@
 								</template>
 							</div>
 						</template>
+                        <template v-else>                            
+					        <button @click="deleteGroup(group)">Gruppe löschen</button>
+                        </template>
 
 						<h4>Allgemein</h4>
 						<p class="text-label">Name</p>
@@ -475,6 +478,39 @@ export default {
                         }).show();
                     }
                     break;
+                case PackageType.DeleteGroupResponse:
+                    if (packageObj.content === "Success") {
+                        new metroUI.Notification({
+                            payload: {},
+                            title: "Einstellungen",
+                            icon: "delete",
+                            content: "Die Gruppe wurde erfolgreich gelöscht",
+                            inputs: "",
+                            buttons: [],
+                        }).show();
+		                this.$refs["settingsView"].navigate("info");
+                    } else {
+                        new metroUI.ContentDialog({
+                            title: "Gruppe konnte nicht gelöscht werden",
+                            content: (() => {
+                            return (
+                                <div>
+                                    {(() => {
+                                        switch (packageObj.content) {
+                                            case "NotAllowed":
+                                                return <p>Du bist nicht berechtigt diese Gruppe zu löschen.</p>;
+                                            case "NotFound":
+                                                return <p>Eine Gruppe mit dieser Id existiert nicht.</p>;
+                                            default: return null
+                                        }
+                                    })()}
+                                </div>
+                            )
+                            })(),
+                            commands: [{ text: "Ok" }]
+                        }).show();
+                    }
+                    break;
 				default: break;
 			}
 		},
@@ -493,7 +529,7 @@ export default {
 				}
 			});
 		},
-		async deleteGroup() {
+		async deleteGroup(group) {
 			var deleteGroupDialog = new metroUI.ContentDialog({
 				title: "Gruppe löschen",
 				content: (() => {
@@ -501,14 +537,21 @@ export default {
 						<div>
 							<p>Bist du sicher, dass du diese Gruppe löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
 							<br />
-							<p>Benutzer in dieser Gruppe werden in die voherige Gruppe verschoben.</p>
+							<p>Mitglieder, die dann in keiner Gruppe mehr Mitglied sind, werden automatisch der Standardgruppe für Benutzer hinzugefügt.</p>
 						</div>
 					)
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
 			});
 
-			var result = await deleteGroupDialog.showAsync();
+            var result = await deleteGroupDialog.showAsync();
+            
+            if (result == metroUI.ContentDialogResult.Primary) {
+                SocketService.send({
+                    type: PackageType.DeleteGroup,
+                    content: group.internalId
+                });
+            }
 		}
 	},
 	computed: {

@@ -32,5 +32,7 @@ export default {
     Mention: 30,
     CreateGroup: 31,
     CreateGroupResponse: 32,
-    GrantedPermissionsUpdate: 33
+    GrantedPermissionsUpdate: 33,
+    DeleteGroup: 34,
+    DeleteGroupResponse: 35
 }
