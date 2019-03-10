@@ -214,7 +214,7 @@ export default {
 					});
 					break;
 				case PackageType.Mention:
-					if (packageObj.content.channelId === this.currentChannel.internalId) {
+					if (packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) {
 						return;
 					}
 				
