@@ -138,10 +138,12 @@ p.block-text {
 </style>
 
 <script>
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
-import { required } from 'vuelidate/lib/validators';
-import CryptoJS from "crypto-js";
+import { SocketService } from "@/scripts/SocketService"
+import PackageType from '@/scripts/PackageType'
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
+
+import { required } from 'vuelidate/lib/validators'
+import CryptoJS from "crypto-js"
 
 export default {
 	name: 'Login',

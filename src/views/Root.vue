@@ -71,8 +71,9 @@ import NeoChannelPage from "@/components/NeoChannelPage"
 import NeoSettingsPage from "@/components/NeoSettingsPage"
 import NeoProfilePage from "@/components/NeoProfilePage"
 
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
+import { SocketService } from "@/scripts/SocketService"
+import PackageType from '@/scripts/PackageType'
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
 
 export default {
 	name: "Root",
@@ -119,14 +120,14 @@ export default {
 						"ban": "Du wurdest gebannt"
 					};
 
-					new metroUI.Notification({
+					NotificationDelegate.sendNotification({
 						payload: {},
 						title: "Verbindung getrennt",
 						icon: "ethernet-error",
 						content: reasons[packageObj.content],
 						inputs: "",
 						buttons: [],
-					}).show();
+					});
 					break;
 				default: break;
 			}
