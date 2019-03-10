@@ -420,6 +420,11 @@ metroUI.ContentDialog = class {
 		}
 
 		document.body.appendChild(dialog.container);
+		
+		dialog.container.style.width = `${Math.round(dialog.container.clientWidth / 2) * 2}px`;
+		dialog.container.style.height = `${Math.round(dialog.container.clientHeight / 2) * 2}px`;
+		
+		dialog.container.classList.add("animate-in");
 	}
 
 	/**
