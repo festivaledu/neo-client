@@ -485,11 +485,30 @@ export default {
                 });
             }
         },
-        deleteBan(bannedId) {
-            SocketService.send({
-                type: PackageType.DeletePunishment,
-                content: bannedId
-            });
+        async deleteBan(bannedId) {
+			let deleteBanDialog = new metroUI.ContentDialog({
+				title: "Ban aufheben",
+				content: (() => {
+					return (
+						<div>
+							<p>Bist du dir sicher, dass du diesen Ban aufheben möchtest?</p>
+							<br />
+							<p>Der Benutzer kann dann wieder den Server betreten.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
+			
+			switch (await deleteBanDialog.showAsync()) {
+				case metroUI.ContentDialogResult.Primary:
+					SocketService.send({
+					    type: PackageType.DeletePunishment,
+					    content: bannedId
+					});
+					break;
+				default: break;
+			}
         }
 	},
 	computed: {
