@@ -184,6 +184,7 @@ export default {
 	mounted() {
 		SocketService.$on("open", this.onOpen);
 		SocketService.$on("close", this.onClose);
+		SocketService.$on("error", this.onError);
 		SocketService.$on("package", this.onPackage);
 	},
 	beforeDestroy() {
@@ -211,6 +212,15 @@ export default {
 			
 			this.socket = null;
 			this.$router.replace("/login");
+		},
+		onError(error) {
+			this.isConnecting = false;
+			
+			new metroUI.ContentDialog({
+				title: "Verbindungsfehler",
+				content: "neoChat konnte sich nicht mit dem angegebenen Server verbinden.",
+				commands: [{ text: "Ok", primary: true }]
+			}).show();
 		},
 		onPackage(packageObj) {
 			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
