@@ -13,7 +13,7 @@
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
-					<metro-person-picture :displayName="currentIdentity.name" />
+					<metro-person-picture :displayName="currentIdentity.avatarFileExtension ? null : currentIdentity.name" :profile-picture="currentIdentity.avatarFileExtension ? `http://${serverAddress}:43430/${currentAccount.internalId}${currentIdentity.avatarFileExtension}` : null" />
 					<button :disabled="!currentAccount">Profilbild wählen</button>
 
 					<h4>Account-Informationen</h4>
@@ -308,7 +308,10 @@ export default {
 		},
 		currentIdentity() {
 			return this.$store.state.identity;
-		}
+        },
+        serverAddress() {
+            return this.$store.state.serverAddress;
+        }
 	}
 }
 </script>

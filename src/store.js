@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
-		serverName: "",
+        serverName: "",
+        serverAddress: "",
 		currentAccount: null,
 		identity: null,
 		currentChannel: null,
@@ -61,7 +62,10 @@ export default new Vuex.Store({
 			state.knownPermissions = permissions;
 			
 			state.lastUpdate = new Date();
-		},
+        },
+        setServerAddress(state, serverAddress) {
+            state.serverAddress = serverAddress;
+        },
 		setServerName(state, serverName) {
 			state.serverName = serverName;
 

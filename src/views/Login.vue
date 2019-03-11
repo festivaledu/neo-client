@@ -196,7 +196,9 @@ export default {
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-			}
+            }
+            
+            this.$store.commit("setServerAddress", this.serverAddress);
 
 			SocketService.send({
 				type: PackageType.Meta
