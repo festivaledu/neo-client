@@ -130,7 +130,7 @@ export default {
 	 */
 	GrantedPermissionsUpdate: 33,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Group to delete.
+	 * The Package contains a Guid of the Group to delete.
 	 */
 	DeleteGroup: 34,
 	/**
@@ -138,7 +138,7 @@ export default {
 	 */
 	DeleteGroupResponse: 35,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Channel to delete.
+	 * The Package contains a Guid of the Channel to delete.
 	 */
 	DeleteChannel: 36,
 	/**
@@ -146,7 +146,8 @@ export default {
 	 */
 	DeleteChannelResponse: 37,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Account to unban.
+	 * The Package contains a Guid of the Account to unban.
 	 */
-	DeletePunishment: 38
+	DeletePunishment: 38,
+	SetAvatar: 39
 }

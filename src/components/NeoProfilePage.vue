@@ -14,7 +14,8 @@
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
 					<metro-person-picture :displayName="currentIdentity.avatarFileExtension ? null : currentIdentity.name" :profile-picture="currentIdentity.avatarFileExtension ? `http://${serverAddress}:43430/${currentAccount.internalId}${currentIdentity.avatarFileExtension}` : null" />
-					<button :disabled="!currentAccount">Profilbild wählen</button>
+					<button :disabled="!currentAccount || isWorking" @click="openProfilePictureSelector">Profilbild wählen</button>
+					<input type="file" @change="profilePictureChosen($event.target.files)" accept="image/png, image/jpeg" ref="profilePictureSelector" />
 
 					<h4>Account-Informationen</h4>
 					<p>Benutzername: {{currentIdentity.name}}</p>
@@ -22,7 +23,7 @@
 					<p v-if="currentAccount">E-Mail-Adresse: {{currentAccount.email}}</p>
 
 					<div class="control-group">
-						<button @click="this.showEditAccountFlyout">Account bearbeiten</button>
+						<button @click="showEditAccountFlyout">Account bearbeiten</button>
 					</div>
 				</div>
 
@@ -63,6 +64,12 @@
 	.control-group {
 		margin-top: 30px;
 	}
+	
+	input[type="file"] {
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
 }
 </style>
 
@@ -70,9 +77,15 @@
 import { SocketService } from '@/scripts/SocketService'
 import PackageType from '@/scripts/PackageType'
 import CryptoJS from "crypto-js"
+import { post } from 'axios'
 
 export default {
 	name: "NeoProfilePage",
+	data() {
+		return {
+			isWorking: false
+		}
+	},
 	mounted() {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 
@@ -121,31 +134,43 @@ export default {
 				default: break;
 			}
 		},
-		setColors(accentEvent, themeEvent) {
-			let account = this.$store.state.currentAccount;
-
-			if (!account) {
+		
+		openProfilePictureSelector() {
+			this.$refs["profilePictureSelector"].click();
+		},
+		async profilePictureChosen(selectedFiles) {
+			if (!selectedFiles.length) {
 				return;
 			}
-
-			if (accentEvent) {
-				account.attributes["neo.client.accent"] = accentEvent;
-			}
-
-			if (themeEvent) {
-				account.attributes["neo.client.theme"] = themeEvent;
-			}
-
-			this.$store.commit("setCurrentAccount", account);
-
-			SocketService.send({
-				type: PackageType.EditSettings,
-				content: {
-					scope: "account",
-					model: account
+			
+			this.isWorking = true;
+			
+			Array.from(selectedFiles).forEach(file => {
+				let reader = new FileReader();
+				
+				reader.onloadend = (event) => {
+					if (event.target.readyState == FileReader.DONE) {
+						var buffer = new Uint8Array(event.target.result);
+						
+						var bytes = [];
+						for (var i = 0; i < buffer.length; i++) {
+							bytes.push(buffer[i]);
+						}
+						
+						SocketService.send({
+							type: PackageType.SetAvatar,
+							content: bytes
+						});
+					}
 				}
-			});
+				
+				reader.readAsArrayBuffer(file);
+				// SocketService.send({
+					
+				// })
+			})
 		},
+
 		showEditAccountFlyout(event) {
 			new metroUI.MenuFlyout(event.target, [
 				{
@@ -169,24 +194,7 @@ export default {
 				},
 			]).show();
 		},
-		async signOut() {
-			var signOutDialog = new metroUI.ContentDialog({
-				title: "Abmelden",
-				content: (() => {
-					return (
-						<div>
-							<p>Möchtest du dich wirklich abmelden?</p>
-							<p>Nicht gespeicherte Änderungen gehen verloren.</p>
-						</div>
-					)
-				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
-			});
-
-			if (await signOutDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
-				SocketService.socket.close();
-			}
-		},
+		
 		async changeUsername() {
 			var changeUsernameDialog = new metroUI.ContentDialog({
 				title: "Benutzernamen ändern",
@@ -210,6 +218,7 @@ export default {
 				});
 			}
 		},
+		
 		async changeUserId() {
 			var changeUserIdDialog = new metroUI.ContentDialog({
 				title: "Benutzer-ID ändern",
@@ -233,6 +242,7 @@ export default {
 				});
 			}
 		},
+		
 		async changeEmail() {
 			var changeEmailDialog = new metroUI.ContentDialog({
 				title: "E-Mail-Adresse ändern",
@@ -256,6 +266,7 @@ export default {
 				});
 			}
 		},
+		
 		async changePassword() {
 			var changePasswordDialog = new metroUI.ContentDialog({
 				title: "Passwort ändern",
@@ -295,7 +306,52 @@ export default {
 					}
 				});
 			}
-		}
+		},
+		
+		setColors(accentEvent, themeEvent) {
+			let account = this.$store.state.currentAccount;
+
+			if (!account) {
+				return;
+			}
+
+			if (accentEvent) {
+				account.attributes["neo.client.accent"] = accentEvent;
+			}
+
+			if (themeEvent) {
+				account.attributes["neo.client.theme"] = themeEvent;
+			}
+
+			this.$store.commit("setCurrentAccount", account);
+
+			SocketService.send({
+				type: PackageType.EditSettings,
+				content: {
+					scope: "account",
+					model: account
+				}
+			});
+		},
+		
+		async signOut() {
+			var signOutDialog = new metroUI.ContentDialog({
+				title: "Abmelden",
+				content: (() => {
+					return (
+						<div>
+							<p>Möchtest du dich wirklich abmelden?</p>
+							<p>Nicht gespeicherte Änderungen gehen verloren.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
+			});
+
+			if (await signOutDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
+				SocketService.socket.close();
+			}
+		},
 	},
 	computed: {
 		currentAccount() {
