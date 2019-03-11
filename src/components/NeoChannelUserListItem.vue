@@ -1,7 +1,7 @@
 <template>
 	<div class="list-view-item double-line" v-if="user">
 		<div class="list-view-item-icon">
-			<metro-person-picture :displayName="user.identity.avatarFileExtension ? null : user.identity.name" :profile-picture="user.identity.avatarFileExtension ? `http://${serverAddress}:43430/${user.internalId}${user.identity.avatarFileExtension}?${new Date(user.attributes['neo.avatar.updated']).getTime()}` : null" />
+			<metro-person-picture :display-name="user.identity.avatarFileExtension ? null : user.identity.name" :profile-picture="user.identity.avatarFileExtension ? `http://${serverAddress}:43430/${user.internalId}${user.identity.avatarFileExtension}?${new Date(user.attributes['neo.avatar.updated']).getTime()}` : null" />
 		</div>
 		<p class="list-view-item-content">
 			<span class="text-label">{{ user.identity.name }}</span>

@@ -168,7 +168,11 @@ export default {
 					this.$store.commit("setServerName", packageObj.content.name);
 					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 					break;
-				case PackageType.EnterChannelResponse:
+                case PackageType.EnterChannelResponse:
+                    if (packageObj.content.channel.attributes["neo.channeltype"] && packageObj.content.channel.attributes["neo.channeltype"] === "conversation") {
+                        return;
+                    }
+
 					if (packageObj.content.result === "Success") {
 						let messages = packageObj.content.channel.messages.map(messageObj => {
 							return {
@@ -218,7 +222,7 @@ export default {
 						}).show();
 					}
 					break;
-				case PackageType.Message:
+                case PackageType.Message:
 					if (this.canReadMessages) {
 						this.$refs["messageContainer"].addMessage({
 							author: packageObj.content.identity.id,
@@ -230,7 +234,7 @@ export default {
 					}
 					break;
 				case PackageType.Mention:
-					if (packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) {
+					if ((packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) || !this.channelList.find(_ => _.internalId == packageObj.content.channelId)) {
 						return;
 					}
 
@@ -248,11 +252,11 @@ export default {
 							{
 								text: "Senden",
 								validate: true,
-								action: (payload) => {
+								action: (payload, notification) => {
 									SocketService.send({
 										type: PackageType.Input,
 										content: {
-											input: mentionNotification.text,
+											input: notification.text,
 											targetChannel: payload.channelId
 										}
 									});
@@ -658,7 +662,7 @@ export default {
 			return this.$store.state.currentChannel;
 		},
 		channelList() {
-			return this.$store.state.channelList;
+			return this.$store.state.channelList.filter(c => !c.attributes["neo.channeltype"] || c.attributes["neo.channeltype"] !== "conversation");
 		},
 		groupList() {
 			return this.$store.state.groupList;
