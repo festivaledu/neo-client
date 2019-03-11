@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1173.1_winkit_internal_dev.190310-1459)
+ * metroUI 4.0 (4.0.1174.1_winkit_internal_dev.190311-0027)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1173.1_winkit_internal_dev.190310-1459";
+  content: "metroUI 4.0\A Build 4.0.1174.1_winkit_internal_dev.190311-0027";
   white-space: pre;
 }
 a {
@@ -4188,6 +4188,13 @@ input[type="url"][disabled]::placeholder {
 .navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item:active .navigation-view-item-inner {
   transform: scale(0.99);
 }
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item.disabled,
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item.disabled,
+.navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item[disabled],
+.navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item[disabled] {
+  color: var(--base-medium-low);
+  pointer-events: none;
+}
 .navigation-view .navigation-view-menu .navigation-view-items .navigation-view-item.selected:after,
 .navigation-view .navigation-view-menu .navigation-view-bottom-items .navigation-view-item.selected:after {
   content: '';
@@ -4493,6 +4500,13 @@ input[type="url"][disabled]::placeholder {
 .list-view .list-view-menu .list-view-items .list-view-item:active .navigation-view-item-inner,
 .list-view .list-view-menu .list-view-bottom-items .list-view-item:active .navigation-view-item-inner {
   transform: scale(0.99);
+}
+.list-view .list-view-menu .list-view-items .list-view-item.disabled,
+.list-view .list-view-menu .list-view-bottom-items .list-view-item.disabled,
+.list-view .list-view-menu .list-view-items .list-view-item[disabled],
+.list-view .list-view-menu .list-view-bottom-items .list-view-item[disabled] {
+  color: var(--base-medium-low);
+  pointer-events: none;
 }
 .list-view .list-view-menu .list-view-items .list-view-item.selected:after,
 .list-view .list-view-menu .list-view-bottom-items .list-view-item.selected:after {
