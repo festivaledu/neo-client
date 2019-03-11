@@ -1699,7 +1699,12 @@ var Messages = {
 				this.addMessage(messageObj);
 			});
 		}
-	}
+    },
+    watch: {
+        inputDisabled(newValue, oldValue) {
+            this.$data._inputDisabled = newValue;
+        }
+    }
 };
 
 /**
