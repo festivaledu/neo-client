@@ -248,11 +248,11 @@ export default {
 							{
 								text: "Senden",
 								validate: true,
-								action: (payload) => {
+								action: (payload, notification) => {
 									SocketService.send({
 										type: PackageType.Input,
 										content: {
-											input: mentionNotification.text,
+											input: notification.text,
 											targetChannel: payload.channelId
 										}
 									});

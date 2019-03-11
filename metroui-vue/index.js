@@ -641,7 +641,7 @@ metroUI.Notification = class {
 				notification.container.classList.remove("active-state");
 
 				if (typeof notification._dismissAction === "function") {
-					notification._dismissAction(notification.payload);
+					notification._dismissAction(notification.payload, notification);
 			}
 
 				notification.hide("dismissing");
@@ -727,7 +727,7 @@ metroUI.Notification = class {
 
 				button.addEventListener("click", () => {
 					if (typeof _button.action === "function") {
-						_button.action(notification.payload);
+						_button.action(notification.payload, notification);
 					}
 
 					if (notification._promiseResolve) {
