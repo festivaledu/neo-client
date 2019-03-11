@@ -148,13 +148,13 @@ export default {
 	/**
 	 * The package contains a guid of the account to unban.
 	 */
-    DeletePunishment: 38,
-    /**
-     * The package contains a byte representation of an image to use as an avatar.
-     */
-    SetAvatar: 39,
-    /**
-     * The package contains a custom event by a plugin.
-     */
-    CustomEvent: 40
+	DeletePunishment: 38,
+	/**
+	 * The package contains a byte representation of an image to use as an avatar.
+	 */
+	SetAvatar: 39,
+	/**
+	 * The package contains a custom event by a plugin.
+	 */
+	CustomEvent: 40
 }

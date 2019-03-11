@@ -4,8 +4,8 @@
 
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
 			<template slot="navigation-items">
-				<template v-for="(channel, index) in channelList">
-					<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked($event, channel)">
+				<template v-if="channelList.length">
+					<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (channel.internalId === currentChannel.internalId)}" v-for="(channel, index) in channelList" :key="index" @click="enterChannel(channel.internalId)" @contextmenu.prevent.stop="channelListItemContextClicked($event, channel)">
 						<div class="navigation-view-item-inner">
 							<div class="navigation-view-item-icon">
 								<metro-person-picture :displayName="channel.name" />
@@ -168,10 +168,10 @@ export default {
 					this.$store.commit("setServerName", packageObj.content.name);
 					this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 					break;
-                case PackageType.EnterChannelResponse:
-                    if (packageObj.content.channel.attributes["neo.channeltype"] && packageObj.content.channel.attributes["neo.channeltype"] === "conversation") {
-                        return;
-                    }
+				case PackageType.EnterChannelResponse:
+					if (packageObj.content.channel.attributes["neo.channeltype"] && packageObj.content.channel.attributes["neo.channeltype"] === "conversation") {
+						return;
+					}
 
 					if (packageObj.content.result === "Success") {
 						let messages = packageObj.content.channel.messages.map(messageObj => {
@@ -222,8 +222,8 @@ export default {
 						}).show();
 					}
 					break;
-                case PackageType.Message:
-					if (this.canReadMessages) {
+				case PackageType.Message:
+					if (this.canReadMessages && this.currentChannel.internalId == packageObj.channelId) {
 						this.$refs["messageContainer"].addMessage({
 							author: packageObj.content.identity.id,
 							displayName: packageObj.content.identity.name,

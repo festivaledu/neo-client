@@ -4,19 +4,21 @@
 
 		<metro-navigation-view :history="false" menuTitle="Private Nachrichten" acrylic="acrylic-80" ref="messagesView">
 			<template slot="navigation-items">
-                <template v-for="(conversation, index) in conversations">
-                    <div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :key="index"  @click="enterChannel(conversation.channel.internalId)">
-                        <div class="navigation-view-item-inner">
-                            <div class="navigation-view-item-icon">
-                                <metro-person-picture :display-name="getPartner(conversation).identity.avatarFileExtension ? null : getPartner(conversation).identity.name" :profile-picture="getPartner(conversation).identity.avatarFileExtension ? `http://${serverAddress}:43430/${getPartner(conversation).internalId}${getPartner(conversation).identity.avatarFileExtension}?${new Date(getPartner(conversation).attributes['neo.avatar.updated']).getTime()}` : null" />
-                            </div>
-                            <p class="navigation-view-item-content">
-                                <span class="text-label">{{ getPartner(conversation).identity.name }}</span>
-                                <span class="detail-text-label">%lastmessage%</span>
-                            </p>
-                        </div>
-                    </div>
-                </template>
+				<template v-if="conversations.length">
+					<template v-for="(conversation, index) in conversations">
+						<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :key="index" v-if="getPartner(conversation)" @click="enterChannel(conversation.channel.internalId)">
+							<div class="navigation-view-item-inner">
+								<div class="navigation-view-item-icon">
+									<metro-person-picture :display-name="getPartner(conversation).identity.avatarFileExtension ? null : getPartner(conversation).identity.name" :profile-picture="getPartner(conversation).identity.avatarFileExtension ? `http://${serverAddress}:43430/${getPartner(conversation).internalId}${getPartner(conversation).identity.avatarFileExtension}?${new Date(getPartner(conversation).attributes['neo.avatar.updated']).getTime()}` : null" />
+								</div>
+								<p class="navigation-view-item-content">
+									<span class="text-label">{{ getPartner(conversation).identity.name }}</span>
+									<span class="detail-text-label">%lastmessage%</span>
+								</p>
+							</div>
+						</div>
+					</template>
+				</template>
 			</template>
 			
 			<template slot="pages">
@@ -46,39 +48,47 @@ export default {
 			this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
 			this.$refs["messageContainer"].$refs["input"].focus();
 		},
-        emojiPickerRequested(target) {
+		emojiPickerRequested(target) {
 			this.$refs["emojiPicker"].toggle(target);
 		},
-        enterChannel(channelId) {
-            SocketService.send({
-                type: PackageType.EnterChannel,
-                content: {
-                    channelId: channelId,
-                    password: ""
-                }
-            });
-        },
-        getPartner(conversation) {
-            let otherId = conversation.users.find(_ => _ != this.userList.find(user => user.identity.id == this.currentIdentity.id).internalId);
-            let other = this.accountList.find(_ => _.internalId == otherId);
+		enterChannel(channelId) {
+			SocketService.send({
+				type: PackageType.EnterChannel,
+				content: {
+					channelId: channelId,
+					password: ""
+				}
+			});
+		},
+		getPartner(conversation) {
+			let otherId = conversation.users.find(_ => _ != this.userList.find(user => user.identity.id == this.currentIdentity.id).internalId);
+			let other = this.accountList.find(_ => _.internalId == otherId);
 
-            if (other == null) {
-                other = this.userList.find(_ => _.internalId == otherId);
-            }
+			if (other == null) {
+				other = this.userList.find(_ => _.internalId == otherId);
+			}
 
-            return other;
-        },
+			return other;
+		},
 		onPackage(packageObj) {
+			console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
+			console.debug(packageObj.content);
 			switch (packageObj.type) {
-                case PackageType.CustomEvent:
-                    this.$store.commit("setConversations", packageObj.content.content[0]);
-                    break;
-                case PackageType.EnterChannelResponse:
-                    if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
-                        return;
-                    }
-                    
-                    if (packageObj.content.result === "Success") {
+				case PackageType.CustomEvent:
+					switch (packageObj.content.name) {
+						case "ml.festival.conversation.update":
+							this.$store.commit("setConversations", packageObj.content.content[0]);
+							break;
+						default: break;
+					}
+					
+					break;
+				case PackageType.EnterChannelResponse:
+					if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
+						return;
+					}
+					
+					if (packageObj.content.result === "Success") {
 						let messages = packageObj.content.channel.messages.map(messageObj => {
 							return {
 								author: messageObj.identity.id,
@@ -94,10 +104,10 @@ export default {
 						}
 
 						this.$store.commit("setCurrentChannel", packageObj.content.channel);
-                    }
+					}
 
-                    break;
-                case PackageType.Mention:
+					break;
+				case PackageType.Mention:
 					if ((packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) || !this.conversations.find(_ => _.channel.internalId == packageObj.content.channelId)) {
 						return;
 					}
@@ -136,18 +146,20 @@ export default {
 						}
 					});
 					break;
-                case PackageType.Message:
-                    this.$refs["messageContainer"].addMessage({
-                        author: packageObj.content.identity.id,
-                        displayName: packageObj.content.identity.name,
-                        date: new Date(packageObj.content.timestamp),
-                        text: packageObj.content.message,
-                        type: packageObj.content.messageType
-                    });
+				case PackageType.Message:
+					if (this.currentChannel.internalId == packageObj.content.channelId) {
+						this.$refs["messageContainer"].addMessage({
+							author: packageObj.content.identity.id,
+							displayName: packageObj.content.identity.name,
+							date: new Date(packageObj.content.timestamp),
+							text: packageObj.content.message,
+							type: packageObj.content.messageType
+						});
+					}
 					break;
-            }
-        },
-        sendMessage(text) {
+			}
+		},
+		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,
 				content: {
@@ -156,29 +168,29 @@ export default {
 				}
 			});
 		},
-    },
-    computed: {
-        accountList() {
-            return this.$store.state.accountList;
-        },
-        conversations() {
-            return this.$store.state.conversations;
-        },
-        currentAccount() {
-            return this.$store.state.currentAccount;
-        },
-        currentChannel() {
-            return this.$store.state.currentChannel;
-        },
-        currentIdentity() {
-            return this.$store.state.currentIdentity;
-        },
-        serverAddress() {
-            return this.$store.state.serverAddress;
-        },
-        userList() {
-            return this.$store.state.userList;
-        }
-    }
+	},
+	computed: {
+		accountList() {
+			return this.$store.state.accountList;
+		},
+		conversations() {
+			return this.$store.state.conversations;
+		},
+		currentAccount() {
+			return this.$store.state.currentAccount;
+		},
+		currentChannel() {
+			return this.$store.state.currentChannel;
+		},
+		currentIdentity() {
+			return this.$store.state.currentIdentity;
+		},
+		serverAddress() {
+			return this.$store.state.serverAddress;
+		},
+		userList() {
+			return this.$store.state.userList;
+		}
+	}
 }
 </script>

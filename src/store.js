@@ -15,8 +15,8 @@ export default new Vuex.Store({
 		channelList: [],
 		currentChannel: null,
 		knownPermissions: {},
-        grantedPermissions: {},
-        conversations: [],
+		grantedPermissions: {},
+		conversations: [],
 
 		lastUpdated: new Date()
 	},
@@ -90,12 +90,12 @@ export default new Vuex.Store({
 			state.grantedPermissions = permissions;
 
 			state.lastUpdated = new Date();
-        },
-        
-        setConversations(state, conversations) {
-            state.conversations = conversations;
+		},
+		
+		setConversations(state, conversations) {
+			state.conversations = conversations;
 
-            state.lastUpdated = new Date();
-        }
+			state.lastUpdated = new Date();
+		}
 	}
 });
