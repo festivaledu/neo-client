@@ -23,6 +23,7 @@
 						<!-- Pages stored in this navigation view -->
 						<template slot="pages">
 							<NeoChannelPage />
+							<NeoPrivateMessagesPage />
 
 							<NeoProfilePage />
 							<NeoSettingsPage />
@@ -65,6 +66,7 @@ body[data-theme="dark"] i.icon.channels {
 
 <script>
 import NeoChannelPage from '@/components/NeoChannelPage'
+import NeoPrivateMessagesPage from '@/components/NeoPrivateMessagesPage'
 import NeoSettingsPage from '@/components/NeoSettingsPage'
 import NeoProfilePage from '@/components/NeoProfilePage'
 
@@ -76,6 +78,7 @@ export default {
 	name: "Root",
 	components: {
 		NeoChannelPage,
+		NeoPrivateMessagesPage,
 		NeoSettingsPage,
 		NeoProfilePage
 	},

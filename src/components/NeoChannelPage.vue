@@ -24,7 +24,7 @@
 			</template>
 
 			<template slot="pages">
-				<div class="page" data-page-id="messages" data-page-title="%channelName%">
+				<div class="page" data-page-id="messages">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :disabled="!this.canWriteMessages" />
 				</div>
 
@@ -145,11 +145,6 @@ export default {
 	name: "NeoChannelPage",
 	components: {
 		NeoChannelUserListItem
-	},
-	data() {
-		return {
-			grantedPermissions: {}
-		}
 	},
 	mounted() {
 		SocketService.$on("package", this.onPackage);
