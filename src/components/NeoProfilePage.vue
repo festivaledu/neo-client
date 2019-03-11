@@ -45,8 +45,8 @@
 .page[data-page-id="profile"] {
 	.person-picture {
 		width: 128px;
-        height: 128px;
-        border-radius: 64px;
+		height: 128px;
+		border-radius: 64px;
 		margin-bottom: 8px;
 
 		&:before {
@@ -114,7 +114,7 @@ export default {
 					}
 
 					if (packageObj.content.identity) {
-						this.$store.commit("setIdentity", packageObj.content.identity);
+						this.$store.commit("setCurrentIdentity", packageObj.content.identity);
 					}
 
 					new metroUI.Notification({
@@ -139,7 +139,7 @@ export default {
 			}
 			
 			Array.from(selectedFiles).forEach(file => {
-                let reader = new FileReader();
+				let reader = new FileReader();
 				
 				reader.onloadend = (event) => {
 					if (event.target.readyState == FileReader.DONE) {
@@ -153,9 +153,9 @@ export default {
 						SocketService.send({
 							type: PackageType.SetAvatar,
 							content: {
-                                avatar: bytes,
-                                fileExtension: "." + file.name.split(".").slice(-1)[0]
-                            }
+								avatar: bytes,
+								fileExtension: "." + file.name.split(".").slice(-1)[0]
+							}
 						});
 					}
 				}
