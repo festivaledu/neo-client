@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
-		serverName: "",
+        serverName: "",
+        serverAddress: "",
 		currentAccount: null,
 		currentIdentity: null,
 		userList: [],

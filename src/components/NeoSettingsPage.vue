@@ -43,7 +43,7 @@
                         <div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
                             <div class="row" style="margin-bottom: 12px; margin-right: 5px">
                                 <div class="col col-4">
-                                    <metro-person-picture :displayName="_userById(banned.internalId).identity.name" />
+                                    <metro-person-picture :displayName="_userById(banned.internalId).identity.avatarFileExtension ? null : _userById(banned.internalId).identity.name" :profile-picture="_userById(banned.internalId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${banned.internalId}${_userById(banned.internalId).identity.avatarFileExtension}` : null" />
                                     <p class="text-label">{{ _userById(banned.internalId).identity.name }}</p>
                                     <p class="detail-text-label">@{{ _userById(banned.internalId).identity.id }}</p>
                                 </div>
@@ -119,7 +119,7 @@
                                 <div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
                                     <div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
                                         <div class="col col-4">
-                                            <metro-person-picture :displayName="_userById(memberId).identity.name" />
+                                            <metro-person-picture :displayName="_userById(memberId).identity.avatarFileExtension ? null : _userById(memberId).identity.name" :profile-picture="_userById(memberId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${memberId}${_userById(memberId).identity.avatarFileExtension}` : null" />
                                             <p class="text-label">{{ _userById(memberId).identity.name }}</p>
                                             <p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
                                         </div>
@@ -539,7 +539,10 @@ export default {
 		},
 		knownPermissionsKeys() {
 			return Object.keys(this.knownPermissions);
-		},
+        },
+        serverAddress() {
+            return this.$store.state.serverAddress;
+        },
 		sortedGroupList() {
 			return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
 		},

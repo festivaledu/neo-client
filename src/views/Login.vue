@@ -162,7 +162,9 @@ export default {
 				}
 				
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-			}
+            }
+            
+            this.$store.commit("setServerAddress", this.serverAddress);
 
 			SocketService.send({
 				type: PackageType.Meta
