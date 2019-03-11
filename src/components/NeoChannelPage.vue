@@ -25,7 +25,7 @@
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%"> 
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :input-disabled="!canWrite" />
 				</div>
 
 				<metro-list-view class="user-list" acrylic="acrylic-80">
