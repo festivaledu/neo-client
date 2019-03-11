@@ -76,7 +76,7 @@
 <script>
 import { SocketService } from '@/scripts/SocketService'
 import PackageType from '@/scripts/PackageType'
-import CryptoJS from "crypto-js"
+import CryptoJS from 'crypto-js'
 
 export default {
 	name: "NeoProfilePage",
@@ -145,7 +145,7 @@ export default {
 			this.isWorking = true;
 			
 			Array.from(selectedFiles).forEach(file => {
-				let reader = new FileReader();
+                let reader = new FileReader();
 				
 				reader.onloadend = (event) => {
 					if (event.target.readyState == FileReader.DONE) {
@@ -158,7 +158,10 @@ export default {
 						
 						SocketService.send({
 							type: PackageType.SetAvatar,
-							content: bytes
+							content: {
+                                avatar: bytes,
+                                fileExtension: "." + file.name.split(".").slice(-1)[0]
+                            }
 						});
 					}
 				}
