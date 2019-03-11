@@ -43,7 +43,7 @@
 						<div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
 							<div class="row" style="margin-bottom: 12px; margin-right: 5px">
 								<div class="col col-4">
-									<metro-person-picture :displayName="_userById(banned.internalId).identity.avatarFileExtension ? null : _userById(banned.internalId).identity.name" :profile-picture="_userById(banned.internalId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${banned.internalId}${_userById(banned.internalId).identity.avatarFileExtension}` : null" />
+									<metro-person-picture :displayName="_userById(banned.internalId).identity.avatarFileExtension ? null : _userById(banned.internalId).identity.name" :profile-picture="_userById(banned.internalId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${banned.internalId}${_userById(banned.internalId).identity.avatarFileExtension}?${new Date(_userById(memberId).attributes['neo.avatar.updated']).getTime()}` : null" />
 									<p class="text-label">{{ _userById(banned.internalId).identity.name }}</p>
 									<p class="detail-text-label">@{{ _userById(banned.internalId).identity.id }}</p>
 								</div>
@@ -119,7 +119,7 @@
 								<div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
 									<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
 										<div class="col col-4">
-											<metro-person-picture :displayName="_userById(memberId).identity.avatarFileExtension ? null : _userById(memberId).identity.name" :profile-picture="_userById(memberId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${memberId}${_userById(memberId).identity.avatarFileExtension}` : null" />
+											<metro-person-picture :displayName="_userById(memberId).identity.avatarFileExtension ? null : _userById(memberId).identity.name" :profile-picture="_userById(memberId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${memberId}${_userById(memberId).identity.avatarFileExtension}?${new Date(_userById(memberId).attributes['neo.avatar.updated']).getTime()}` : null" />
 											<p class="text-label">{{ _userById(memberId).identity.name }}</p>
 											<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
 										</div>

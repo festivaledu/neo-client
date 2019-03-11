@@ -13,8 +13,8 @@
 			<template slot="pages">
 				<div class="page" data-page-id="profile_general" data-page-title="Allgemein">
 					<h4>Profilbild</h4>
-					<metro-person-picture :displayName="currentIdentity.avatarFileExtension ? null : currentIdentity.name" :profile-picture="currentIdentity.avatarFileExtension ? `http://${serverAddress}:43430/${currentAccount.internalId}${currentIdentity.avatarFileExtension}` : null" />
-					<button :disabled="!currentAccount || isWorking" @click="openProfilePictureSelector">Profilbild wählen</button>
+					<metro-person-picture :displayName="currentIdentity.avatarFileExtension ? null : currentIdentity.name" :profile-picture="currentIdentity.avatarFileExtension ? `http://${serverAddress}:43430/${currentAccount.internalId}${currentIdentity.avatarFileExtension}?${new Date(user.attributes['neo.avatar.updated']).getTime()}` : null" v-if="user" />
+					<button :disabled="!currentAccount" @click="openProfilePictureSelector">Profilbild wählen</button>
 					<input type="file" @change="profilePictureChosen($event.target.files)" accept="image/png, image/jpeg" ref="profilePictureSelector" />
 
 					<h4>Account-Informationen</h4>
@@ -81,11 +81,6 @@ import CryptoJS from 'crypto-js'
 
 export default {
 	name: "NeoProfilePage",
-	data() {
-		return {
-			isWorking: false
-		}
-	},
 	mounted() {
 		this.$refs["profileSettingsView"].navigate("profile_general");
 
@@ -143,8 +138,6 @@ export default {
 				return;
 			}
 			
-			this.isWorking = true;
-			
 			Array.from(selectedFiles).forEach(file => {
                 let reader = new FileReader();
 				
@@ -168,9 +161,6 @@ export default {
 				}
 				
 				reader.readAsArrayBuffer(file);
-				// SocketService.send({
-					
-				// })
 			})
 		},
 
@@ -365,7 +355,10 @@ export default {
 		},
 		serverAddress() {
 			return this.$store.state.serverAddress;
-		}
+		},
+		user() {
+			return this.$store.state.userList.find(_ => _.identity.id === this.currentIdentity.id);
+		},
 	}
 }
 </script>
