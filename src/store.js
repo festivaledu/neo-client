@@ -25,6 +25,11 @@ export default new Vuex.Store({
 
 			state.lastUpdated = new Date();
 		},
+		setServerAddress(state, serverAddress) {
+			state.serverAddress = serverAddress;
+			
+			state.lastUpdated = new Date();
+		},
 
 
 
