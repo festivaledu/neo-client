@@ -142,10 +142,7 @@ export default {
 		}
 	},
 	mounted() {
-		SocketService.$on("open", this.onOpen);
-		SocketService.$on("close", this.onClose);
-		SocketService.$on("error", this.onError);
-		SocketService.$on("package", this.onPackage);
+		
 	},
 	beforeDestroy() {
 		SocketService.$off("package", this.onPackage);
@@ -279,6 +276,16 @@ export default {
 			if (this.socket) {
 				return;
 			}
+			
+			SocketService.$off("open");
+			SocketService.$off("close");
+			SocketService.$off("error");
+			SocketService.$off("package");
+
+			SocketService.$on("open", this.onOpen);
+			SocketService.$on("close", this.onClose);
+			SocketService.$on("error", this.onError);
+			SocketService.$on("package", this.onPackage);
 
 			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
