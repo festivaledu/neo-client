@@ -77,7 +77,6 @@
 import { SocketService } from '@/scripts/SocketService'
 import PackageType from '@/scripts/PackageType'
 import CryptoJS from "crypto-js"
-import { post } from 'axios'
 
 export default {
 	name: "NeoProfilePage",
