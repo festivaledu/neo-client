@@ -2,13 +2,11 @@ import Vue from "vue";
 
 export const NotificationDelegate = new Vue({
 	created() {
-		Notification.requestPermission(permission => {
-			console.debug(`Notification permission: ${permission}`);
-		});
+		Notification.requestPermission();
 	},
 	methods: {
 		sendNotification(params) {
-			if (document.hasFocus()) {
+			if (document.hasFocus() || Notification.permission != "granted") {
 				
 				let notification = new metroUI.Notification(params);
 				notification.show();

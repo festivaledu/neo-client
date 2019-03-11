@@ -4,8 +4,8 @@
 			<metro-person-picture :displayName="user.identity.name" />
 		</div>
 		<p class="list-view-item-content">
-			<span class="text-label">{{user.identity.name}}</span>
-			<span class="detail-text-label">@{{user.identity.id}}</span>
+			<span class="text-label">{{ user.identity.name }}</span>
+			<span class="detail-text-label">@{{ user.identity.id }}</span>
 		</p>
 	</div>
 </template>
@@ -23,18 +23,6 @@
 export default {
 	name: "NeoChannelUserListItem",
 	props: ["memberId"],
-	data() {
-		return {
-			//user: null
-		}
-	},
-	mounted() {
-		//this.user = this.userList.find(_ => _.internalId === this.memberId);
-		//console.log(this.user);
-	},
-	updated() {
-
-	},
 	computed: {
 		user() {
 			return this.$store.state.userList.find(_ => _.internalId === this.memberId);

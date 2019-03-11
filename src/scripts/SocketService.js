@@ -47,14 +47,14 @@ export const SocketService = new Vue({
 				packageObj = JSON.parse(container.payload);
 			}
 
-			if (packageObj.type === 1) {
-				this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
-				this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
+			// if (packageObj.type === 1) {
+			// 	this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
+			// 	this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
 
-				console.log(this.rsaE);
-				console.log(this.rsaM);
-				return;
-			}
+			// 	console.log(this.rsaE);
+			// 	console.log(this.rsaM);
+			// 	return;
+			// }
 
 			this.$emit("package", packageObj);
 		},

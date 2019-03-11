@@ -7,36 +7,52 @@ export default new Vuex.Store({
 	state: {
 		serverName: "",
 		currentAccount: null,
-		identity: null,
-		currentChannel: null,
-		accountList: [],
-		channelList: [],
-        groupList: [],
-        grantedPermissions: {},
-		knownPermissions: {},
+		currentIdentity: null,
 		userList: [],
-		lastUpdate: new Date()
+		accountList: [],
+		groupList: [],
+		channelList: [],
+		currentChannel: null,
+        knownPermissions: {},
+        grantedPermissions: {},
+		
+		lastUpdated: new Date()
 	},
 	mutations: {
+		setServerName(state, serverName) {
+			state.serverName = serverName;
+
+			state.lastUpdated = new Date();
+		},
+		
+	
+	
 		setCurrentAccount(state, account) {
 			state.currentAccount = account;
 			
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
 		},
-		setIdentity(state, identity) {
-			state.identity = identity;
+		setCurrentIdentity(state, identity) {
+			state.currentIdentity = identity;
 			
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
+		},
+		
+		
+		setUserList(state, userList) {
+			state.userList = userList;
+			
+			state.lastUpdated = new Date();
 		},
 		setAccountList(state, accountList) {
 			state.accountList = accountList;
 
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
 		},
-		setCurrentChannel(state, channel) {
-			state.currentChannel = channel;
+		setGroupList(state, groupList) {
+			state.groupList = groupList;
 			
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
 		},
 		setChannelList(state, channelList) {
 			state.channelList = channelList;
@@ -45,35 +61,28 @@ export default new Vuex.Store({
 				state.currentChannel = channelList.find(channel => channel.internalId == state.currentChannel.internalId);
 			}
 			
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
 		},
-		setGroupList(state, groupList) {
-			state.groupList = groupList;
+		
+		
+		
+		setCurrentChannel(state, channel) {
+			state.currentChannel = channel;
 			
-			state.lastUpdate = new Date();
-        },
-        setGrantedPermissions(state, permissions) {
-            state.grantedPermissions = permissions;
-
-            state.lastUpdate = new Date();
-        },
+			state.lastUpdated = new Date();
+		},
+		
+		
+		
 		setKnownPermissions(state, permissions) {
 			state.knownPermissions = permissions;
 			
-			state.lastUpdate = new Date();
+			state.lastUpdated = new Date();
 		},
-		setServerName(state, serverName) {
-			state.serverName = serverName;
+        setGrantedPermissions(state, permissions) {
+            state.grantedPermissions = permissions;
 
-			state.lastUpdate = new Date();
-		},
-		setUserList(state, userList) {
-			state.userList = userList;
-			
-			state.lastUpdate = new Date();
-		}
-	},
-	actions: {
-
+            state.lastUpdated = new Date();
+        }
 	}
 });

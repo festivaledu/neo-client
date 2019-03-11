@@ -528,11 +528,7 @@ metroUI.MenuFlyout = class {
 
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-					if (_action.actionParams) {
-						_action.action(_action.actionParams);
-					} else {
 						_action.action();
-					}
 				}
 
 				flyout.hide();
@@ -1024,7 +1020,7 @@ var AutoSuggestBox = {
 			if (this.$refs["input"].value.length) {
 				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
 			} else {
-				this.$data.results = this.$data._data;
+				this.$data.results = this.$data._data.slice(0, this.$data._maxResults);
 			}
 
 
@@ -1491,6 +1487,7 @@ var EmojiPicker = {
 		
 		toggle(eventTarget) {
 			this.$refs["picker"].classList.toggle("show");
+			// eventTarget.classList.toggle("colored");
 			
 			let offset = (cumulativeOffset(eventTarget));
 			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
@@ -1562,7 +1559,6 @@ var Messages = {
 	name: "metro-messages",
 	props: ["inputDisabled", "placeholder"],
 	data() {
-		console.log(this.$props.inputDisabled || false)
 		return {
 			messages: [],
 			messageText: "",

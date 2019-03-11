@@ -67,9 +67,9 @@
 </style>
 
 <script>
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
-import CryptoJS from "crypto-js";
+import { SocketService } from '@/scripts/SocketService'
+import PackageType from '@/scripts/PackageType'
+import CryptoJS from "crypto-js"
 
 export default {
 	name: "NeoProfilePage",
@@ -182,9 +182,8 @@ export default {
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			var result = await signOutDialog.showAsync();
 			
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await signOutDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.socket.close();
 			}
 		},
@@ -194,15 +193,14 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="Text" placeholder="Neuer Benutzername" data-required="true" />
+							<input type="Text" placeholder="Neuer Benutzername" data-required />
 						</div>
 					)
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			var result = await changeUsernameDialog.showAsync();
 
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await changeUsernameDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
 					type: PackageType.EditProfile,
 					content: {
@@ -224,9 +222,8 @@ export default {
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			var result = await changeUserIdDialog.showAsync();
 
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await changeUserIdDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
 					type: PackageType.EditProfile,
 					content: {
@@ -242,15 +239,14 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="email" placeholder="Neue E-Mail-Adresse" data-required="true" />
+							<input type="email" placeholder="Neue E-Mail-Adresse" data-required />
 						</div>
 					)
 				})(),
 				commands: [{ text: "Abbrechen"}, { text: "Ok", primary: true }]
 			});
-			var result = await changeEmailDialog.showAsync();
 
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await changeEmailDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
 					type: PackageType.EditProfile,
 					content: {
@@ -266,17 +262,16 @@ export default {
 				content: (() => {
 					return (
 						<div>
-							<input type="password" placeholder="Derzeitiges Passwort" data-required="true" />
+							<input type="password" placeholder="Derzeitiges Passwort" data-required />
 							<input type="password" placeholder="Neues Passwort (min. 8 Zeichen)" data-minlength="8" />
-							<input type="password" placeholder="Passwort bestätigen" data-required="true" />
+							<input type="password" placeholder="Passwort bestätigen" data-required />
 						</div>
 					)
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			var result = await changePasswordDialog.showAsync();
 
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await changePasswordDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				let passwords = changePasswordDialog.text;
 
 				if (passwords[1].localeCompare(passwords[2]) != 0) {
@@ -307,7 +302,7 @@ export default {
 			return this.$store.state.currentAccount;
 		},
 		currentIdentity() {
-			return this.$store.state.identity;
+			return this.$store.state.currentIdentity;
 		}
 	}
 }

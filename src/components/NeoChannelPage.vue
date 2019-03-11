@@ -20,12 +20,12 @@
 			</template>
 
             <template slot="bottom-items">
-				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="createChannel" :disabled="!canCreateChannel" />
+				<metro-navigation-view-menu-item icon="add" title="Channel erstellen" @click.native.prevent="createChannel" v-if="this.canCreateChannel" />
 			</template>
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages" data-page-title="%channelName%"> 
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :disabled="!this.canWriteMessages" />
 				</div>
 
 				<metro-list-view class="user-list" acrylic="acrylic-80">
@@ -36,7 +36,7 @@
 									<p>{{group.name}}</p>
 								</div>
 								
-								<div v-for="(memberId, index) in sortMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
+								<div v-for="(memberId, index) in sortedMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
 									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, memberId)" :key="index + lastUpdate" />
 								</div>
 							</div>
@@ -134,17 +134,22 @@
 </style>
 
 <script>
-import NeoChannelUserListItem from "@/components/NeoChannelUserListItem.vue";
+import NeoChannelUserListItem from '@/components/NeoChannelUserListItem.vue'
 
-import { PermissionService } from "@/scripts/PermissionService";
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from "@/scripts/PackageType";
-import { NotificationDelegate } from "@/scripts/NotificationDelegate";
+import { NotificationDelegate } from '@/scripts/NotificationDelegate'
+import { PermissionService } from '@/scripts/PermissionService'
+import { SocketService } from '@/scripts/SocketService'
+import PackageType from '@/scripts/PackageType'
 
 export default {
 	name: "NeoChannelPage",
 	components: {
 		NeoChannelUserListItem
+	},
+	data() {
+		return {
+			grantedPermissions: {}
+		}
 	},
 	mounted() {
 		SocketService.$on("package", this.onPackage);
@@ -162,16 +167,6 @@ export default {
 		}
 	},
 	methods: {
-        getUser(internalId) {
-            return this.userList.find(_ => _.internalId === internalId);
-        },
-        isChannelOwner(channel) {
-            if (this.getUser(channel.owner)) {
-                return this.getUser(channel.owner).identity.id == this.currentIdentity.id;
-            }
-
-            return false;
-        },
 		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
@@ -191,8 +186,16 @@ export default {
 						});
 						
 						if (this.$refs["messageContainer"]) {
-							this.$refs["messageContainer"].setMessages(messages);
+							if (this.canReadMessages) {
+								this.$refs["messageContainer"].setMessages(messages);
+							} else {
+								this.$refs["messageContainer"].setMessages([{
+									text: "Du bist nicht berechtigt, Nachrichten zu lesen",
+									type: "system"
+								}]);
+							}
 						}
+						
 						
                         this.$store.commit("setCurrentChannel", packageObj.content.channel);
                         this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -205,7 +208,7 @@ export default {
                                     {(() => {
                                         switch (packageObj.content.result) {
                                             case "NotAllowed":
-                                                return <p>Du bist nicht berechtigt Channel zu betreten.</p>;
+                                                return <p>Du bist nicht berechtigt, einen Channel zu betreten.</p>;
                                             case "IncorrectPassword":
                                                 return <p>Das Passwort ist falsch.</p>;
                                             case "Full":
@@ -221,14 +224,15 @@ export default {
                     }
 					break;
 				case PackageType.Message:
-					// Message Object received
-					this.$refs["messageContainer"].addMessage({
-						author: packageObj.content.identity.id,
-						displayName: packageObj.content.identity.name,
-						date: new Date(packageObj.content.timestamp),
-						text: packageObj.content.message,
-						type: packageObj.content.messageType
-					});
+					if (this.canReadMessages) {
+						this.$refs["messageContainer"].addMessage({
+							author: packageObj.content.identity.id,
+							displayName: packageObj.content.identity.name,
+							date: new Date(packageObj.content.timestamp),
+							text: packageObj.content.message,
+							type: packageObj.content.messageType
+						});
+					}
 					break;
 				case PackageType.Mention:
 					if (packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) {
@@ -238,12 +242,11 @@ export default {
 					NotificationDelegate.sendNotification({
                         payload: packageObj.content,
                         icon: "accounts",
-						//title: packageObj.content.identity.name + " (in #" + this.channelList.find(_ => _.internalId == packageObj.content.channelId).id + ")",
 						title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in #${this.channelList.find(_ => _.internalId == packageObj.content.channelId).id}`,
 						content: packageObj.content.message,
 						inputs: (() => {
 							return (
-								<input type="text" placeholder="Antworten..." data-required="true" />
+								<input type="text" placeholder="Antworten..." data-required />
 							)
 						})(),
 						buttons: [
@@ -251,7 +254,6 @@ export default {
 								text: "Senden",
 								validate: true,
 								action: (payload) => {
-									// alert(`Answering ${payload.identity.id} in channel ${payload.channelId} with text ${mentionNotification.text}`)
 									SocketService.send({
 										type: PackageType.Input,
 										content: {
@@ -263,7 +265,6 @@ export default {
 							}
 						],
 						dismissAction: (payload) => {
-							// alert(`Entering channel ${payload.channelId}`)
 							if (this.currentChannel.internalId === payload.channelId) {
 								return;
 							}
@@ -307,41 +308,55 @@ export default {
 				default: break;
 			}
 		},
+		
+		_getUser(internalId) {
+            return this.userList.find(_ => _.internalId === internalId);
+        },
+        _isChannelOwner(channel) {
+            if (this._getUser(channel.owner)) {
+                return this._getUser(channel.owner).identity.id == this.currentIdentity.id;
+            }
+
+            return false;
+        },
+		
 		channelListItemContextClicked(event, channel) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
-				// {
-				// 	title: "Verlassen",
-				// 	icon: "leave-chat",
-				// 	disabled: true
-				// },
 				{
 					title: "Bearbeiten",
                     icon: "edit",
-                    disabled: !this.isChannelOwner(channel) && !PermissionService.hasPermission("neo.channel.edit", this.$store.state.grantedPermissions),
-					action: this.editChannel,
-					actionParams: channel
+                    disabled: !this._isChannelOwner(channel) && !this.canEditChannel,
+					action: () => { this.editChannel(channel) },
 				},
 				{
 					title: "Löschen",
                     icon: "delete",
-                    disabled: (channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main') || (!this.isChannelOwner(channel) && !PermissionService.hasPermission("neo.channel.delete", this.$store.state.grantedPermissions)),                    
-					action: this.deleteChannel,
-					actionParams: channel
+                    disabled: (channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main') || (!this._isChannelOwner(channel) && !this.canDeleteChannel),                    
+					action: () => { this.deleteChannel(channel) },
 				}
 			]);
 			flyout.show();
-        },
+		},
+		
         async createChannel() {
             let channelDialog = new metroUI.ContentDialog({
 				title: "Channel erstellen",
 				content: (() => {
 					return (
-                        <div>
-                            <input type="text" placeholder="Channel-Name" data-required />
-                            <input type="text" placeholder="Channel-ID (min. 3 Zeichen)" data-minlength="3" />
-                            <input type="text" placeholder="Benutzerlimit (-1 für unbegrenzt)" data-required />
-                            <input type="password" placeholder="Passwort (optional)" />
-							<p>Wähle die Art des Channels:</p>
+						<div>
+							<p>Channel-Name</p>
+							<input type="text" placeholder="Channel-Name" data-required />
+							
+							<p>Channel-ID</p>
+							<input type="text" placeholder="Channel-ID (min. 3 Zeichen)" data-minlength="3" />
+							
+							<p>Benutzerlimit (-1 für unbegrenzt)</p>
+							<input type="text" placeholder="Benutzerlimit" data-required />
+							
+							<p>Passwort</p>
+							<input type="password" placeholder="Passwort (optional)" />
+							
+							<p>Wähle die Channel-Art:</p>
 							<metro-combo-box>
 								<select>
 									{ /* <option value="Temporary">Temporär</option> */ }
@@ -370,60 +385,29 @@ export default {
 				default: break;
 			}
         },
-		async createPunishment(memberId) {
-			var punishmentDialog = new metroUI.ContentDialog({
-				title: "Nutzer bestrafen",
-				content: (() => {
-					return (
-						<div>
-							<p>Wähle die Art der Bestrafung:</p>
-							<metro-combo-box>
-								<select>
-                                    {/*<option value="mute">Stummschalten</option>*/}
-                                    {this.allowedPunishments.map(p => {
-                                        return (
-                                            <option value={p.value}>{p.label}</option>
-                                        )})
-                                    }
-								</select>
-							</metro-combo-box>
-						</div>
-					)
-				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
-			});
-			
-			switch (await punishmentDialog.showAsync()) {
-				case metroUI.ContentDialogResult.Primary:
-                    SocketService.send({
-                        type: PackageType.CreatePunishment,
-                        content: {
-                            target: memberId,
-                            action: punishmentDialog.text
-                        }
-			        });
-					break;
-				default: break;
-			}
-        },
-        async editChannel(channel) {
+		
+		async editChannel(channel) {
             let channelDialog = new metroUI.ContentDialog({
 				title: "Channel bearbeiten",
 				content: (() => {
 					return (
                         <div>
                             <p>Channel-Name</p>
-                            <input type="text" placeholder="Channel-Name" value={channel.name} data-required />
+							<input type="text" placeholder="Channel-Name" value={channel.name} data-required />
+							
                             <p>Channel-ID</p>
-                            <input type="text" placeholder="Channel-ID (min. 3 Zeichen)" value={channel.id} data-minlength="3" />
+							<input type="text" placeholder="Channel-ID (min. 3 Zeichen)" value={channel.id} data-minlength="3" />
+							
                             {(() => {
                                 if (!channel.attributes['neo.channeltype'] || channel.attributes['neo.channeltype'] != 'main') {
                                     return <div>
-                                        <p>Benutzerlimit</p>
-                                        <input type="text" placeholder="Benutzerlimit (-1 für unbegrenzt)" value={channel.limit} data-required />
+                                        <p>Benutzerlimit (-1 für unbegrenzt)</p>
+										<input type="text" placeholder="Benutzerlimit" value={channel.limit} data-required />
+										
                                         <p>Passwort</p>
-                                        <input type="password" placeholder="Passwort (optional)" value={channel.password} />
-                                        <p>Art des Channels</p>
+										<input type="password" placeholder="Passwort (optional)" value={channel.password} />
+										
+                                        <p>Channel-Art</p>
                                         <metro-combo-box>
                                             <select>
                                                 { /* <option value="Temporary" selected={channel.lifetime == 'Temporary'}>Temporär</option> */ }
@@ -465,7 +449,33 @@ export default {
 					break;
 				default: break;
 			}
-        },
+		},
+		
+		async deleteChannel(channel) {
+            var deleteChannelDialog = new metroUI.ContentDialog({
+				title: "Channel löschen",
+				content: (() => {
+					return (
+						<div>
+							<p>Bist du sicher, dass du diesen Channel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+							<br />
+							<p>Alle Mitglieder, die diesen Channel aktuell geöffnet haben, werden in den Hauptchannel verschoben.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
+			});
+
+            var result = await deleteChannelDialog.showAsync();
+            
+            if (result == metroUI.ContentDialogResult.Primary) {
+                SocketService.send({
+                    type: PackageType.DeleteChannel,
+                    content: channel.internalId
+                });
+            }
+		},
+		
 		async enterChannel(channelId) {
 			if (this.currentChannel.internalId === channelId) {
 				return;
@@ -519,36 +529,81 @@ export default {
                     buttons: [],
                 }).show();
             }
-        },
-        async deleteChannel(channel) {
-            var deleteChannelDialog = new metroUI.ContentDialog({
-				title: "Channel löschen",
+		},
+		
+		userListItemClicked(memberId) {
+			let user = this.userList.find(_ => _.internalId === memberId);
+
+			if (user && user.identity.id.localeCompare(this.currentIdentity.id) != 0) {
+				this.$refs["messageContainer"].$refs["input"].value += `@${user.identity.id} `;
+				this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
+				this.$refs["messageContainer"].$refs["input"].focus();
+			}
+		},
+		
+		userListItemContextClicked(event, memberId) {
+			let isCurrentUser = this.userList.find(_ => _.internalId === memberId).identity.id == this.currentIdentity.id;
+
+			var flyout = new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Private Nachricht",
+					icon: "chat-bubbles",
+					disabled: isCurrentUser
+				},
+				{
+					title: "Bestrafen",
+                    icon: "block-contact",
+                    disabled: isCurrentUser || (!this.canModerateKick && !this.canModerateBan),
+					action: () => { this.createPunishment(memberId) }
+				}
+			]);
+			flyout.show();
+		},
+
+		async createPunishment(memberId) {
+			console.log(memberId);
+			var punishmentDialog = new metroUI.ContentDialog({
+				title: "Nutzer bestrafen",
 				content: (() => {
 					return (
 						<div>
-							<p>Bist du sicher, dass du diesen Channel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
-							<br />
-							<p>Alle Mitglieder, die diesen Channel aktuell geöffnet haben, werden in den Hauptchannel verschoben.</p>
+							<p>Wähle die Art der Bestrafung:</p>
+							<metro-combo-box>
+								<select>
+                                    {/*<option value="mute">Stummschalten</option>*/}
+                                    {this.allowedPunishments.map(p => {
+                                        return (
+                                            <option value={p.value}>{p.label}</option>
+                                        )})
+                                    }
+								</select>
+							</metro-combo-box>
 						</div>
 					)
 				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
+				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-
-            var result = await deleteChannelDialog.showAsync();
-            
-            if (result == metroUI.ContentDialogResult.Primary) {
-                SocketService.send({
-                    type: PackageType.DeleteChannel,
-                    content: channel.internalId
-                });
-            }
-		},
+			
+			switch (await punishmentDialog.showAsync()) {
+				case metroUI.ContentDialogResult.Primary:
+                    SocketService.send({
+                        type: PackageType.CreatePunishment,
+                        content: {
+                            target: memberId,
+                            action: punishmentDialog.text
+                        }
+			        });
+					break;
+				default: break;
+			}
+        },
+        
+		
 		emojiPickerRequested(target) {
 			this.$refs["emojiPicker"].toggle(target);
 		},
 		emojiPicked(char) {
-			this.$refs["messageContainer"].$refs["input"].value += `${char} `;
+			this.$refs["messageContainer"].$refs["input"].value += `${char}`;
 			this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
 			this.$refs["messageContainer"].$refs["input"].focus();
 		},
@@ -561,65 +616,48 @@ export default {
                 }
 			});
 		},
-		sortMemberList(memberIds) {
+		
+		sortedMemberList(memberIds) {
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
 				}
 				return 0;
 			});
-		},
-		userListItemClicked(memberId) {
-			let user = this.userList.find(_ => _.internalId === memberId);
-
-			if (user && user.identity.id.localeCompare(this.currentIdentity.id) != 0) {
-				this.$refs["messageContainer"].$refs["input"].value += `@${user.identity.id} `;
-				this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
-				this.$refs["messageContainer"].$refs["input"].focus();
-			}
-		},
-		userListItemContextClicked(event, memberId) {
-			let isCurrentUser = this.userList.find(_ => _.internalId === memberId).identity.id == this.currentIdentity.id;
-
-			var flyout = new metroUI.MenuFlyout(event.target, [
-				{
-					title: "Private Nachricht",
-					icon: "chat-bubbles",
-					disabled: true || isCurrentUser
-				},
-				{
-					title: "Bestrafen",
-                    icon: "block-contact",
-                    disabled: isCurrentUser || !PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions),
-					action: this.createPunishment,
-					actionParams: memberId
-				}
-			]);
-			flyout.show();
 		}
 	},
 	computed: {
+		canCreateChannel() { return PermissionService.hasPermission("neo.channel.create", this.$store.state.grantedPermissions); },
+		canDeleteChannel() { return PermissionService.hasPermission("neo.channel.delete", this.$store.state.grantedPermissions); },
+		canEditChannel() { return PermissionService.hasPermission("neo.channel.edit", this.$store.state.grantedPermissions); },
+		canJoinChannel() { return PermissionService.hasPermission("neo.channel.join", this.$store.state.grantedPermissions); },
+		canJoinChannelIgnoreBlacklist() { return PermissionService.hasPermission("neo.channel.join.ignoreblacklist", this.$store.state.grantedPermissions); },
+		canJoinChannelIgnoreLimit() { return PermissionService.hasPermission("neo.channel.join.ignorelimit", this.$store.state.grantedPermissions); },
+		canJoinChannelIgnorePassword() { return PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions); },
+		canJoinChannelIgnoreWhitelist() { return PermissionService.hasPermission("neo.channel.join.ignorewhitelist", this.$store.state.grantedPermissions); },
+		canReadMessages() { return PermissionService.hasPermission("neo.global.read", this.$store.state.grantedPermissions); },
+		canWriteMessages() { return PermissionService.hasPermission("neo.global.write", this.$store.state.grantedPermissions); },
+		canCreateGroup() { return PermissionService.hasPermission("neo.group.create", this.$store.state.grantedPermissions); },
+		canDeleteGroup() { return PermissionService.hasPermission("neo.group.delete", this.$store.state.grantedPermissions); },
+		canModerateBan() { return PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions); },
+		canModerateKick() { return PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions); },
+		
         allowedPunishments() {
             let punishments = [];
 
-            if (PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions)) {
+            if (this.canModerateKick) {
                 punishments.push({ value: "kick", label: "Kicken" });
             }
             
-            if (PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions)) {                
+            if (PermissionService.canModerateBan) {                
                 punishments.push({ value: "ban", label: "Bannen" });
             }
 
             return punishments;
-        },
-        canCreateChannel() {
-            return PermissionService.hasPermission("neo.channel.create", this.$store.state.grantedPermissions);
-        },
-        canWrite() {
-            return PermissionService.hasPermission("neo.global.write", this.$store.state.grantedPermissions);
-        },
+		},
+		
 		currentIdentity() {
-			return this.$store.state.identity;
+			return this.$store.state.currentIdentity;
 		},
 		currentChannel() {
 			return this.$store.state.currentChannel;
@@ -631,7 +669,7 @@ export default {
 			return this.$store.state.groupList;
 		},
 		lastUpdate() {
-			return this.$store.state.lastUpdate;
+			return this.$store.state.lastUpdated;
 		},
 		sortedGroupList() {
 			return this.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);

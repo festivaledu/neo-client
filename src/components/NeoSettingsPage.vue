@@ -19,12 +19,7 @@
 			</template>
 
 			<template slot="pages">
-				<div class="page" data-page-id="info" data-page-title="Über">
-					<p class="metro-ui-version-string" />
-				</div>
-
 				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein">
-
 					<template v-for="(value, key, index) in settingsModel">
 						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
 							<template v-if="typeof(value) == 'boolean'">
@@ -58,6 +53,20 @@
                             </div>
                         </div>
                     </template>
+				</div>
+				
+				<div class="page" data-page-id="info" data-page-title="Über">
+					<h4>neoChat-Informationen</h4>
+					<p>{{ packageJson.productName }} {{ packageJson.version }}</p>
+					<p>Abhängigkeiten: </p>
+					<template>
+						<p class="detail-text-label" v-for="(value, key) in packageJson.dependencies" :key="key">
+							{{ key }}: {{ value }}
+						</p>
+					</template>
+					
+					<h4>metroUI-Informationen</h4>
+					<p class="metro-ui-version-string" />
 				</div>
 
 				<template v-for="group in this.sortedGroupList">
@@ -240,128 +249,28 @@
 <script>
 import Vue from "vue";
 
-import { SocketService } from "@/scripts/SocketService";
-import PackageType from '@/scripts/PackageType';
+import { SocketService } from '@/scripts/SocketService'
+import PackageType from '@/scripts/PackageType'
+
+import packageJson from '@/../package.json'
 
 export default {
 	name: "NeoSettingsPage",
 	data() {
 		return {
-			demoPermission: "inherit",
-			demoPermission2: "deny",
 			permissionToAdd: "",
 			settingsModel: {},
-			settingsTitles: {}
+			settingsTitles: {},
+			packageJson: packageJson
 		}
 	},
 	mounted() {
+		this.openSettings('server');
 		this.$refs["settingsView"].navigate("server_settings_general");
 
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
-		_userById(userId) {
-			return this.accountList.find(_ => _.internalId === userId);
-		},
-		
-		async addGroup() {
-			var addGroupDialog = new metroUI.ContentDialog({
-				title: "Gruppe hinzufügen",
-				content: (() => {
-					return (
-						<div>
-							<input type="text" data-required="true" placeholder="Gruppen-Name (z.B. Mitarbeiter)"/>
-							<input type="text" data-minlength="3" placeholder="Gruppen-ID (z.B. employees)"/>
-
-							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
-							<metro-combo-box>
-								<select>
-									{this.sortedGroupList.reverse().map(group => {
-										return (
-											<option value={group.internalId}>{group.name}</option>
-										)
-									})}
-								</select>
-							</metro-combo-box>
-						</div>
-					)
-				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Gruppe erstellen", primary: true }]
-			});
-			
-			var result = await addGroupDialog.showAsync();
-
-			if (result == metroUI.ContentDialogResult.Primary) {
-                SocketService.send({
-                    type: PackageType.CreateGroup,
-                    content: {
-                        name: addGroupDialog.text[0],
-                        id: addGroupDialog.text[1],
-                        sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
-                    }
-                });
-			}
-        },
-        async addMember(group) {
-			var addMemberDialog = new metroUI.ContentDialog({
-				title: "Mitglied hinzufügen",
-				content: (() => {
-					return (
-						<div>
-							<p>Wählen den Benutzer, den du der Gruppe hinzufügen möchtest:</p>
-							<metro-combo-box>
-								<select>
-									{this.accountList.filter(a => !group.memberIds.includes(a.internalId) && (!a.attributes["neo.usertype"] || a.attributes["neo.usertype"] != "root")).map(a => {
-										return (
-											<option value={a.internalId}>{a.identity.name} (@{a.identity.id})</option>
-										)
-									})}
-								</select>
-							</metro-combo-box>
-						</div>
-					)
-				})(),
-				commands: [{ text: "Abbrechen" }, { text: "Mitglied hinzufügen", primary: true }]
-			});
-			
-			var result = await addMemberDialog.showAsync();
-
-			if (result == metroUI.ContentDialogResult.Primary) {
-			    let index = this.sortedGroupList.indexOf(group);
-                this.$set(group.memberIds, group.memberIds.length, addMemberDialog.text);
-			    this.$set(this.sortedGroupList, index, group);
-			}
-		},
-		addPermission(group) {
-			let index = this.sortedGroupList.indexOf(group);
-
-			this.$set(group.permissions, this.permissionToAdd, "Inherit");
-			this.$set(this.sortedGroupList, index, group);
-
-			this.permissionToAdd = "";
-        },
-        deleteMember(group, memberId) {
-            let index = this.sortedGroupList.indexOf(group);
-
-			this.$delete(group.memberIds, group.memberIds.indexOf(memberId));
-			this.$set(this.sortedGroupList, index, group);
-        },
-		deletePermission(group, permission) {
-			let index = this.sortedGroupList.indexOf(group);
-
-			this.$delete(group.permissions, permission);
-			this.$set(this.sortedGroupList, index, group);
-		},
-		moreButtonClicked(event) {
-			var flyout = new metroUI.MenuFlyout(event.target, [
-				{
-					title: "Gruppe hinzufügen",
-					icon: "add",
-					action: this.addGroup
-				}
-			]);
-			flyout.show();
-		},
 		onPackage(packageObj) {			
 			switch (packageObj.type) {
 				case PackageType.OpenSettingsResponse:
@@ -446,6 +355,18 @@ export default {
 				default: break;
 			}
 		},
+		
+		moreButtonClicked(event) {
+			var flyout = new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Gruppe hinzufügen",
+					icon: "add",
+					action: this.addGroup
+				}
+			]);
+			flyout.show();
+		},
+		
 		openSettings(settings) {
 			SocketService.send({
 				type: PackageType.OpenSettings,
@@ -461,6 +382,48 @@ export default {
 				}
 			});
 		},
+		
+		_userById(userId) {
+			return this.accountList.find(_ => _.internalId === userId);
+		},
+		
+		async addGroup() {
+			var addGroupDialog = new metroUI.ContentDialog({
+				title: "Gruppe hinzufügen",
+				content: (() => {
+					return (
+						<div>
+							<input type="text" data-required placeholder="Gruppen-Name (z.B. Mitarbeiter)"/>
+							<input type="text" data-minlength="3" placeholder="Gruppen-ID (z.B. employees)"/>
+
+							<p>Wähle die Gruppe, von der die neue Gruppe erben soll:</p>
+							<metro-combo-box>
+								<select>
+									{this.sortedGroupList.reverse().map(group => {
+										return (
+											<option value={group.internalId}>{group.name}</option>
+										)
+									})}
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Gruppe erstellen", primary: true }]
+			});
+			
+			if (await addGroupDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
+                SocketService.send({
+                    type: PackageType.CreateGroup,
+                    content: {
+                        name: addGroupDialog.text[0],
+                        id: addGroupDialog.text[1],
+                        sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
+                    }
+                });
+			}
+		},
+		
 		async deleteGroup(group) {
 			var deleteGroupDialog = new metroUI.ContentDialog({
 				title: "Gruppe löschen",
@@ -484,8 +447,38 @@ export default {
                     content: group.internalId
                 });
             }
-        },
-        async deleteBan(bannedId) {
+		},
+		
+        async addMember(group) {
+			var addMemberDialog = new metroUI.ContentDialog({
+				title: "Mitglied hinzufügen",
+				content: (() => {
+					return (
+						<div>
+							<p>Wählen den Benutzer, den du der Gruppe hinzufügen möchtest:</p>
+							<metro-combo-box>
+								<select>
+									{this.accountList.filter(a => !group.memberIds.includes(a.internalId) && (!a.attributes["neo.usertype"] || a.attributes["neo.usertype"] != "root")).map(a => {
+										return (
+											<option value={a.internalId}>{a.identity.name} (@{a.identity.id})</option>
+										)
+									})}
+								</select>
+							</metro-combo-box>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Mitglied hinzufügen", primary: true }]
+			});
+
+			if (await addMemberDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
+			    let index = this.sortedGroupList.indexOf(group);
+                this.$set(group.memberIds, group.memberIds.length, addMemberDialog.text);
+			    this.$set(this.sortedGroupList, index, group);
+			}
+		},
+		
+		async deleteBan(bannedId) {
 			let deleteBanDialog = new metroUI.ContentDialog({
 				title: "Bann aufheben",
 				content: (() => {
@@ -509,7 +502,30 @@ export default {
 					break;
 				default: break;
 			}
-        }
+		},
+		
+		deleteMember(group, memberId) {
+            let index = this.sortedGroupList.indexOf(group);
+
+			this.$delete(group.memberIds, group.memberIds.indexOf(memberId));
+			this.$set(this.sortedGroupList, index, group);
+		},
+		
+		addPermission(group) {
+			let index = this.sortedGroupList.indexOf(group);
+
+			this.$set(group.permissions, this.permissionToAdd, "Inherit");
+			this.$set(this.sortedGroupList, index, group);
+
+			this.permissionToAdd = "";
+		},
+		
+		deletePermission(group, permission) {
+			let index = this.sortedGroupList.indexOf(group);
+
+			this.$delete(group.permissions, permission);
+			this.$set(this.sortedGroupList, index, group);
+		}
 	},
 	computed: {
         accountList() {
