@@ -2011,6 +2011,7 @@ var PersonPicture = {
 				}
 
 			} else if (this.$props.profilePicture) {
+				this.$data._initials = null;
 				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}
 		}
