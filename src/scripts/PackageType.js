@@ -28,11 +28,11 @@ export default {
 	 */
 	MemberLogin: 6,
 	/**
-	 * The Package contains an Identity.
+	 * The Package contains an identity.
 	 */
 	GuestLogin: 7,
 	/**
-	 * The Package contains a status message and an Identity if the login was successful.
+	 * The Package contains a status message and an identity if the login was successful.
 	 */
 	LoginResponse: 8,
 	/**
@@ -44,19 +44,19 @@ export default {
 	 */
 	Message: 10,
 	/**
-	 * The Package contains nothing but informs the server that the Client has finished rendering.
+	 * The Package contains nothing but informs the server that the client has finished rendering.
 	 */
 	LoginFinished: 11,
 	/**
-	 * The Package contains a list of all Channels.
+	 * The Package contains a list of all channels.
 	 */
 	ChannelListUpdate: 12,
 	/**
-	 * The Package contains a list of all Groups.
+	 * The Package contains a list of all groups.
 	 */
 	GroupListUpdate: 13,
 	/**
-	 * The Package contains a list of all Users.
+	 * The Package contains a list of all users.
 	 */
 	UserListUpdate: 14,
 	/**
@@ -106,7 +106,7 @@ export default {
 	 */
 	CreatePunishment: 27,
 	/**
-	 * The Package contains a list of all Accounts.
+	 * The Package contains a list of all accounts.
 	 */
 	AccountListUpdate: 28,
 	/**
@@ -126,11 +126,11 @@ export default {
 	 */
 	CreateGroupResponse: 32,
 	/**
-	 * The Package contains a list of all the Permissions the user has been granted.
+	 * The Package contains a list of all the permissions the user has been granted.
 	 */
 	GrantedPermissionsUpdate: 33,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Group to delete.
+	 * The Package contains a guid of the group to delete.
 	 */
 	DeleteGroup: 34,
 	/**
@@ -138,7 +138,7 @@ export default {
 	 */
 	DeleteGroupResponse: 35,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Channel to delete.
+	 * The Package contains a guid of the channel to delete.
 	 */
 	DeleteChannel: 36,
 	/**
@@ -146,7 +146,7 @@ export default {
 	 */
 	DeleteChannelResponse: 37,
 	/**
-	 * The Package contains a Guid"/> of the <see cref="Account to unban.
+	 * The Package contains a guid of the account to unban.
 	 */
 	DeletePunishment: 38
 }
