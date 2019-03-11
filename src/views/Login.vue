@@ -156,15 +156,15 @@ export default {
 
 			if (this.knownServers.indexOf(this.serverAddress) < 0) {
 				this.knownServers.push(this.serverAddress);
-				
+
 				if (this.knownServers.length >= 4) {
 					this.knownServers.splice(0, 1);
 				}
-				
+
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
-            }
-            
-            this.$store.commit("setServerAddress", this.serverAddress);
+			}
+
+			this.$store.commit("setServerAddress", this.serverAddress);
 
 			SocketService.send({
 				type: PackageType.Meta
@@ -176,13 +176,13 @@ export default {
 			SocketService.$off("open");
 			SocketService.$off("close");
 			SocketService.$off("package");
-			
+
 			this.socket = null;
 			this.$router.replace("/login");
 		},
 		onError(error) {
 			this.isConnecting = false;
-			
+
 			new metroUI.ContentDialog({
 				title: "Verbindungsfehler",
 				content: "neoChat konnte sich nicht mit dem angegebenen Server verbinden.",
@@ -279,11 +279,11 @@ export default {
 			if (this.socket) {
 				return;
 			}
-			
+
 			this.isConnecting = true;
 			SocketService.connect(`ws://${this.serverAddress}:42420/neo`);
 		},
-		
+
 		loginAsGuest() {
 			this.isWorking = true;
 			SocketService.send({
@@ -302,7 +302,7 @@ export default {
 				return;
 			}
 			document.activeElement.blur();
-			
+
 			this.isWorking = true;
 			SocketService.send({
 				type: PackageType.MemberLogin,
@@ -312,7 +312,7 @@ export default {
 				}
 			});
 		},
-		
+
 		async register() {
 			var registerDialog = new metroUI.ContentDialog({
 				title: "Registrieren",
@@ -336,7 +336,7 @@ export default {
 				let texts = registerDialog.text;
 				if (texts[3].localeCompare(texts[4]) != 0) {
 					new metroUI.ContentDialog({
-						title: "Fehler", 
+						title: "Fehler",
 						content: "Die angegeben Passwörter stimmen nicht überein.",
 						commands: [{ text: "Ok", primary: true }]
 					}).show();

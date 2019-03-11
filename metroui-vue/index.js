@@ -342,13 +342,13 @@ metroUI.ContentDialog = class {
 		let content = document.createElement("div");
 		content.className = "content";
 		dialog.container.appendChild(content);
-		
+
 		if (params.title && params.title.length) {
 			let title = document.createElement("h4");
 			title.innerText = params.title;
 			content.appendChild(title);
 		}
-		
+
 		if (params.content) {
 			if (typeof params.content === "object") {
 				content.appendChild(new NodeRenderer(params.content));
@@ -365,7 +365,7 @@ metroUI.ContentDialog = class {
 				}
 			}
 		}
-		
+
 		if (params.commands && params.commands.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
@@ -397,11 +397,11 @@ metroUI.ContentDialog = class {
 
 				commands.appendChild(command);
 			});
-			
+
 			content.querySelectorAll("input, select").forEach(item => {
 				item.addEventListener("input", () => {
 					let primaryCommand = commands.querySelector(".primary");
-					
+
 					if (primaryCommand) {
 						primaryCommand.disabled = [...content.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 					}
@@ -422,10 +422,10 @@ metroUI.ContentDialog = class {
 		}
 
 		document.body.appendChild(dialog.container);
-		
+
 		dialog.container.style.width = `${Math.round(dialog.container.clientWidth / 2) * 2}px`;
 		dialog.container.style.height = `${Math.round(dialog.container.clientHeight / 2) * 2}px`;
-		
+
 		dialog.container.classList.add("animate-in");
 	}
 
@@ -596,7 +596,7 @@ metroUI.MenuFlyout = class {
 
 /**
  * Show a notification containing either text or rich content
- * 
+ *
  * @param {Object} params An object containg all parameters for this notification ([payload], [icon], title, content, [inputs], [buttons])
  */
 metroUI.Notification = class {
@@ -639,11 +639,11 @@ metroUI.Notification = class {
 			if (e.target == notification.container) {
 				clearTimeout(notification._displayTimeout);
 				notification.container.classList.remove("active-state");
-				
+
 				if (typeof notification._dismissAction === "function") {
 					notification._dismissAction(notification.payload);
 			}
-				
+
 				notification.hide("dismissing");
 			}
 		});
@@ -740,15 +740,15 @@ metroUI.Notification = class {
 				buttons.appendChild(button);
 			});
 		}
-		
+
 		inputs.querySelectorAll("input, select").forEach(item => {
 			item.addEventListener("input", () => {
 				clearTimeout(notification._displayTimeout);
 				notification._displayTimeout = null;
 				notification.container.removeEventListener("mouseout", notification.___mouseoutListener);
-				
+
 				let validatedButton = buttons.querySelector(".validated");
-				
+
 				if (validatedButton) {
 					validatedButton.disabled = [...inputs.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 				}
@@ -773,7 +773,7 @@ metroUI.Notification = class {
 
 	_removeFromParent() {
 		const notification = this;
-		
+
 		setTimeout(() => {
 			notification.notificationCenter.removeChild(notification.wrapper);
 
@@ -1189,7 +1189,7 @@ var ComboBox = {
 				}
 
 				item.classList.add("selected");
-				
+
 				this._hide();
 
 				if (item.hasAttribute("data-value")) {
@@ -1214,7 +1214,7 @@ var ComboBox = {
 				this.$refs["list"].style.top = "";
 			}
 		},
-		
+
 		_show(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
@@ -1242,7 +1242,7 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
-			
+
 			this.eventListener = this._hide.bind(this);
 
 			document.addEventListener("click", this.eventListener, true);
@@ -1370,21 +1370,21 @@ var ListView = {
 						});
 					}
 				});
-	
+
 				this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
 			}
-	
+
 			this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
 				if (item.hasAttribute("data-page")) {
 					this.$data._items[item.getAttribute("data-page")] = item;
-	
+
 					item.addEventListener("click", () => {
 						this.navigate(item.getAttribute("data-page"));
 					});
 				}
 			});
 		},
-		
+
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1461,13 +1461,13 @@ var ListView = {
 
 /**
  * A popup that shows a list of selectable emojis (Unicode 11.0)
- * 
+ *
  */
 var EmojiPicker = {
 	name: "metro-emoji-picker",
 	render(h) {
 		return (
-			<div class="emoji-picker" ref="picker">				
+			<div class="emoji-picker" ref="picker">
 				<div class="emoji-container">
 					{emoji.map(item => {
 						return (
@@ -1484,11 +1484,11 @@ var EmojiPicker = {
 		_emojiPicked(event) {
 			this.$emit("emojiPicked", event.target.dataset.char)
 		},
-		
+
 		toggle(eventTarget) {
 			this.$refs["picker"].classList.toggle("show");
 			// eventTarget.classList.toggle("colored");
-			
+
 			let offset = (cumulativeOffset(eventTarget));
 			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
 			this.$el.style.left = `${offset.left - (this.$el.clientWidth / 2) - (eventTarget.clientWidth / 2)}px`;
@@ -1628,11 +1628,11 @@ var Messages = {
 			messageText = messageText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
 				return '&#'+i.charCodeAt(0)+';';
 			 });
-			 
+
 			 if (typeof this.onMessageRender === "function") {
 				messageText = this.onMessageRender(messageText);
 			}
-			
+
 			return messageText
 		},
 
@@ -1687,7 +1687,7 @@ var Messages = {
 			});
 		},
 		/**
-		 * 
+		 *
 		 */
 		setMessages(messageData) {
 			this.$data.messages = [];
@@ -1695,12 +1695,12 @@ var Messages = {
 				this.addMessage(messageObj);
 			});
 		}
-    },
-    watch: {
-        inputDisabled(newValue, oldValue) {
-            this.$data._inputDisabled = newValue;
-        }
-    }
+	},
+	watch: {
+		inputDisabled(newValue, oldValue) {
+			this.$data._inputDisabled = newValue;
+		}
+	}
 };
 
 /**
@@ -1777,16 +1777,16 @@ var NavigationView = {
 					});
 				}
 			});
-	
+
 			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-	
+
 			this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
 				if (item.hasAttribute("data-page")) {
 					this.$data._items[item.getAttribute("data-page")] = item;
-	
+
 					item.addEventListener("click", () => {
 						this.navigate(item.getAttribute("data-page"));
-	
+
 						if (window.innerWidth < 1008) {
 							this.$refs["menu"].classList.remove("expanded");
 						} else if (this.$props.startRetracted) {
@@ -1796,7 +1796,7 @@ var NavigationView = {
 				}
 			});
 		},
-		
+
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -2003,13 +2003,13 @@ var PersonPicture = {
 				this.$data._initials = this.$props.initials.toUpperCase();
 			} else if (this.$props.displayName) {
 				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-0-9_ ]/g, "").match(/\b\w/g);
-	
+
 				if (initials.length > 1) {
 					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
 				} else if (initials.length) {
 					this.$data._initials = initials[0];
 				}
-	
+
 			} else if (this.$props.profilePicture) {
 				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}

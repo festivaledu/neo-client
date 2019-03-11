@@ -5,8 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
-        serverName: "",
-        serverAddress: "",
+		serverName: "",
+		serverAddress: "",
 		currentAccount: null,
 		currentIdentity: null,
 		userList: [],
@@ -14,9 +14,9 @@ export default new Vuex.Store({
 		groupList: [],
 		channelList: [],
 		currentChannel: null,
-        knownPermissions: {},
-        grantedPermissions: {},
-		
+		knownPermissions: {},
+		grantedPermissions: {},
+
 		lastUpdated: new Date()
 	},
 	mutations: {
@@ -25,24 +25,24 @@ export default new Vuex.Store({
 
 			state.lastUpdated = new Date();
 		},
-		
-	
-	
+
+
+
 		setCurrentAccount(state, account) {
 			state.currentAccount = account;
-			
+
 			state.lastUpdated = new Date();
 		},
 		setCurrentIdentity(state, identity) {
 			state.currentIdentity = identity;
-			
+
 			state.lastUpdated = new Date();
 		},
-		
-		
+
+
 		setUserList(state, userList) {
 			state.userList = userList;
-			
+
 			state.lastUpdated = new Date();
 		},
 		setAccountList(state, accountList) {
@@ -52,7 +52,7 @@ export default new Vuex.Store({
 		},
 		setGroupList(state, groupList) {
 			state.groupList = groupList;
-			
+
 			state.lastUpdated = new Date();
 		},
 		setChannelList(state, channelList) {
@@ -61,29 +61,29 @@ export default new Vuex.Store({
 			if (state.currentChannel) {
 				state.currentChannel = channelList.find(channel => channel.internalId == state.currentChannel.internalId);
 			}
-			
+
 			state.lastUpdated = new Date();
 		},
-		
-		
-		
+
+
+
 		setCurrentChannel(state, channel) {
 			state.currentChannel = channel;
-			
+
 			state.lastUpdated = new Date();
 		},
-		
-		
-		
+
+
+
 		setKnownPermissions(state, permissions) {
 			state.knownPermissions = permissions;
-			
+
 			state.lastUpdated = new Date();
 		},
-        setGrantedPermissions(state, permissions) {
-            state.grantedPermissions = permissions;
+		setGrantedPermissions(state, permissions) {
+			state.grantedPermissions = permissions;
 
-            state.lastUpdated = new Date();
-        }
+			state.lastUpdated = new Date();
+		}
 	}
 });

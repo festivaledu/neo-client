@@ -5,7 +5,7 @@
 				<metro-navigation-view-menu-item page="profile_general" icon="contact" title="Allgemein" />
 				<metro-navigation-view-menu-item page="profile_colors" icon="color" title="Farben" />
 			</template>
-			
+
 			<template slot="bottom-items">
 				<metro-navigation-view-menu-item icon="ethernet-error" title="Abmelden" @click.native.prevent="signOut" />
 			</template>
@@ -75,12 +75,12 @@ export default {
 	name: "NeoProfilePage",
 	mounted() {
 		this.$refs["profileSettingsView"].navigate("profile_general");
-		
+
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		onPackage(packageObj) {
-			switch (packageObj.type) {				
+			switch (packageObj.type) {
 				case PackageType.EditProfileResponse:
 
 					if (!packageObj.content.account && !packageObj.content.identity && packageObj.content.request.key !== "password") {
@@ -100,7 +100,7 @@ export default {
 						}).show();
 						return;
 					}
-					
+
 					if (packageObj.content.account) {
 						this.$store.commit("setCurrentAccount", packageObj.content.account);
 					}
@@ -108,7 +108,7 @@ export default {
 					if (packageObj.content.identity) {
 						this.$store.commit("setIdentity", packageObj.content.identity);
 					}
-					
+
 					new metroUI.Notification({
 						payload: {},
 						title: "Profil geändert",
@@ -182,7 +182,7 @@ export default {
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			
+
 			if (await signOutDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.socket.close();
 			}
@@ -235,7 +235,7 @@ export default {
 		},
 		async changeEmail() {
 			var changeEmailDialog = new metroUI.ContentDialog({
-				title: "E-Mail-Adresse ändern", 
+				title: "E-Mail-Adresse ändern",
 				content: (() => {
 					return (
 						<div>
@@ -304,9 +304,9 @@ export default {
 		currentIdentity() {
 			return this.$store.state.currentIdentity;
 		},
-        serverAddress() {
-            return this.$store.state.serverAddress;
-        }
+		serverAddress() {
+			return this.$store.state.serverAddress;
+		}
 	}
 }
 </script>

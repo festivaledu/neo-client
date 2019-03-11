@@ -24,9 +24,9 @@ export default {
 	name: "NeoChannelUserListItem",
 	props: ["memberId"],
 	computed: {
-        serverAddress() {
-            return this.$store.state.serverAddress;
-        },
+		serverAddress() {
+			return this.$store.state.serverAddress;
+		},
 		user() {
 			return this.$store.state.userList.find(_ => _.internalId === this.memberId);
 		},

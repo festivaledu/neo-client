@@ -37,24 +37,24 @@
 				</div>
 
 				<div class="page" data-page-id="server_settings_bans" data-page-title="Gebannte Benutzer">
-                    <!-- <h4>Aktive Banns</h4> -->
-                    <p v-if="!bannedAccountList.length">Es sind derzeit keine Benutzer gebannt.</p>
-                    <template v-else>
-                        <div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
-                            <div class="row" style="margin-bottom: 12px; margin-right: 5px">
-                                <div class="col col-4">
-                                    <metro-person-picture :displayName="_userById(banned.internalId).identity.avatarFileExtension ? null : _userById(banned.internalId).identity.name" :profile-picture="_userById(banned.internalId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${banned.internalId}${_userById(banned.internalId).identity.avatarFileExtension}` : null" />
-                                    <p class="text-label">{{ _userById(banned.internalId).identity.name }}</p>
-                                    <p class="detail-text-label">@{{ _userById(banned.internalId).identity.id }}</p>
-                                </div>
-                                <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
-                                    <button @click="deleteBan(banned.internalId)" style="margin: 0"><i class="icon delete"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
+					<!-- <h4>Aktive Banns</h4> -->
+					<p v-if="!bannedAccountList.length">Es sind derzeit keine Benutzer gebannt.</p>
+					<template v-else>
+						<div v-for="(banned, index) in bannedAccountList" :key="banned.internalId + '-banned-' + index">
+							<div class="row" style="margin-bottom: 12px; margin-right: 5px">
+								<div class="col col-4">
+									<metro-person-picture :displayName="_userById(banned.internalId).identity.avatarFileExtension ? null : _userById(banned.internalId).identity.name" :profile-picture="_userById(banned.internalId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${banned.internalId}${_userById(banned.internalId).identity.avatarFileExtension}` : null" />
+									<p class="text-label">{{ _userById(banned.internalId).identity.name }}</p>
+									<p class="detail-text-label">@{{ _userById(banned.internalId).identity.id }}</p>
+								</div>
+								<div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+									<button @click="deleteBan(banned.internalId)" style="margin: 0"><i class="icon delete"></i></button>
+								</div>
+							</div>
+						</div>
+					</template>
 				</div>
-				
+
 				<div class="page" data-page-id="info" data-page-title="Über">
 					<h4>neoChat-Informationen</h4>
 					<p>{{ packageJson.productName }} {{ packageJson.version }}</p>
@@ -64,7 +64,7 @@
 							{{ key }}: {{ value }}
 						</p>
 					</template>
-					
+
 					<h4>metroUI-Informationen</h4>
 					<p class="metro-ui-version-string" />
 				</div>
@@ -97,40 +97,40 @@
 								</template>
 							</div>
 						</template>
-                        <template v-else>                            
-					        <button @click="deleteGroup(group)">Gruppe löschen</button>
-                        </template>
+						<template v-else>
+							<button @click="deleteGroup(group)">Gruppe löschen</button>
+						</template>
 
 						<h4>Allgemein</h4>
 						<p class="text-label">Name</p>
 						<input type="text" v-model="group.name" />
-						
+
 						<p class="text-label">Gruppen-ID</p>
 						<input type="text" v-model="group.id" />
-						
+
 						<p class="text-label">Wertigkeit</p>
 						<p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
 						<input type="text" v-model="group.sortValue" />
-						
-                        <template v-if="!group.attributes['neo.grouptype'] || group.attributes['neo.grouptype'] != 'guest'">
-                            <h4>Mitglieder</h4>
-                            <p class="detail-text-label" v-if="!group.memberIds.length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
-                            <template v-if="accountList.length && group.memberIds.length">
-                                <div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
-                                    <div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
-                                        <div class="col col-4">
-                                            <metro-person-picture :displayName="_userById(memberId).identity.avatarFileExtension ? null : _userById(memberId).identity.name" :profile-picture="_userById(memberId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${memberId}${_userById(memberId).identity.avatarFileExtension}` : null" />
-                                            <p class="text-label">{{ _userById(memberId).identity.name }}</p>
-                                            <p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
-                                        </div>
-                                        <div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
-                                            <button @click="deleteMember(group, memberId)" style="margin: 0"><i class="icon delete"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                            <button @click="addMember(group)" style="margin-top: 6px" :disabled="group.memberIds.length >= accountList.length - 1">Mitglied hinzufügen</button>
-                        </template>
+
+						<template v-if="!group.attributes['neo.grouptype'] || group.attributes['neo.grouptype'] != 'guest'">
+							<h4>Mitglieder</h4>
+							<p class="detail-text-label" v-if="!group.memberIds.length">Diese Gruppe enthält derzeit keine Mitglieder.</p>
+							<template v-if="accountList.length && group.memberIds.length">
+								<div v-for="(memberId, index) in group.memberIds" :key="group.internalId + '-member-' + index">
+									<div class="row" style="margin-bottom: 12px; margin-right: 5px" v-if="_userById(memberId)">
+										<div class="col col-4">
+											<metro-person-picture :displayName="_userById(memberId).identity.avatarFileExtension ? null : _userById(memberId).identity.name" :profile-picture="_userById(memberId).identity.avatarFileExtension ? `http://${serverAddress}:43430/${memberId}${_userById(memberId).identity.avatarFileExtension}` : null" />
+											<p class="text-label">{{ _userById(memberId).identity.name }}</p>
+											<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
+										</div>
+										<div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
+											<button @click="deleteMember(group, memberId)" style="margin: 0"><i class="icon delete"></i></button>
+										</div>
+									</div>
+								</div>
+							</template>
+							<button @click="addMember(group)" style="margin-top: 6px" :disabled="group.memberIds.length >= accountList.length - 1">Mitglied hinzufügen</button>
+						</template>
 
 						<div class="row" style="margin-right: 5px">
 							<div class="col col-5">
@@ -181,7 +181,7 @@
 						<p class="text-label" style="margin-top: 24px">Neue Berechtigung hinzufügen</p>
 						<p class="detail-text-label">Berechtigungen einer Gruppe, die nicht explizit definiert wurden, werden automatisch von Gruppen mit niedrigerer Wertigkeit übernommen.<br />Wenn keine Gruppe mit niedrigerer Wertigkeit die Berechtigung definiert, gilt sie in diesen Gruppen als verweigert.</p>
 						<metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" /><button @click="addPermission(group)">Hinzufügen</button>
-												
+
 						<button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
 					</div>
 				</template>
@@ -220,18 +220,18 @@
 	.detail-text-label {
 		color: var(--base-medium)
 	}
-	
+
 	.row .col .person-picture {
 		float: left;
 		width: 42px;
 		height: 42px;
 		margin-right: 8px;
-		
+
 		&:before {
 			width: 42px;
 			height: 42px;
 		}
-		
+
 		.initials {
 			font-size: 22px !important;
 			padding: 1px 0 !important;
@@ -271,7 +271,7 @@ export default {
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
-		onPackage(packageObj) {			
+		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.OpenSettingsResponse:
 					this.settingsModel = packageObj.content.model;
@@ -286,76 +286,76 @@ export default {
 						inputs: "",
 						buttons: [],
 					}).show();
-                    break;
-                case PackageType.CreateGroupResponse:
-                    if (packageObj.content === "Success") {
-                        new metroUI.Notification({
-                            payload: {},
-                            title: "Einstellungen",
-                            icon: "settings",
-                            content: "Die Gruppe wurde erfolgreich erstellt",
-                            inputs: "",
-                            buttons: [],
-                        }).show();
-                    } else {
-                        new metroUI.ContentDialog({
-                            title: "Gruppe konnte nicht erstellt werden",
-                            content: (() => {
-                            return (
-                                <div>
-                                    {(() => {
-                                        switch (packageObj.content) {
-                                            case "NotAllowed":
-                                                return <p>Du bist nicht berechtigt Gruppen zu erstellen.</p>;
-                                            case "IdInUse":
-                                                return <p>Eine Gruppe mit dieser ID existiert bereits.</p>;
-                                            default: return null
-                                        }
-                                    })()}
-                                </div>
-                            )
-                            })(),
-                            commands: [{ text: "Ok" }]
-                        }).show();
-                    }
-                    break;
-                case PackageType.DeleteGroupResponse:
-                    if (packageObj.content === "Success") {
-                        new metroUI.Notification({
-                            payload: {},
-                            title: "Einstellungen",
-                            icon: "delete",
-                            content: "Die Gruppe wurde erfolgreich gelöscht",
-                            inputs: "",
-                            buttons: [],
-                        }).show();
-		                this.$refs["settingsView"].navigate("info");
-                    } else {
-                        new metroUI.ContentDialog({
-                            title: "Gruppe konnte nicht gelöscht werden",
-                            content: (() => {
-                            return (
-                                <div>
-                                    {(() => {
-                                        switch (packageObj.content) {
-                                            case "NotAllowed":
-                                                return <p>Du bist nicht berechtigt diese Gruppe zu löschen.</p>;
-                                            case "NotFound":
-                                                return <p>Eine Gruppe mit dieser ID existiert nicht.</p>;
-                                            default: return null
-                                        }
-                                    })()}
-                                </div>
-                            )
-                            })(),
-                            commands: [{ text: "Ok" }]
-                        }).show();
-                    }
-                    break;
+					break;
+				case PackageType.CreateGroupResponse:
+					if (packageObj.content === "Success") {
+						new metroUI.Notification({
+							payload: {},
+							title: "Einstellungen",
+							icon: "settings",
+							content: "Die Gruppe wurde erfolgreich erstellt",
+							inputs: "",
+							buttons: [],
+						}).show();
+					} else {
+						new metroUI.ContentDialog({
+							title: "Gruppe konnte nicht erstellt werden",
+							content: (() => {
+							return (
+								<div>
+									{(() => {
+										switch (packageObj.content) {
+											case "NotAllowed":
+												return <p>Du bist nicht berechtigt Gruppen zu erstellen.</p>;
+											case "IdInUse":
+												return <p>Eine Gruppe mit dieser ID existiert bereits.</p>;
+											default: return null
+										}
+									})()}
+								</div>
+							)
+							})(),
+							commands: [{ text: "Ok" }]
+						}).show();
+					}
+					break;
+				case PackageType.DeleteGroupResponse:
+					if (packageObj.content === "Success") {
+						new metroUI.Notification({
+							payload: {},
+							title: "Einstellungen",
+							icon: "delete",
+							content: "Die Gruppe wurde erfolgreich gelöscht",
+							inputs: "",
+							buttons: [],
+						}).show();
+						this.$refs["settingsView"].navigate("info");
+					} else {
+						new metroUI.ContentDialog({
+							title: "Gruppe konnte nicht gelöscht werden",
+							content: (() => {
+							return (
+								<div>
+									{(() => {
+										switch (packageObj.content) {
+											case "NotAllowed":
+												return <p>Du bist nicht berechtigt diese Gruppe zu löschen.</p>;
+											case "NotFound":
+												return <p>Eine Gruppe mit dieser ID existiert nicht.</p>;
+											default: return null
+										}
+									})()}
+								</div>
+							)
+							})(),
+							commands: [{ text: "Ok" }]
+						}).show();
+					}
+					break;
 				default: break;
 			}
 		},
-		
+
 		moreButtonClicked(event) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
@@ -366,7 +366,7 @@ export default {
 			]);
 			flyout.show();
 		},
-		
+
 		openSettings(settings) {
 			SocketService.send({
 				type: PackageType.OpenSettings,
@@ -382,11 +382,11 @@ export default {
 				}
 			});
 		},
-		
+
 		_userById(userId) {
 			return this.accountList.find(_ => _.internalId === userId);
 		},
-		
+
 		async addGroup() {
 			var addGroupDialog = new metroUI.ContentDialog({
 				title: "Gruppe hinzufügen",
@@ -411,19 +411,19 @@ export default {
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Gruppe erstellen", primary: true }]
 			});
-			
+
 			if (await addGroupDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
-                SocketService.send({
-                    type: PackageType.CreateGroup,
-                    content: {
-                        name: addGroupDialog.text[0],
-                        id: addGroupDialog.text[1],
-                        sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
-                    }
-                });
+				SocketService.send({
+					type: PackageType.CreateGroup,
+					content: {
+						name: addGroupDialog.text[0],
+						id: addGroupDialog.text[1],
+						sortValue: this.sortedGroupList.find(g => g.internalId == addGroupDialog.text[2]).sortValue + 1
+					}
+				});
 			}
 		},
-		
+
 		async deleteGroup(group) {
 			var deleteGroupDialog = new metroUI.ContentDialog({
 				title: "Gruppe löschen",
@@ -439,17 +439,17 @@ export default {
 				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
 			});
 
-            var result = await deleteGroupDialog.showAsync();
-            
-            if (result == metroUI.ContentDialogResult.Primary) {
-                SocketService.send({
-                    type: PackageType.DeleteGroup,
-                    content: group.internalId
-                });
-            }
+			var result = await deleteGroupDialog.showAsync();
+
+			if (result == metroUI.ContentDialogResult.Primary) {
+				SocketService.send({
+					type: PackageType.DeleteGroup,
+					content: group.internalId
+				});
+			}
 		},
-		
-        async addMember(group) {
+
+		async addMember(group) {
 			var addMemberDialog = new metroUI.ContentDialog({
 				title: "Mitglied hinzufügen",
 				content: (() => {
@@ -472,12 +472,12 @@ export default {
 			});
 
 			if (await addMemberDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
-			    let index = this.sortedGroupList.indexOf(group);
-                this.$set(group.memberIds, group.memberIds.length, addMemberDialog.text);
-			    this.$set(this.sortedGroupList, index, group);
+				let index = this.sortedGroupList.indexOf(group);
+				this.$set(group.memberIds, group.memberIds.length, addMemberDialog.text);
+				this.$set(this.sortedGroupList, index, group);
 			}
 		},
-		
+
 		async deleteBan(bannedId) {
 			let deleteBanDialog = new metroUI.ContentDialog({
 				title: "Bann aufheben",
@@ -492,25 +492,25 @@ export default {
 				})(),
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
-			
+
 			switch (await deleteBanDialog.showAsync()) {
 				case metroUI.ContentDialogResult.Primary:
 					SocketService.send({
-					    type: PackageType.DeletePunishment,
-					    content: bannedId
+						type: PackageType.DeletePunishment,
+						content: bannedId
 					});
 					break;
 				default: break;
 			}
 		},
-		
+
 		deleteMember(group, memberId) {
-            let index = this.sortedGroupList.indexOf(group);
+			let index = this.sortedGroupList.indexOf(group);
 
 			this.$delete(group.memberIds, group.memberIds.indexOf(memberId));
 			this.$set(this.sortedGroupList, index, group);
 		},
-		
+
 		addPermission(group) {
 			let index = this.sortedGroupList.indexOf(group);
 
@@ -519,7 +519,7 @@ export default {
 
 			this.permissionToAdd = "";
 		},
-		
+
 		deletePermission(group, permission) {
 			let index = this.sortedGroupList.indexOf(group);
 
@@ -528,21 +528,21 @@ export default {
 		}
 	},
 	computed: {
-        accountList() {
-            return this.$store.state.accountList;
-        },
-        bannedAccountList() {
-            return this.$store.state.accountList.filter(a => a.attributes["neo.banned"]);
-        },
+		accountList() {
+			return this.$store.state.accountList;
+		},
+		bannedAccountList() {
+			return this.$store.state.accountList.filter(a => a.attributes["neo.banned"]);
+		},
 		knownPermissions() {
 			return this.$store.state.knownPermissions;
 		},
 		knownPermissionsKeys() {
 			return Object.keys(this.knownPermissions);
-        },
-        serverAddress() {
-            return this.$store.state.serverAddress;
-        },
+		},
+		serverAddress() {
+			return this.$store.state.serverAddress;
+		},
 		sortedGroupList() {
 			return this.$store.state.groupList.slice(0).sort((a, b) => b.sortValue - a.sortValue);
 		},

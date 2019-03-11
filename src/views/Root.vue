@@ -106,13 +106,13 @@ export default {
 				case PackageType.UserListUpdate:
 					this.$store.commit("setUserList", packageObj.content);
 					this.$forceUpdate();
-                    break;
-                case PackageType.GrantedPermissionsUpdate:
-                    this.$store.commit("setGrantedPermissions", packageObj.content);
-                    break;
+					break;
+				case PackageType.GrantedPermissionsUpdate:
+					this.$store.commit("setGrantedPermissions", packageObj.content);
+					break;
 				case PackageType.KnownPermissionsUpdate:
 					this.$store.commit("setKnownPermissions", packageObj.content);
-                    break;
+					break;
 				case PackageType.DisconnectReason:
 					let reasons = {
 						"shutdown": "Der Server fährt herunter",
@@ -134,9 +134,9 @@ export default {
 		}
 	},
 	computed: {
-        channelList() {
-            return this.$store.state.channelList;
-        },
+		channelList() {
+			return this.$store.state.channelList;
+		},
 		currentChannel() {
 			return this.$store.state.currentChannel;
 		}
