@@ -45,7 +45,8 @@
 .page[data-page-id="profile"] {
 	.person-picture {
 		width: 128px;
-		height: 128px;
+        height: 128px;
+        border-radius: 64px;
 		margin-bottom: 8px;
 
 		&:before {
