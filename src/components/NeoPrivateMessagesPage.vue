@@ -30,6 +30,18 @@
 	</div>
 </template>
 
+<style lang="less">
+.page[data-page-id="private-messages"] {
+	.frame-header {
+		p.title {
+			font-size: 32px;
+			height: 64px;
+		}
+	}
+}
+</style>
+
+
 <script>
 import { NotificationDelegate } from '@/scripts/NotificationDelegate'
 import { PermissionService } from '@/scripts/PermissionService'
@@ -135,7 +147,8 @@ export default {
                             this.$refs["messageContainer"].setMessages(messages);
                         }
 
-                        this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$refs["messagesView"].setTitle(this.getPartner(this.conversations.find(_ => _.channel.internalId === packageObj.content.channel.internalId)).identity.name);
                     }
                     break;
             default: break;
@@ -164,6 +177,7 @@ export default {
 						}
 
 						this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$refs["messagesView"].setTitle(this.getPartner(this.conversations.find(_ => _.channel.internalId === packageObj.content.channel.internalId)).identity.name);
 					}
 
 					break;
@@ -250,6 +264,9 @@ export default {
                         ]
                     }
 				});
+				
+				this.$refs["messagesView"]._data._currentPage.hide();
+				this.$refs["messagesView"].setTitle("");
 			}
 		},
 
