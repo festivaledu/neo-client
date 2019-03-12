@@ -1,5 +1,5 @@
 <template>
-	<div class="page" data-page-id="channels">
+	<div class="page" data-page-id="channels" @pageShow="pageShow" @pageHide="pageHide">
 		<metro-emoji-picker @emojiPicked="emojiPicked" ref="emojiPicker" />
 
 		<metro-navigation-view :history="false" acrylic="acrylic-80" class="transparent" ref="channelView">
@@ -87,7 +87,7 @@
 				font-weight: 600;
 			}
 			.detail-text-label {
-				opacity: 0.6;
+				color: var(--alt-medium);
 			}
 		}
 	}
@@ -146,8 +146,12 @@ export default {
 	components: {
 		NeoChannelUserListItem
 	},
+	data() {
+		return {
+			selectedChannel: null
+		}
+	},
 	mounted() {
-		SocketService.$on("package", this.onPackage);
 		this.$refs["channelView"].navigate("messages");
 		this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 
@@ -162,6 +166,17 @@ export default {
 		}
 	},
 	methods: {
+		pageShow() {
+			SocketService.$on("package", this.onPackage);
+			
+			if (this.selectedChannel) {
+				this.enterChannel(this.selectedChannel);
+			}
+		},
+		pageHide() {
+			SocketService.$off("package", this.onPackage);
+			this.$refs["emojiPicker"].hide();
+		},
 		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
@@ -174,6 +189,8 @@ export default {
 					}
 
 					if (packageObj.content.result === "Success") {
+						this.selectedChannel = packageObj.content.channel.internalId;
+						
 						let messages = packageObj.content.channel.messages.map(messageObj => {
 							return {
 								author: messageObj.identity.id,
@@ -223,7 +240,7 @@ export default {
 					}
 					break;
 				case PackageType.Message:
-					if (this.canReadMessages && this.currentChannel.internalId == packageObj.channelId) {
+					if (this.canReadMessages && this.currentChannel.internalId == packageObj.content.channelId) {
 						this.$refs["messageContainer"].addMessage({
 							author: packageObj.content.identity.id,
 							displayName: packageObj.content.identity.name,
@@ -476,7 +493,7 @@ export default {
 		},
 
 		async enterChannel(channelId) {
-			if (this.currentChannel.internalId === channelId) {
+			if (this.currentChannel.internalId && this.currentChannel.internalId === channelId) {
 				return;
 			}
 
@@ -617,6 +634,10 @@ export default {
 		},
 
 		sortedMemberList(memberIds) {
+			if (memberIds.length <= 1) {
+				return memberList;
+			}
+			
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);

@@ -1502,6 +1502,10 @@ var EmojiPicker = {
 			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
 			this.$el.style.left = `${offset.left - (this.$el.clientWidth / 2) - (eventTarget.clientWidth / 2)}px`;
 		},
+		
+		hide() {
+			this.$refs["picker"].classList.remove("show");
+		}
 	}
 };
 
