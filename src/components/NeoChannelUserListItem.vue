@@ -36,7 +36,7 @@ export default {
 		},
 		user() {
             let response = this.$store.state.userList.find(_ => _.internalId === this.memberId);
-            
+
             if (!response) {
                 response = this.$store.state.accountList.find(_ => _.internalId === this.memberId);
             }

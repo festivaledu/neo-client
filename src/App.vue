@@ -60,7 +60,7 @@
 			}
 		}
 	}
-	
+
 	.messages-container .messages-wrapper .message .message-text {
 		word-break: normal;
 	}

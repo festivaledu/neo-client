@@ -3,9 +3,6 @@ import Vue from "vue";
 export const PermissionService = new Vue({
 	methods: {
 		hasPermission(permission, granted) {
-			//console.log("Checking permission: " + permission);
-			//console.debug(granted);
-
 			let permissionLayers = permission.split('.');
 			let validPermissions = ["*"];
 
@@ -30,7 +27,6 @@ export const PermissionService = new Vue({
 				p = granted[validPermission];
 			}
 
-			//console.log(p);
 			return p == "Allow";
 		},
 	}

@@ -142,7 +142,7 @@ export default {
 		}
 	},
 	mounted() {
-		
+
 	},
 	beforeDestroy() {
 		SocketService.$off("package", this.onPackage);
@@ -187,9 +187,6 @@ export default {
 			}).show();
 		},
 		onPackage(packageObj) {
-			// console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-			// console.debug(packageObj.content);
-
 			switch (packageObj.type) {
 				case PackageType.MetaResponse:
 					Object.assign(this.serverMetadata, {
@@ -276,7 +273,7 @@ export default {
 			if (this.socket) {
 				return;
 			}
-			
+
 			SocketService.$off("open");
 			SocketService.$off("close");
 			SocketService.$off("error");
@@ -337,9 +334,7 @@ export default {
 				commands: [{ text: "Abbrechen" }, { text: "Ok", primary: true }]
 			});
 
-			var result = await registerDialog.showAsync();
-
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await registerDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				let texts = registerDialog.text;
 				if (texts[3].localeCompare(texts[4]) != 0) {
 					new metroUI.ContentDialog({
