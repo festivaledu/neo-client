@@ -161,8 +161,11 @@ export default {
 			return other;
 		},
 		getLatestConversationMessage(conversation) {
-			return null;
 			let latestMessage = conversation.channel.messages[conversation.channel.messages.length - 1];
+			console.log(conversation.channel.messages)
+			if (!latestMessage) {
+				return null;
+			}
 			
 			return `${latestMessage.identity.id == this.currentIdentity.id ? "Du: " : ""}${latestMessage.message}`;
 		},
