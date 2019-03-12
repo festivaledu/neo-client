@@ -81,6 +81,9 @@
 			span {
 				display: block;
 				line-height: 22px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
 			.text-label {
