@@ -41,6 +41,18 @@
 								</div>
 							</div>
 						</div>
+
+                        <div :data-group-identifier="'offline'">
+							<div v-if="accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !currentChannel.activeMemberIds.includes(_.internalId)).length">
+								<div class="list-view-item-separator">
+									<p>Offline</p>
+								</div>
+
+								<div v-for="(member, index) in sortedOfflineMemberList(accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !currentChannel.activeMemberIds.includes(_.internalId)))" :key="index">
+									<NeoChannelUserListItem :memberId="member.internalId" @click.native.stop="userListItemClicked(member.internalId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, member.internalId)" :key="index + lastUpdate" />
+								</div>
+							</div>
+						</div>
 					</template>
 				</metro-list-view>
 			</template>
@@ -76,7 +88,8 @@
 		}
 
 		.navigation-view-item-content {
-			left: 48px;
+            left: 48px;
+            padding-right: 8px;
 
 			span {
 				display: block;
@@ -266,8 +279,7 @@ export default {
 									type: "system"
 								}]);
 							}
-						}
-
+                        }                        
 
 						this.$store.commit("setCurrentChannel", packageObj.content.channel);
 						this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -343,8 +355,21 @@ export default {
 			}
 
 			return false;
-		},
-
+        },
+        
+        beginConversation(identityId) {
+            SocketService.send({
+                type: PackageType.CustomEvent,
+                content: {
+                    name: "ml.festival.conversation.start",
+                    content: [
+                        identityId
+                    ]
+                }
+            });
+            
+            this.$parent.navigate("private-messages");
+        },
 		channelListItemContextClicked(event, channel) {
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
@@ -508,7 +533,7 @@ export default {
 
 			let channel = this.channelList.find(c => c.internalId === channelId);
 
-			if (channel.password && (!this.$store.state.currentAccount || channel.owner !== this.$store.state.currentAccount.internalId) && !PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions)) {
+			if (channel.password && (!this.$store.state.currentAccount || channel.owner !== this.$store.state.currentAccount.internalId) && (!this.$store.state.currentAccount ||!channel.memberIds.contains(this.$store.state.currentAccount.internalId)) && !PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions)) {
 				let channelPasswordDialog = new metroUI.ContentDialog({
 					title: "Passwort eingeben",
 					content: (() => {
@@ -543,17 +568,6 @@ export default {
 					}
 				});
 			}
-
-			if (channel.password && PermissionService.hasPermission("neo.channel.join.ignorepassword", this.$store.state.grantedPermissions)) {
-				new metroUI.Notification({
-					payload: {},
-					title: "Info",
-					icon: "info",
-					content: "Du hast diesen Channel ohne Passwort betreten. Du könntest eventuell unerwünscht sein.",
-					inputs: "",
-					buttons: [],
-				}).show();
-			}
 		},
 
 		userListItemClicked(memberId) {
@@ -567,18 +581,27 @@ export default {
 		},
 
 		userListItemContextClicked(event, memberId) {
-			let isCurrentUser = this.userList.find(_ => _.internalId === memberId).identity.id == this.currentIdentity.id;
+            let targetOffline = false;
+            let targetUser = this.userList.find(_ => _.internalId === memberId);
+
+            if (!targetUser) {
+                targetOffline = true;
+                targetUser = this.accountList.find(_ => _.internalId === memberId);
+            }
+
+			let isCurrentUser = targetUser.identity.id == this.currentIdentity.id;
 
 			var flyout = new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Private Nachricht",
 					icon: "chat-bubbles",
-					disabled: isCurrentUser || this.currentIdentity.id.startsWith("Guest-") || this.userList.find(_ => _.internalId === memberId).identity.id.startsWith("Guest-")
+                    disabled: isCurrentUser || this.currentIdentity.id.startsWith("Guest-") || targetUser.identity.id.startsWith("Guest-"),
+                    action: () => { this.beginConversation(targetUser.identity.id) }
 				},
 				{
 					title: "Bestrafen",
 					icon: "block-contact",
-					disabled: isCurrentUser || (!this.canModerateKick && !this.canModerateBan),
+					disabled: isCurrentUser || (!this.canModerateKick && !this.canModerateBan) || targetOffline,
 					action: () => { this.createPunishment(memberId) }
 				}
 			]);
@@ -623,7 +646,6 @@ export default {
 			}
 		},
 
-
 		emojiPickerRequested(target) {
 			this.$refs["emojiPicker"].toggle(target);
 		},
@@ -650,6 +672,18 @@ export default {
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
+				}
+				return 0;
+			});
+        },
+        sortedOfflineMemberList(offlineMembers) {
+			if (offlineMembers.length <= 1) {
+				return offlineMembers;
+			}
+			
+			return offlineMembers.slice(0).sort((a, b) => {
+				if (a && b) {
+					return a.identity.name.localeCompare(b.identity.name);
 				}
 				return 0;
 			});
@@ -685,6 +719,9 @@ export default {
 			return punishments;
 		},
 
+        accountList() {
+            return this.$store.state.accountList;
+        },
 		currentIdentity() {
 			return this.$store.state.currentIdentity;
 		},

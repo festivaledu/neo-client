@@ -54,6 +54,8 @@ export default {
 			if (this.selectedThread) {
 				this.enterChannel(this.selectedThread);
 			}
+			
+			this.$refs["messageContainer"]._scrollToBottom();
 		},
 		pageHide() {
 			SocketService.$off("package", this.onPackage);
@@ -62,52 +64,81 @@ export default {
 		notificationHandler(packageObj) {
 			// This is required so we can still receive notifications from
 			// private conversations while the regular package handler is detached
-			if (packageObj.type == PackageType.Message) {
-				if (packageObj.content.messageType == "system") {
-					return;
-				}
-				
-				let conversation = this.conversations.find(_ => _.channel.internalId == packageObj.content.channelId);
+			switch(packageObj.type) {
+                case PackageType.Message:
+                    if (packageObj.content.messageType == "system") {
+                        return;
+                    }
+                    
+                    let conversation = this.conversations.find(_ => _.channel.internalId == packageObj.content.channelId);
 
-				// TODO: Let the client receive notifications even if he is not in that channel
-				if (conversation) {
-					if (!document.hasFocus() || (conversation.channel.internalId != this.selectedThread && this.currentChannel.internalId != conversation.channel.internalId)) {
-						NotificationDelegate.sendNotification({
-							payload: packageObj.content,
-							icon: "accounts",
-							title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in Konversation`,
-							content: packageObj.content.message,
-							inputs: (() => {
-								return (
-									<input type="text" placeholder="Antworten..." data-required />
-								)
-							})(),
-							buttons: [
-								{
-									text: "Senden",
-									validate: true,
-									action: (payload, notification) => {
-										SocketService.send({
-											type: PackageType.Input,
-											content: {
-												input: notification.text,
-												targetChannel: payload.channelId
-											}
-										});
-									}
-								}
-							],
-							dismissAction: (payload) => {
-								if (this.currentChannel.internalId === payload.channelId) {
-									return;
-								}
+                    // TODO: Let the client receive notifications even if he is not in that channel
+                    if (conversation) {
+                        if (!document.hasFocus() || (conversation.channel.internalId != this.selectedThread && this.currentChannel.internalId != conversation.channel.internalId)) {
+                            NotificationDelegate.sendNotification({
+                                payload: packageObj.content,
+                                icon: "accounts",
+                                title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in Konversation`,
+                                content: packageObj.content.message,
+                                inputs: (() => {
+                                    return (
+                                        <input type="text" placeholder="Antworten..." data-required />
+                                    )
+                                })(),
+                                buttons: [
+                                    {
+                                        text: "Senden",
+                                        validate: true,
+                                        action: (payload, notification) => {
+                                            SocketService.send({
+                                                type: PackageType.Input,
+                                                content: {
+                                                    input: notification.text,
+                                                    targetChannel: payload.channelId
+                                                }
+                                            });
+                                        }
+                                    }
+                                ],
+                                dismissAction: (payload) => {
+                                    if (this.currentChannel.internalId === payload.channelId) {
+                                        return;
+                                    }
 
-								this.$parent.navigate("private-messages");
-								this.enterChannel(payload.channelId);
-							}
-						});
-					}
-				}
+                                    this.$parent.navigate("private-messages");
+                                    this.enterChannel(payload.channelId);
+                                }
+                            });
+                        }
+                    }
+                    break;
+
+                case PackageType.EnterChannelResponse:
+                    if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
+                        return;
+                    }
+                    
+                    if (packageObj.content.result === "Success") {
+                        this.selectedThread = packageObj.content.channel.internalId;
+
+                        let messages = packageObj.content.channel.messages.map(messageObj => {
+                            return {
+                                author: messageObj.identity.id,
+                                displayName: messageObj.identity.name,
+                                date: new Date(messageObj.timestamp),
+                                text: messageObj.message,
+                                type: this.currentIdentity.id === messageObj.identity.id ? "sent" : "received" // Replace with internal id check
+                            }
+                        });
+
+                        if (this.$refs["messageContainer"]) {
+                            this.$refs["messageContainer"].setMessages(messages);
+                        }
+
+                        this.$store.commit("setCurrentChannel", packageObj.content.channel);
+                    }
+                    break;
+            default: break;
 			}
 		},
 		onPackage(packageObj) {
