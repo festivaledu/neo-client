@@ -132,6 +132,15 @@ export default {
 						buttons: [],
 					});
 					break;
+				case PackageType.CustomEvent:
+					switch (packageObj.content.name) {
+						case "ml.festival.conversation.update":
+							this.$store.commit("setConversations", packageObj.content.content[0]);
+							break;
+						default: break;
+					}
+					
+					break;
 				default: break;
 			}
 		}
