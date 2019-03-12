@@ -1,6 +1,8 @@
 const defaultMenu = require('electron-default-menu');
 const { Menu, app, shell, BrowserWindow } = require('electron');
 
+app.setAppUserModelId(process.execPath);
+
 let electronWindow;
 const createElectronWindow = () => {
 	electronWindow = new BrowserWindow({
