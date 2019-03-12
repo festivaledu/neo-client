@@ -19,6 +19,7 @@ export const SocketService = new Vue({
 			this.socket = new WebSocket(url);
 			this.socket.onopen = this.onOpen;
 			this.socket.onclose = this.onClose;
+			this.socket.onerror = this.onError;
 			this.socket.onmessage = this.onMessage;
 		},
 		encrypt(data) {
@@ -33,6 +34,9 @@ export const SocketService = new Vue({
 		onClose(event) {
 			this.$emit("close", event);
 		},
+		onError(error) {
+			this.$emit("error", error);
+		},
 		onMessage(event) {
 			let container = JSON.parse(event.data);
 			let packageObj = {};
@@ -43,14 +47,14 @@ export const SocketService = new Vue({
 				packageObj = JSON.parse(container.payload);
 			}
 
-			if (packageObj.type === 1) {
-				this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
-				this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
+			// if (packageObj.type === 1) {
+			// 	this.rsaE = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.exponent));
+			// 	this.rsaM = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(packageObj.content.modulus));
 
-				console.log(this.rsaE);
-				console.log(this.rsaM);
-				return;
-			}
+			// 	console.log(this.rsaE);
+			// 	console.log(this.rsaM);
+			// 	return;
+			// }
 
 			this.$emit("package", packageObj);
 		},

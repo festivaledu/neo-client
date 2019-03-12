@@ -1,6 +1,6 @@
 {
   "name": "neo-client",
-  "productName": "neo",
+  "productName": "neoChat",
   "version": "0.1.0",
   "private": true,
   "main": "electron.js",

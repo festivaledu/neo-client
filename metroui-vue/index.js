@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import Vue from "vue";
 
+import emoji from '@/scripts/emoji.json'
+
 /**
  * Helper methods to get the first and last objects in an array
  */
@@ -188,11 +190,14 @@ metroUI.View = class {
 	 */
 	show() {
 		let view = this;
+		
 		document.querySelectorAll(".views .view").forEach((item) => {
 			if (item == view.container) {
 				item.classList.add("view-active");
+				item.dispatchEvent(new Event("viewShow"));
 			} else {
 				item.classList.remove("view-active");
+				item.dispatchEvent(new Event("viewHide"));
 			}
 		});
 	}
@@ -202,6 +207,7 @@ metroUI.View = class {
 	 */
 	hide() {
 		this.container.classList.remove("view-active");
+		this.container.dispatchEvent(new Event("viewHide"));
 	}
 
 	/**
@@ -254,16 +260,20 @@ metroUI.Page = class {
 			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
+					item.dispatchEvent(new Event("pageShow"));
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page") && item.classList.contains("page-active")) {
 					item.classList.remove("page-active");
+					item.dispatchEvent(new Event("pageHide"));
 				}
 			});
 		} else if (page.params.parentView) {
 			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
+					item.dispatchEvent(new Event("pageShow"));
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page") && item.classList.contains("page-active")) {
 					item.classList.remove("page-active");
+					item.dispatchEvent(new Event("pageHide"));
 				}
 			});
 		}
@@ -274,6 +284,7 @@ metroUI.Page = class {
 	 */
 	hide() {
 		this.container.classList.remove("page-active");
+		this.container.dispatchEvent(new Event("pageHide"));
 	}
 
 	/**
@@ -340,13 +351,13 @@ metroUI.ContentDialog = class {
 		let content = document.createElement("div");
 		content.className = "content";
 		dialog.container.appendChild(content);
-		
+
 		if (params.title && params.title.length) {
 			let title = document.createElement("h4");
 			title.innerText = params.title;
 			content.appendChild(title);
 		}
-		
+
 		if (params.content) {
 			if (typeof params.content === "object") {
 				content.appendChild(new NodeRenderer(params.content));
@@ -363,7 +374,7 @@ metroUI.ContentDialog = class {
 				}
 			}
 		}
-		
+
 		if (params.commands && params.commands.length) {
 			let commands = document.createElement("div");
 			commands.className = "commands";
@@ -395,11 +406,11 @@ metroUI.ContentDialog = class {
 
 				commands.appendChild(command);
 			});
-			
+
 			content.querySelectorAll("input, select").forEach(item => {
 				item.addEventListener("input", () => {
 					let primaryCommand = commands.querySelector(".primary");
-					
+
 					if (primaryCommand) {
 						primaryCommand.disabled = [...content.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 					}
@@ -420,10 +431,10 @@ metroUI.ContentDialog = class {
 		}
 
 		document.body.appendChild(dialog.container);
-		
+
 		dialog.container.style.width = `${Math.round(dialog.container.clientWidth / 2) * 2}px`;
 		dialog.container.style.height = `${Math.round(dialog.container.clientHeight / 2) * 2}px`;
-		
+
 		dialog.container.classList.add("animate-in");
 	}
 
@@ -526,11 +537,7 @@ metroUI.MenuFlyout = class {
 
 			action.addEventListener("click", () => {
 				if (typeof _action.action === "function") {
-					if (_action.actionParams) {
-						_action.action(_action.actionParams);
-					} else {
 						_action.action();
-					}
 				}
 
 				flyout.hide();
@@ -598,7 +605,7 @@ metroUI.MenuFlyout = class {
 
 /**
  * Show a notification containing either text or rich content
- * 
+ *
  * @param {Object} params An object containg all parameters for this notification ([payload], [icon], title, content, [inputs], [buttons])
  */
 metroUI.Notification = class {
@@ -641,11 +648,11 @@ metroUI.Notification = class {
 			if (e.target == notification.container) {
 				clearTimeout(notification._displayTimeout);
 				notification.container.classList.remove("active-state");
-				
+
 				if (typeof notification._dismissAction === "function") {
-					notification._dismissAction(notification.payload);
+					notification._dismissAction(notification.payload, notification);
 			}
-				
+
 				notification.hide("dismissing");
 			}
 		});
@@ -729,7 +736,7 @@ metroUI.Notification = class {
 
 				button.addEventListener("click", () => {
 					if (typeof _button.action === "function") {
-						_button.action(notification.payload);
+						_button.action(notification.payload, notification);
 					}
 
 					if (notification._promiseResolve) {
@@ -742,15 +749,15 @@ metroUI.Notification = class {
 				buttons.appendChild(button);
 			});
 		}
-		
+
 		inputs.querySelectorAll("input, select").forEach(item => {
 			item.addEventListener("input", () => {
 				clearTimeout(notification._displayTimeout);
 				notification._displayTimeout = null;
 				notification.container.removeEventListener("mouseout", notification.___mouseoutListener);
-				
+
 				let validatedButton = buttons.querySelector(".validated");
-				
+
 				if (validatedButton) {
 					validatedButton.disabled = [...inputs.querySelectorAll("input, select")].some(inputEl => (inputEl.value.length < inputEl.dataset.minlength) || (inputEl.dataset.required == "true" && !inputEl.value.length));
 				}
@@ -775,7 +782,7 @@ metroUI.Notification = class {
 
 	_removeFromParent() {
 		const notification = this;
-		
+
 		setTimeout(() => {
 			notification.notificationCenter.removeChild(notification.wrapper);
 
@@ -1022,7 +1029,7 @@ var AutoSuggestBox = {
 			if (this.$refs["input"].value.length) {
 				this.$data.results = this.$data._data.filter(item => item.indexOf(this.$refs["input"].value) >= 0).slice(0, this.$data._maxResults);
 			} else {
-				this.$data.results = this.$data._data;
+				this.$data.results = this.$data._data.slice(0, this.$data._maxResults);
 			}
 
 
@@ -1191,7 +1198,7 @@ var ComboBox = {
 				}
 
 				item.classList.add("selected");
-				
+
 				this._hide();
 
 				if (item.hasAttribute("data-value")) {
@@ -1216,7 +1223,7 @@ var ComboBox = {
 				this.$refs["list"].style.top = "";
 			}
 		},
-		
+
 		_show(e) {
 			if (!this.$el.classList.contains("open")) {
 				this.$el.classList.add("open");
@@ -1244,7 +1251,7 @@ var ComboBox = {
 				let top = Math.max(absolutePosBottom - (window.innerHeight - 10), 0);
 				this.$refs["list"].style.top = `-${top}px`;
 			}
-			
+
 			this.eventListener = this._hide.bind(this);
 
 			document.addEventListener("click", this.eventListener, true);
@@ -1372,21 +1379,21 @@ var ListView = {
 						});
 					}
 				});
-	
+
 				this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
 			}
-	
+
 			this.$refs["menu"].querySelectorAll(".list-view-item").forEach((item, index) => {
 				if (item.hasAttribute("data-page")) {
 					this.$data._items[item.getAttribute("data-page")] = item;
-	
+
 					item.addEventListener("click", () => {
 						this.navigate(item.getAttribute("data-page"));
 					});
 				}
 			});
 		},
-		
+
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1462,6 +1469,47 @@ var ListView = {
 };
 
 /**
+ * A popup that shows a list of selectable emojis (Unicode 11.0)
+ *
+ */
+var EmojiPicker = {
+	name: "metro-emoji-picker",
+	render(h) {
+		return (
+			<div class="emoji-picker" ref="picker">
+				<div class="emoji-container">
+					{emoji.map(item => {
+						return (
+							<div class="emoji-item" data-item={item.no} data-char={item.char} onClick={this._emojiPicked}>
+								<span>{item.char}</span>
+							</div>
+						)
+					})}
+				</div>
+			</div>
+		)
+	},
+	methods: {
+		_emojiPicked(event) {
+			this.$emit("emojiPicked", event.target.dataset.char)
+		},
+
+		toggle(eventTarget) {
+			this.$refs["picker"].classList.toggle("show");
+			// eventTarget.classList.toggle("colored");
+
+			let offset = (cumulativeOffset(eventTarget));
+			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
+			this.$el.style.left = `${offset.left - (this.$el.clientWidth / 2) - (eventTarget.clientWidth / 2)}px`;
+		},
+		
+		hide() {
+			this.$refs["picker"].classList.remove("show");
+		}
+	}
+};
+
+/**
  * Represents an action located in a ListView header
  * @param {String} icon The icon to show next to the title
  */
@@ -1522,10 +1570,13 @@ var ListViewMenuSeparator = {
  */
 var Messages = {
 	name: "metro-messages",
+	props: ["inputDisabled", "placeholder"],
 	data() {
 		return {
 			messages: [],
-			messageText: ""
+			messageText: "",
+			_inputDisabled: this.$props.inputDisabled || false,
+			_placeholder: this.$props.placeholder || "Type a text message"
 		}
 	},
 	render(h) {
@@ -1558,9 +1609,9 @@ var Messages = {
 				</div>
 
 				<div class="messages-input">
-					<button class="emoji-selector" disabled><i class="icon emoji2"></i></button>
-					<input type="text" placeholder="Type a text message" value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} ref="input" />
-					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length}><i class="icon send"></i></button>
+					<button class="emoji-selector" onClick={this._showEmojiSelector} disabled={this.$data._inputDisabled}><i class="icon emoji2"></i></button>
+					<input type="text" placeholder={this.$data._placeholder} value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown}  disabled={this.$data._inputDisabled} ref="input" />
+					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length || this.$data._inputDisabled}><i class="icon send"></i></button>
 				</div>
 			</div>
 		)
@@ -1577,6 +1628,9 @@ var Messages = {
 				this._sendMessage();
 			}
 		},
+		_showEmojiSelector(event) {
+			this.$emit("emojiPickerRequested", event.target);
+		},
 		_sendMessage() {
 			if (!this.$data.messageText.length) return;
 
@@ -1587,12 +1641,18 @@ var Messages = {
 			messageText = messageText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
 				return '&#'+i.charCodeAt(0)+';';
 			 });
-			 
+
 			 if (typeof this.onMessageRender === "function") {
 				messageText = this.onMessageRender(messageText);
 			}
-			
+
 			return messageText
+		},
+		
+		_scrollToBottom() {
+			setTimeout(() => {
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
+			});
 		},
 
 		/**
@@ -1630,9 +1690,7 @@ var Messages = {
 			message.text = this._renderMessage(message.text);
 			this.$data.messages.push(message);
 
-			setTimeout(() => {
-				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
-			});
+			this._scrollToBottom();
 		},
 		/**
 		 * Adds a system message to the conversation
@@ -1641,18 +1699,21 @@ var Messages = {
 		addSystemMessage(text) {
 			this.$data.messages.push({ type: "system", text: text });
 
-			setTimeout(() => {
-				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
-			});
+			this._scrollToBottom();
 		},
 		/**
-		 * 
+		 *
 		 */
 		setMessages(messageData) {
 			this.$data.messages = [];
 			messageData.forEach(messageObj => {
 				this.addMessage(messageObj);
 			});
+		}
+	},
+	watch: {
+		inputDisabled(newValue, oldValue) {
+			this.$data._inputDisabled = newValue;
 		}
 	}
 };
@@ -1731,16 +1792,16 @@ var NavigationView = {
 					});
 				}
 			});
-	
+
 			this.$refs["frame"].addEventListener("scroll", this._frameScrolled);
-	
+
 			this.$refs["menu"].querySelectorAll(".navigation-view-item, .settings-button").forEach((item, index) => {
 				if (item.hasAttribute("data-page")) {
 					this.$data._items[item.getAttribute("data-page")] = item;
-	
+
 					item.addEventListener("click", () => {
 						this.navigate(item.getAttribute("data-page"));
-	
+
 						if (window.innerWidth < 1008) {
 							this.$refs["menu"].classList.remove("expanded");
 						} else if (this.$props.startRetracted) {
@@ -1750,7 +1811,7 @@ var NavigationView = {
 				}
 			});
 		},
-		
+
 		_frameScrolled() {
 			if (this.$data._currentPage) {
 				this.$data._currentPage._scrollTop = this.$refs["frame"].scrollTop;
@@ -1957,14 +2018,15 @@ var PersonPicture = {
 				this.$data._initials = this.$props.initials.toUpperCase();
 			} else if (this.$props.displayName) {
 				let initials = this.$props.displayName.replace(/\_|\:|\./g, " ").replace(/[^a-zA-Z-0-9_ ]/g, "").match(/\b\w/g);
-	
+
 				if (initials.length > 1) {
 					this.$data._initials = `${initials[0]}${initials[initials.length - 1]}`;
 				} else if (initials.length) {
 					this.$data._initials = initials[0];
 				}
-	
+
 			} else if (this.$props.profilePicture) {
+				this.$data._initials = null;
 				this.$el.style.backgroundImage = `url(${this.$props.profilePicture})`;
 			}
 		}
@@ -2152,6 +2214,7 @@ export default {
 				[Checkbox.name]: Checkbox,
 				[ComboBox.name]: ComboBox,
 				[CommandBar.name]: CommandBar,
+				[EmojiPicker.name]: EmojiPicker,
 				[ListView.name]: ListView,
 				[ListViewAction.name]: ListViewAction,
 				[ListViewMenuItem.name]: ListViewMenuItem,

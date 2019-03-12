@@ -1,7 +1,7 @@
-import Vue from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
 
 import metroUI from 'metroui-vue'
 Vue.use(metroUI);
@@ -17,7 +17,7 @@ Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {
 	to.matched.some(record => {
 		if (record.name != "login") {
-			if (!store.state.identity) {
+			if (!store.state.currentIdentity) {
 				next({
 					path: "/login",
 					replace: true
