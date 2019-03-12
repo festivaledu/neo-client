@@ -5047,7 +5047,7 @@ input[type="url"][disabled]::placeholder {
 }
 .messages-container .messages-wrapper .message .message-text {
   word-wrap: break-word;
-  word-break: normal;
+  word-break: break-all;
 }
 .messages-container .messages-wrapper .message .message-bubble {
   padding: 6px;
