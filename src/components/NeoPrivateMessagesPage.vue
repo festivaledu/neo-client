@@ -241,10 +241,15 @@ export default {
 			});
 
 			if (await deleteConversationDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
-				// SocketService.send({
-				// 	type: PackageType.DeleteChannel,
-				// 	content: conversation.channel.internalId
-				// });
+				SocketService.send({
+					type: PackageType.CustomEvent,
+					content: {
+                        name: "ml.festival.conversation.stop",
+                        content: [
+                            conversation.channel.internalId
+                        ]
+                    }
+				});
 			}
 		},
 
