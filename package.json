@@ -9,7 +9,7 @@
     "build": "vue-cli-service build",
     "electron": "vue-cli-service build && electron .",
     "build-osx": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build",
-    "build-win": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build --version-string.CompanyName=\"FESIVAL Development\" --version-string.ProductName=\"neo\""
+    "build-win": "vue-cli-service build && electron-packager . neoChat --overwrite --asar=true --platform=win32 --arch=ia32 --icon=icons/icon.ico --prune=true --version-string.CompanyName=\"FESTIVAL Development\" --version-string.FileDescription=\"neoChat Desktop Application\" --version-string.ProductName=\"neoChat\""
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
