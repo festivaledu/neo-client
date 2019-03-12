@@ -161,7 +161,12 @@ export default {
 			return other;
 		},
 		getLatestConversationMessage(conversation) {
-			return null;
+            console.log(conversation);
+
+            if (conversation.channel.messages.length == 0) {
+                return "Keine Nachrichten";
+            }
+
 			let latestMessage = conversation.channel.messages[conversation.channel.messages.length - 1];
 			
 			return `${latestMessage.identity.id == this.currentIdentity.id ? "Du: " : ""}${latestMessage.message}`;

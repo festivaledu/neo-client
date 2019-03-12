@@ -570,7 +570,7 @@ export default {
 				{
 					title: "Private Nachricht",
 					icon: "chat-bubbles",
-					disabled: isCurrentUser
+					disabled: isCurrentUser || this.currentIdentity.id.startsWith("Guest-") || this.userList.find(_ => _.internalId === memberId).identity.id.startsWith("Guest-")
 				},
 				{
 					title: "Bestrafen",
