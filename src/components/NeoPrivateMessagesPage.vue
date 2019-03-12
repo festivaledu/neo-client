@@ -161,8 +161,6 @@ export default {
 			return other;
 		},
 		getLatestConversationMessage(conversation) {
-            console.log(conversation);
-
             if (conversation.channel.messages.length == 0) {
                 return "Keine Nachrichten";
             }
