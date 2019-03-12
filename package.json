@@ -7,10 +7,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-	"electron": "vue-cli-service build && electron .",
-	
-	"build-osx": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build",
-	"build-win": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build --version-string.CompanyName=\"FESIVAL Development\" --version-string.ProductName=\"neo\""
+    "electron": "vue-cli-service build && electron .",
+    "build-osx": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build",
+    "build-win": "vue-cli-service build && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/AppIcon.icns --prune=true --out=build --version-string.CompanyName=\"FESIVAL Development\" --version-string.ProductName=\"neo\""
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
@@ -31,6 +30,7 @@
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-vue-jsx": "^3.3.0",
     "electron": "^4.0.6",
+    "electron-default-menu": "^1.0.1",
     "electron-packager": "^13.1.1",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",

@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require('electron');
+const defaultMenu = require('electron-default-menu');
+const { Menu, app, shell, BrowserWindow } = require('electron');
 
 let electronWindow;
 const createElectronWindow = () => {
@@ -21,6 +22,9 @@ const createElectronWindow = () => {
 	electronWindow.on("closed", () => {
 		electronWindow = null;
 	});
+	
+	const menu = defaultMenu(app, shell);
+	Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 }
 
 app.on("ready", createElectronWindow);
