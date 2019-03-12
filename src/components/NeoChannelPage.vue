@@ -31,24 +31,24 @@
 				<metro-list-view class="user-list" acrylic="acrylic-80">
 					<template slot="list-items" v-if="currentChannel && userList.length && groupList.length">
 						<div v-for="group in sortedGroupList" :key="group.internalId + userList.length" :data-group-identifier="group.internalId">
-							<div v-if="group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)).length">
+							<div v-if="group.memberIds.filter(_ => currentChannel.memberIds.includes(_) && (!accountList.find(account => account.internalId == _) || accountList.find(account => account.internalId == _).isOnline)).length">
 								<div class="list-view-item-separator">
 									<p>{{group.name}}</p>
 								</div>
 
-								<div v-for="(memberId, index) in sortedMemberList(group.memberIds.filter(_ => currentChannel.activeMemberIds.includes(_)))" :key="index">
+								<div v-for="(memberId, index) in sortedMemberList(group.memberIds.filter(_ => currentChannel.memberIds.includes(_) && (!accountList.find(account => account.internalId == _) || accountList.find(account => account.internalId == _).isOnline)))" :key="index">
 									<NeoChannelUserListItem :memberId="memberId" @click.native.stop="userListItemClicked(memberId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, memberId)" :key="index + lastUpdate" />
 								</div>
 							</div>
 						</div>
 
                         <div :data-group-identifier="'offline'">
-							<div v-if="accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !currentChannel.activeMemberIds.includes(_.internalId)).length">
+							<div v-if="accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !_.isOnline).length">
 								<div class="list-view-item-separator">
 									<p>Offline</p>
 								</div>
 
-								<div v-for="(member, index) in sortedOfflineMemberList(accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !currentChannel.activeMemberIds.includes(_.internalId)))" :key="index">
+								<div v-for="(member, index) in sortedOfflineMemberList(accountList.filter(_ => currentChannel.memberIds.includes(_.internalId) && !_.isOnline))" :key="index">
 									<NeoChannelUserListItem :memberId="member.internalId" @click.native.stop="userListItemClicked(member.internalId)" @contextmenu.native.prevent.stop="userListItemContextClicked($event, member.internalId)" :key="index + lastUpdate" />
 								</div>
 							</div>
