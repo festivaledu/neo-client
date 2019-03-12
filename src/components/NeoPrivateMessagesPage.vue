@@ -6,7 +6,7 @@
 			<template slot="navigation-items">
 				<template v-if="conversations.length">
 					<template v-for="(conversation, index) in conversations">
-						<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :data-update-time="latestMessageTime" :key="index" v-if="getPartner(conversation)" @click="enterChannel(conversation.channel.internalId)">
+						<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :key="index" v-if="getPartner(conversation)" @click="enterChannel(conversation.channel.internalId)">
 							<div class="navigation-view-item-inner">
 								<div class="navigation-view-item-icon">
 									<metro-person-picture :display-name="getPartner(conversation).identity.avatarFileExtension ? null : getPartner(conversation).identity.name" :profile-picture="getPartner(conversation).identity.avatarFileExtension ? `http://${serverAddress}:43430/${getPartner(conversation).internalId}${getPartner(conversation).identity.avatarFileExtension}?${new Date(getPartner(conversation).attributes['neo.avatar.updated']).getTime()}` : null" />
