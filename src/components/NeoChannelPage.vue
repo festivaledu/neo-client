@@ -185,11 +185,11 @@ export default {
 	methods: {
 		pageShow() {
 			SocketService.$on("package", this.onPackage);
-			
+
 			if (this.selectedChannel) {
 				this.enterChannel(this.selectedChannel);
 			}
-			
+
 			this.$refs["messageContainer"]._scrollToBottom();
 		},
 		pageHide() {
@@ -259,7 +259,7 @@ export default {
 
 					if (packageObj.content.result === "Success") {
 						this.selectedChannel = packageObj.content.channel.internalId;
-						
+
 						let messages = packageObj.content.channel.messages.map(messageObj => {
 							return {
 								author: messageObj.identity.id,
@@ -279,7 +279,7 @@ export default {
 									type: "system"
 								}]);
 							}
-                        }                        
+                        }
 
 						this.$store.commit("setCurrentChannel", packageObj.content.channel);
 						this.$refs["channelView"].setTitle(this.currentChannel.name);
@@ -309,7 +309,7 @@ export default {
 					break;
 				case PackageType.Message:
 					break;
-				
+
 				case PackageType.DeleteChannelResponse:
 					if (packageObj.content === "Success") {
 						new metroUI.Notification({
@@ -356,7 +356,7 @@ export default {
 
 			return false;
         },
-        
+
         beginConversation(identityId) {
             SocketService.send({
                 type: PackageType.CustomEvent,
@@ -367,11 +367,11 @@ export default {
                     ]
                 }
             });
-            
+
             this.$parent.navigate("private-messages");
         },
 		channelListItemContextClicked(event, channel) {
-			var flyout = new metroUI.MenuFlyout(event.target, [
+			new metroUI.MenuFlyout(event.target, [
 				{
 					title: "Bearbeiten",
 					icon: "edit",
@@ -384,8 +384,7 @@ export default {
 					disabled: (channel.attributes['neo.channeltype'] && channel.attributes['neo.channeltype'] == 'main') || (!this._isChannelOwner(channel) && !this.canDeleteChannel),
 					action: () => { this.deleteChannel(channel) },
 				}
-			]);
-			flyout.show();
+			]).show();
 		},
 
 		async createChannel() {
@@ -668,7 +667,7 @@ export default {
 			if (memberIds.length <= 1) {
 				return memberIds;
 			}
-			
+
 			return memberIds.slice(0).sort((a, b) => {
 				if (a && b) {
 					return this.userList.find(_ => _.internalId === a).identity.name.localeCompare(this.userList.find(_ => _.internalId === b).identity.name);
@@ -680,7 +679,7 @@ export default {
 			if (offlineMembers.length <= 1) {
 				return offlineMembers;
 			}
-			
+
 			return offlineMembers.slice(0).sort((a, b) => {
 				if (a && b) {
 					return a.identity.name.localeCompare(b.identity.name);

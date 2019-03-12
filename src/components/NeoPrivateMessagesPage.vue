@@ -6,7 +6,7 @@
 			<template slot="navigation-items">
 				<template v-if="conversations.length">
 					<template v-for="(conversation, index) in conversations">
-						<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :key="index" v-if="getPartner(conversation)" @click="enterChannel(conversation.channel.internalId)">
+						<div class="navigation-view-item channel-list-item" :class="{'selected': currentChannel && (conversation.channel.internalId === currentChannel.internalId)}" :key="index" v-if="getPartner(conversation)" @click="enterConversation(conversation.channel.internalId)" @contextmenu.prevent.stop="conversationListItemContextClicked($event, conversation)">
 							<div class="navigation-view-item-inner">
 								<div class="navigation-view-item-icon">
 									<metro-person-picture :display-name="getPartner(conversation).identity.avatarFileExtension ? null : getPartner(conversation).identity.name" :profile-picture="getPartner(conversation).identity.avatarFileExtension ? `http://${serverAddress}:43430/${getPartner(conversation).internalId}${getPartner(conversation).identity.avatarFileExtension}?${new Date(getPartner(conversation).attributes['neo.avatar.updated']).getTime()}` : null" />
@@ -20,7 +20,7 @@
 					</template>
 				</template>
 			</template>
-			
+
 			<template slot="pages">
 				<div class="page" data-page-id="messages" v-show="this.selectedThread">
 					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
@@ -52,9 +52,9 @@ export default {
 			SocketService.$on("package", this.onPackage);
 
 			if (this.selectedThread) {
-				this.enterChannel(this.selectedThread);
+				this.enterConversation(this.selectedThread);
 			}
-			
+
 			this.$refs["messageContainer"]._scrollToBottom();
 		},
 		pageHide() {
@@ -69,7 +69,7 @@ export default {
                     if (packageObj.content.messageType == "system") {
                         return;
                     }
-                    
+
                     let conversation = this.conversations.find(_ => _.channel.internalId == packageObj.content.channelId);
 
                     // TODO: Let the client receive notifications even if he is not in that channel
@@ -106,7 +106,7 @@ export default {
                                     }
 
                                     this.$parent.navigate("private-messages");
-                                    this.enterChannel(payload.channelId);
+                                    this.enterConversation(payload.channelId);
                                 }
                             });
                         }
@@ -117,7 +117,7 @@ export default {
                     if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
                         return;
                     }
-                    
+
                     if (packageObj.content.result === "Success") {
                         this.selectedThread = packageObj.content.channel.internalId;
 
@@ -147,7 +147,7 @@ export default {
 					if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
 						return;
 					}
-					
+
 					if (packageObj.content.result === "Success") {
 						let messages = packageObj.content.channel.messages.map(messageObj => {
 							return {
@@ -167,6 +167,11 @@ export default {
 					}
 
 					break;
+				// case PackageType.DeleteChannelResponse:
+				// 	if (!packageObj.content.channel.attributes["neo.channeltype"] || packageObj.content.channel.attributes["neo.channeltype"] !== "conversation") {
+				// 		return;
+				// 	}
+				// 	break;
 				case PackageType.Message:
 					if (this.currentChannel.internalId == packageObj.content.channelId && packageObj.content.messageType != "system") {
 						this.$refs["messageContainer"].addMessage({
@@ -180,7 +185,7 @@ export default {
 					break;
 			}
 		},
-		
+
 		getPartner(conversation) {
 			let otherId = conversation.users.find(_ => _ != this.userList.find(user => user.identity.id == this.currentIdentity.id).internalId);
 			let other = this.accountList.find(_ => _.internalId == otherId);
@@ -197,21 +202,23 @@ export default {
             }
 
 			let latestMessage = conversation.channel.messages[conversation.channel.messages.length - 1];
-			
+
 			return `${latestMessage.identity.id == this.currentIdentity.id ? "Du: " : ""}${latestMessage.message}`;
 		},
 		
-		emojiPicked(char) {
-			this.$refs["messageContainer"].$refs["input"].value += `${char}`;
-			this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
-			this.$refs["messageContainer"].$refs["input"].focus();
+		conversationListItemContextClicked(event, conversation){
+			new metroUI.MenuFlyout(event.target, [
+				{
+					title: "Löschen",
+					icon: "delete",
+					action: () => { this.deleteConversation(conversation) },
+				}
+			]).show();
 		},
-		emojiPickerRequested(target) {
-			this.$refs["emojiPicker"].toggle(target);
-		},
-		enterChannel(channelId) {
+		
+		enterConversation(channelId) {
 			this.selectedThread = channelId;
-			
+
 			SocketService.send({
 				type: PackageType.EnterChannel,
 				content: {
@@ -220,7 +227,36 @@ export default {
 				}
 			});
 		},
-		
+		async deleteConversation(conversation) {
+			var deleteConversationDialog = new metroUI.ContentDialog({
+				title: "Konversation löschen",
+				content: (() => {
+					return (
+						<div>
+							<p>Bist du sicher, dass du diese Konversation löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+						</div>
+					)
+				})(),
+				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
+			});
+
+			if (await deleteConversationDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
+				// SocketService.send({
+				// 	type: PackageType.DeleteChannel,
+				// 	content: conversation.channel.internalId
+				// });
+			}
+		},
+
+		emojiPicked(char) {
+			this.$refs["messageContainer"].$refs["input"].value += `${char}`;
+			this.$refs["messageContainer"].$refs["input"].dispatchEvent(new Event("input"));
+			this.$refs["messageContainer"].$refs["input"].focus();
+		},
+		emojiPickerRequested(target) {
+			this.$refs["emojiPicker"].toggle(target);
+		},
+
 		sendMessage(text) {
 			SocketService.send({
 				type: PackageType.Input,

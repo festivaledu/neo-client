@@ -26,7 +26,7 @@
 								<p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
 								<input type="text" v-model="settingsModel[key]" :key="index + key" />
 							</template>
-							
+
 							<template v-if="typeof(value) == 'boolean'">
 								<metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
 							</template>
@@ -284,7 +284,7 @@ export default {
 	methods: {
 		pageShow() {
 			SocketService.$on("package", this.onPackage);
-			
+
 			if (this.canEditServer) {
 				this.$refs["settingsView"].navigate("server_settings_general");
 			} else {
@@ -292,7 +292,7 @@ export default {
 			}
 		},
 		pageHide() {
-			SocketService.$off("package", this.onPackage);	
+			SocketService.$off("package", this.onPackage);
 		},
 		serverSettingsShow() {
 			this.openSettings('server');
@@ -467,9 +467,7 @@ export default {
 				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
 			});
 
-			var result = await deleteGroupDialog.showAsync();
-
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await deleteGroupDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
 					type: PackageType.DeleteGroup,
 					content: group.internalId
@@ -562,7 +560,7 @@ export default {
 		canDeleteGroup() { return PermissionService.hasPermission("neo.group.delete", this.$store.state.grantedPermissions); },
 		canModerateBan() { return PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions); },
 		canModerateKick() { return PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions); },
-		
+
 		accountList() {
 			return this.$store.state.accountList;
 		},
