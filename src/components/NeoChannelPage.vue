@@ -173,6 +173,8 @@ export default {
 			if (this.selectedChannel) {
 				this.enterChannel(this.selectedChannel);
 			}
+			
+			this.$refs["messageContainer"]._scrollToBottom();
 		},
 		pageHide() {
 			SocketService.$off("package", this.onPackage);
@@ -222,10 +224,6 @@ export default {
 						}
 					],
 					dismissAction: (payload) => {
-						if (this.currentChannel.internalId === payload.channelId) {
-							return;
-						}
-
 						this.$parent.navigate("channels");
 						this.enterChannel(payload.channelId);
 					}

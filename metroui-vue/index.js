@@ -1648,6 +1648,12 @@ var Messages = {
 
 			return messageText
 		},
+		
+		_scrollToBottom() {
+			setTimeout(() => {
+				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
+			});
+		},
 
 		/**
 		 * Adds a new message to the conversation.
@@ -1684,9 +1690,7 @@ var Messages = {
 			message.text = this._renderMessage(message.text);
 			this.$data.messages.push(message);
 
-			setTimeout(() => {
-				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
-			});
+			this._scrollToBottom();
 		},
 		/**
 		 * Adds a system message to the conversation
@@ -1695,9 +1699,7 @@ var Messages = {
 		addSystemMessage(text) {
 			this.$data.messages.push({ type: "system", text: text });
 
-			setTimeout(() => {
-				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);
-			});
+			this._scrollToBottom();
 		},
 		/**
 		 *
