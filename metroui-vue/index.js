@@ -190,11 +190,14 @@ metroUI.View = class {
 	 */
 	show() {
 		let view = this;
+		
 		document.querySelectorAll(".views .view").forEach((item) => {
 			if (item == view.container) {
 				item.classList.add("view-active");
+				item.dispatchEvent(new Event("viewShow"));
 			} else {
 				item.classList.remove("view-active");
+				item.dispatchEvent(new Event("viewHide"));
 			}
 		});
 	}
@@ -204,6 +207,7 @@ metroUI.View = class {
 	 */
 	hide() {
 		this.container.classList.remove("view-active");
+		this.container.dispatchEvent(new Event("viewHide"));
 	}
 
 	/**
@@ -256,16 +260,20 @@ metroUI.Page = class {
 			page.params.parentPage.querySelectorAll(".page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
+					item.dispatchEvent(new Event("pageShow"));
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page") && item.classList.contains("page-active")) {
 					item.classList.remove("page-active");
+					item.dispatchEvent(new Event("pageHide"));
 				}
 			});
 		} else if (page.params.parentView) {
 			page.params.parentView.querySelectorAll(".pages > .page").forEach((item) => {
 				if (item == page.container) {
 					item.classList.add("page-active");
-				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page")) {
+					item.dispatchEvent(new Event("pageShow"));
+				} else if (item.parentNodeOfClass("page") == page.container.parentNodeOfClass("page") && item.classList.contains("page-active")) {
 					item.classList.remove("page-active");
+					item.dispatchEvent(new Event("pageHide"));
 				}
 			});
 		}
@@ -276,6 +284,7 @@ metroUI.Page = class {
 	 */
 	hide() {
 		this.container.classList.remove("page-active");
+		this.container.dispatchEvent(new Event("pageHide"));
 	}
 
 	/**
