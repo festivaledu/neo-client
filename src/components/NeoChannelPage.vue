@@ -87,7 +87,7 @@
 				font-weight: 600;
 			}
 			.detail-text-label {
-				color: var(--alt-medium);
+				color: var(--base-medium);
 			}
 		}
 	}
@@ -635,7 +635,7 @@ export default {
 
 		sortedMemberList(memberIds) {
 			if (memberIds.length <= 1) {
-				return memberList;
+				return memberIds;
 			}
 			
 			return memberIds.slice(0).sort((a, b) => {
