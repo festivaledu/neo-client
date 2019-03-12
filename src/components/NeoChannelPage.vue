@@ -152,6 +152,7 @@ export default {
 		}
 	},
 	mounted() {
+		SocketService.$on("package", this.messageHandler);
 		this.$refs["channelView"].navigate("messages");
 		this.$refs["channelView"].setMenuTitle(this.$store.state.serverName);
 
@@ -176,6 +177,60 @@ export default {
 		pageHide() {
 			SocketService.$off("package", this.onPackage);
 			this.$refs["emojiPicker"].hide();
+		},
+		messageHandler(packageObj) {
+			// This is required so we can still push messages to the
+			// selected channel while the regular package handler is detached
+			if (packageObj.type == PackageType.Message)  {
+				if (this.canReadMessages && this.currentChannel.internalId == packageObj.content.channelId) {
+					this.$refs["messageContainer"].addMessage({
+						author: packageObj.content.identity.id,
+						displayName: packageObj.content.identity.name,
+						date: new Date(packageObj.content.timestamp),
+						text: packageObj.content.message,
+						type: packageObj.content.messageType
+					});
+				}
+			} else if (packageObj.type == PackageType.Mention) {
+				if ((packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) || !this.channelList.find(_ => _.internalId == packageObj.content.channelId)) {
+					return;
+				}
+
+				NotificationDelegate.sendNotification({
+					payload: packageObj.content,
+					icon: "accounts",
+					title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in #${this.channelList.find(_ => _.internalId == packageObj.content.channelId).id}`,
+					content: packageObj.content.message,
+					inputs: (() => {
+						return (
+							<input type="text" placeholder="Antworten..." data-required />
+						)
+					})(),
+					buttons: [
+						{
+							text: "Senden",
+							validate: true,
+							action: (payload, notification) => {
+								SocketService.send({
+									type: PackageType.Input,
+									content: {
+										input: notification.text,
+										targetChannel: payload.channelId
+									}
+								});
+							}
+						}
+					],
+					dismissAction: (payload) => {
+						if (this.currentChannel.internalId === payload.channelId) {
+							return;
+						}
+
+						this.$parent.navigate("channels");
+						this.enterChannel(payload.channelId);
+					}
+				});
+			}
 		},
 		onPackage(packageObj) {
 			switch (packageObj.type) {
@@ -240,55 +295,8 @@ export default {
 					}
 					break;
 				case PackageType.Message:
-					if (this.canReadMessages && this.currentChannel.internalId == packageObj.content.channelId) {
-						this.$refs["messageContainer"].addMessage({
-							author: packageObj.content.identity.id,
-							displayName: packageObj.content.identity.name,
-							date: new Date(packageObj.content.timestamp),
-							text: packageObj.content.message,
-							type: packageObj.content.messageType
-						});
-					}
 					break;
-				case PackageType.Mention:
-					if ((packageObj.content.channelId === this.currentChannel.internalId && document.hasFocus()) || !this.channelList.find(_ => _.internalId == packageObj.content.channelId)) {
-						return;
-					}
-
-					NotificationDelegate.sendNotification({
-						payload: packageObj.content,
-						icon: "accounts",
-						title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in #${this.channelList.find(_ => _.internalId == packageObj.content.channelId).id}`,
-						content: packageObj.content.message,
-						inputs: (() => {
-							return (
-								<input type="text" placeholder="Antworten..." data-required />
-							)
-						})(),
-						buttons: [
-							{
-								text: "Senden",
-								validate: true,
-								action: (payload, notification) => {
-									SocketService.send({
-										type: PackageType.Input,
-										content: {
-											input: notification.text,
-											targetChannel: payload.channelId
-										}
-									});
-								}
-							}
-						],
-						dismissAction: (payload) => {
-							if (this.currentChannel.internalId === payload.channelId) {
-								return;
-							}
-
-							this.enterChannel(payload.channelId);
-						}
-					});
-					break;
+				
 				case PackageType.DeleteChannelResponse:
 					if (packageObj.content === "Success") {
 						new metroUI.Notification({

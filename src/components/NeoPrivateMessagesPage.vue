@@ -60,46 +60,53 @@ export default {
 			this.$refs["emojiPicker"].hide();
 		},
 		notificationHandler(packageObj) {
+			// This is required so we can still receive notifications from
+			// private conversations while the regular package handler is detached
 			if (packageObj.type == PackageType.Message) {
 				if (packageObj.content.messageType == "system") {
 					return;
 				}
 				
 				let conversation = this.conversations.find(_ => _.channel.internalId == packageObj.content.channelId);
-				if (conversation && conversation.channel.internalId != this.selectedThread && this.currentChannel.internalId != conversation.currentChannel.internalId) {
-					NotificationDelegate.sendNotification({
-						payload: packageObj.content,
-						icon: "accounts",
-						title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in Konversation`,
-						content: packageObj.content.message,
-						inputs: (() => {
-							return (
-								<input type="text" placeholder="Antworten..." data-required />
-							)
-						})(),
-						buttons: [
-							{
-								text: "Senden",
-								validate: true,
-								action: (payload, notification) => {
-									SocketService.send({
-										type: PackageType.Input,
-										content: {
-											input: notification.text,
-											targetChannel: payload.channelId
-										}
-									});
-								}
-							}
-						],
-						dismissAction: (payload) => {
-							if (this.currentChannel.internalId === payload.channelId) {
-								return;
-							}
 
-							this.enterChannel(payload.channelId);
-						}
-					});
+				// TODO: Let the client receive notifications even if he is not in that channel
+				if (conversation) {
+					if (!document.hasFocus() || (conversation.channel.internalId != this.selectedThread && this.currentChannel.internalId != conversation.channel.internalId)) {
+						NotificationDelegate.sendNotification({
+							payload: packageObj.content,
+							icon: "accounts",
+							title: `${packageObj.content.identity.name} (@${packageObj.content.identity.id}) in Konversation`,
+							content: packageObj.content.message,
+							inputs: (() => {
+								return (
+									<input type="text" placeholder="Antworten..." data-required />
+								)
+							})(),
+							buttons: [
+								{
+									text: "Senden",
+									validate: true,
+									action: (payload, notification) => {
+										SocketService.send({
+											type: PackageType.Input,
+											content: {
+												input: notification.text,
+												targetChannel: payload.channelId
+											}
+										});
+									}
+								}
+							],
+							dismissAction: (payload) => {
+								if (this.currentChannel.internalId === payload.channelId) {
+									return;
+								}
+
+								this.$parent.navigate("private-messages");
+								this.enterChannel(payload.channelId);
+							}
+						});
+					}
 				}
 			}
 		},
@@ -154,6 +161,7 @@ export default {
 			return other;
 		},
 		getLatestConversationMessage(conversation) {
+			return null;
 			let latestMessage = conversation.channel.messages[conversation.channel.messages.length - 1];
 			
 			return `${latestMessage.identity.id == this.currentIdentity.id ? "Du: " : ""}${latestMessage.message}`;
