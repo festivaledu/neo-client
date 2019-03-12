@@ -93,9 +93,6 @@ export default {
 	},
 	methods: {
 		onPackage(packageObj) {
-			// console.debug(Object.keys(PackageType).find(t => PackageType[t] === packageObj.type));
-			// console.debug(packageObj.content);
-
 			switch (packageObj.type) {
 				case PackageType.AccountListUpdate:
 					this.$store.commit("setAccountList", packageObj.content);
@@ -139,7 +136,7 @@ export default {
 							break;
 						default: break;
 					}
-					
+
 					break;
 				default: break;
 			}

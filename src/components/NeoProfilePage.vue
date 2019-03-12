@@ -65,7 +65,7 @@
 	.control-group {
 		margin-top: 30px;
 	}
-	
+
 	input[type="file"] {
 		position: absolute;
 		top: -9999px;
@@ -129,7 +129,7 @@ export default {
 				default: break;
 			}
 		},
-		
+
 		openProfilePictureSelector() {
 			this.$refs["profilePictureSelector"].click();
 		},
@@ -137,19 +137,19 @@ export default {
 			if (!selectedFiles.length) {
 				return;
 			}
-			
+
 			Array.from(selectedFiles).forEach(file => {
 				let reader = new FileReader();
-				
+
 				reader.onloadend = (event) => {
 					if (event.target.readyState == FileReader.DONE) {
 						var buffer = new Uint8Array(event.target.result);
-						
+
 						var bytes = [];
 						for (var i = 0; i < buffer.length; i++) {
 							bytes.push(buffer[i]);
 						}
-						
+
 						SocketService.send({
 							type: PackageType.SetAvatar,
 							content: {
@@ -159,7 +159,7 @@ export default {
 						});
 					}
 				}
-				
+
 				reader.readAsArrayBuffer(file);
 			})
 		},
@@ -187,7 +187,7 @@ export default {
 				},
 			]).show();
 		},
-		
+
 		async changeUsername() {
 			var changeUsernameDialog = new metroUI.ContentDialog({
 				title: "Benutzernamen ändern",
@@ -211,7 +211,7 @@ export default {
 				});
 			}
 		},
-		
+
 		async changeUserId() {
 			var changeUserIdDialog = new metroUI.ContentDialog({
 				title: "Benutzer-ID ändern",
@@ -235,7 +235,7 @@ export default {
 				});
 			}
 		},
-		
+
 		async changeEmail() {
 			var changeEmailDialog = new metroUI.ContentDialog({
 				title: "E-Mail-Adresse ändern",
@@ -259,7 +259,7 @@ export default {
 				});
 			}
 		},
-		
+
 		async changePassword() {
 			var changePasswordDialog = new metroUI.ContentDialog({
 				title: "Passwort ändern",
@@ -300,7 +300,7 @@ export default {
 				});
 			}
 		},
-		
+
 		setColors(accentEvent, themeEvent) {
 			let account = this.$store.state.currentAccount;
 
@@ -326,7 +326,7 @@ export default {
 				}
 			});
 		},
-		
+
 		async signOut() {
 			var signOutDialog = new metroUI.ContentDialog({
 				title: "Abmelden",

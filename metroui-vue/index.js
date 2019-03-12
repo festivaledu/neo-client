@@ -190,7 +190,7 @@ metroUI.View = class {
 	 */
 	show() {
 		let view = this;
-		
+
 		document.querySelectorAll(".views .view").forEach((item) => {
 			if (item == view.container) {
 				item.classList.add("view-active");
@@ -1502,7 +1502,7 @@ var EmojiPicker = {
 			this.$el.style.bottom = `${(window.innerHeight - offset.top) + 22}px`;
 			this.$el.style.left = `${offset.left - (this.$el.clientWidth / 2) - (eventTarget.clientWidth / 2)}px`;
 		},
-		
+
 		hide() {
 			this.$refs["picker"].classList.remove("show");
 		}
@@ -1648,7 +1648,7 @@ var Messages = {
 
 			return messageText
 		},
-		
+
 		_scrollToBottom() {
 			setTimeout(() => {
 				this.$refs["scrollContainer"].scrollTo(0, this.$refs["scrollContainer"].scrollHeight);

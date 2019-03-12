@@ -67,7 +67,13 @@ export default {
 	 * The package contains EnterChannelResponsePackageContent.
 	 */
 	EnterChannelResponse: 16,
+	/**
+	 * The package requests the server to send available settings to the client
+	 */
 	GetSettings: 17,
+	/**
+	 * The package contains settings available on the server
+	 */
 	GetSettingsResponse: 18,
 	/**
 	 * The package contains a string requesting a specific settings model.

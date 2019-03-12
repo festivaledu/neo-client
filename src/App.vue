@@ -61,6 +61,10 @@
 		}
 	}
 	
+	.messages-container .messages-wrapper .message .message-text {
+		word-break: normal;
+	}
+	
 	/* Electron Additions */
 	html.electron {
 		background-image: none;

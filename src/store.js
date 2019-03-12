@@ -28,7 +28,7 @@ export default new Vuex.Store({
 		},
 		setServerAddress(state, serverAddress) {
 			state.serverAddress = serverAddress;
-			
+
 			state.lastUpdated = new Date();
 		},
 
@@ -91,7 +91,7 @@ export default new Vuex.Store({
 
 			state.lastUpdated = new Date();
 		},
-		
+
 		setConversations(state, conversations) {
 			state.conversations = conversations;
 

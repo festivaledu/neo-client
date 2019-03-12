@@ -1,34 +1,34 @@
 <template>
-	<div class="page" data-page-id="settings">
+	<div class="page" data-page-id="settings" @pageShow="pageShow" @pageHide="pageHide">
 		<metro-list-view class="fixed-width" acrylic="acrylic-80" menuTitle="Einstellungen" ref="settingsView">
 			<template slot="actions">
-				<metro-list-view-action icon="more" @click.native="moreButtonClicked" />
+				<metro-list-view-action v-if="canCreateGroup" icon="more" @click.native="moreButtonClicked" />
 			</template>
 
 			<template slot="list-items">
-				<metro-list-view-menu-separator title="Server" />
-				<metro-list-view-menu-item @click.native="openSettings('server')" class="single-line" title="Allgemein" page="server_settings_general" />
-				<metro-list-view-menu-item class="single-line" title="Gebannte Benutzer" page="server_settings_bans" />
+				<metro-list-view-menu-separator v-if="canModerateBan || (canEditGroup || canDeleteGroup)" title="Server" />
+				<metro-list-view-menu-item v-if="canEditServer" class="single-line" title="Allgemein" page="server_settings_general" />
+				<metro-list-view-menu-item v-if="canModerateBan" class="single-line" title="Gebannte Benutzer" page="server_settings_bans" />
 
 				<metro-list-view-menu-item class="single-line" title="Über" page="info" />
 
-				<metro-list-view-menu-separator title="Gruppen" />
-				<template v-for="group in this.sortedGroupList">
-					<metro-list-view-menu-item :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
+				<template v-if="canEditGroup || canDeleteGroup">
+					<metro-list-view-menu-separator title="Gruppen" />
+					<metro-list-view-menu-item v-for="group in this.sortedGroupList" :key="group.internalId + '-item'" class="single-line" :title="group.name" :page="'group_settings-' + group.internalId" />
 				</template>
 			</template>
 
 			<template slot="pages">
-				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein">
+				<div class="page" data-page-id="server_settings_general" data-page-title="Allgemein" v-if="canEditServer" @pageShow="serverSettingsShow">
 					<template v-for="(value, key, index) in settingsModel">
 						<div v-if="settingsTitles[key.toLowerCase()]" :key="'setting-' + index">
-							<template v-if="typeof(value) == 'boolean'">
-								<metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
-							</template>
-
 							<template v-if="typeof(value) == 'string' || typeof(value) == 'number'">
 								<p :key="index + key + '-title'">{{ settingsTitles[key.toLowerCase()]}}</p>
 								<input type="text" v-model="settingsModel[key]" :key="index + key" />
+							</template>
+
+							<template v-if="typeof(value) == 'boolean'">
+								<metro-toggle-switch v-model="settingsModel[key]" :key="index + key" :item-header="settingsTitles[key.toLowerCase()]" :value="value" on-content="An" off-content="Aus" />
 							</template>
 						</div>
 					</template>
@@ -36,7 +36,7 @@
 					<button @click="saveSettings('server', settingsModel)">Einstellungen speichern</button>
 				</div>
 
-				<div class="page" data-page-id="server_settings_bans" data-page-title="Gebannte Benutzer">
+				<div class="page" data-page-id="server_settings_bans" data-page-title="Gebannte Benutzer" v-if="canModerateBan">
 					<!-- <h4>Aktive Banns</h4> -->
 					<p v-if="!bannedAccountList.length">Es sind derzeit keine Benutzer gebannt.</p>
 					<template v-else>
@@ -69,8 +69,8 @@
 					<p class="metro-ui-version-string" />
 				</div>
 
-				<template v-for="group in this.sortedGroupList">
-					<div class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
+				<template v-if="canEditGroup || canDeleteGroup">
+					<div v-for="group in this.sortedGroupList" class="page" :key="group.internalId + '-page'" :data-page-id="'group_settings-' + group.internalId" :data-page-title="group.name">
 						<template v-if="group.attributes['neo.grouptype']">
 							<h4 style="margin-top: 0">Gruppentyp</h4>
 							<div style="align-items: center; display: flex">
@@ -78,39 +78,51 @@
 									<i class="icon party-leader" style="display: inline-block; font-size: 20px; margin: 12px"></i>
 									<div>
 										<p class="text-label">Administratoren</p>
-										<p>Dies ist die Standardgruppe für Administratoren. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+										<p>
+											<span>Dies ist die Standardgruppe für Administratoren. </span>
+											<span v-if="canEditGroup">Du kannst sie bearbeiten, aber nicht entfernen.</span>
+											<span v-else>Du kannst sie weder bearbeiten, noch entfernen.</span>
+										</p>
 									</div>
 								</template>
 								<template v-if="group.attributes['neo.grouptype'] == 'user'">
 									<i class="icon contact" style="display: inline-block; font-size: 20px; margin: 12px"></i>
 									<div>
 										<p class="text-label">Benutzer</p>
-										<p>Dies ist die Standardgruppe für Benutzer. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+										<p>
+											<span>Dies ist die Standardgruppe für Benutzer. </span>
+											<span v-if="canEditGroup">Du kannst sie bearbeiten, aber nicht entfernen.</span>
+											<span v-else>Du kannst sie weder bearbeiten, noch entfernen.</span>
+										</p>
 									</div>
 								</template>
 								<template v-if="group.attributes['neo.grouptype'] == 'guest'">
 									<i class="icon guest-user" style="display: inline-block; font-size: 20px; margin: 12px"></i>
 									<div>
 										<p class="text-label">Gäste</p>
-										<p>Dies ist die Standardgruppe für Gäste. Du kannst sie bearbeiten, aber nicht entfernen.</p>
+										<p>
+											<span>Dies ist die Standardgruppe für Gäste. </span>
+											<span v-if="canEditGroup">Du kannst sie bearbeiten, aber nicht entfernen.</span>
+											<span v-else>Du kannst sie weder bearbeiten, noch entfernen.</span>
+										</p>
 									</div>
 								</template>
 							</div>
 						</template>
 						<template v-else>
-							<button @click="deleteGroup(group)">Gruppe löschen</button>
+							<button :disabled="!canDeleteGroup" @click="deleteGroup(group)">Gruppe löschen</button>
 						</template>
 
 						<h4>Allgemein</h4>
 						<p class="text-label">Name</p>
-						<input type="text" v-model="group.name" />
+						<input type="text" v-model="group.name" :disabled="!canEditGroup" />
 
 						<p class="text-label">Gruppen-ID</p>
-						<input type="text" v-model="group.id" />
+						<input type="text" v-model="group.id"  :disabled="!canEditGroup" />
 
 						<p class="text-label">Wertigkeit</p>
 						<p class="detail-text-label">Die Wertigkeit bestimmt, in welcher Reihenfolge die Gruppen sortiert und die Rechte vererbt werden.<br />Eine Gruppe erbt immer von allen Gruppen mit niedrigerer Wertigkeit.</p>
-						<input type="text" v-model="group.sortValue" />
+						<input type="text" v-model="group.sortValue" :disabled="!canEditGroup" />
 
 						<template v-if="!group.attributes['neo.grouptype'] || group.attributes['neo.grouptype'] != 'guest'">
 							<h4>Mitglieder</h4>
@@ -124,12 +136,12 @@
 											<p class="detail-text-label">@{{ _userById(memberId).identity.id }}</p>
 										</div>
 										<div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
-											<button @click="deleteMember(group, memberId)" style="margin: 0"><i class="icon delete"></i></button>
+											<button :disabled="!canEditGroup" @click="deleteMember(group, memberId)" style="margin: 0"><i class="icon delete"></i></button>
 										</div>
 									</div>
 								</div>
 							</template>
-							<button @click="addMember(group)" style="margin-top: 6px" :disabled="group.memberIds.length >= accountList.length - 1">Mitglied hinzufügen</button>
+							<button :disabled="group.memberIds.length >= accountList.length - 1 || !canEditGroup" @click="addMember(group)" style="margin-top: 6px">Mitglied hinzufügen</button>
 						</template>
 
 						<div class="row" style="margin-right: 5px">
@@ -155,34 +167,35 @@
 									<p class="detail-text-label">{{ key }}</p>
 								</div>
 								<div class="col col-2 text-center">
-									<div class="radio">
+									<div class="radio" :disabled="!canEditGroup">
 										<input type="radio" :id="group.internalId + '-permission-' + index + '-allow'" :name="group.internalId + '-permission-' + index" value="Allow" v-model="group.permissions[key]">
 										<label :for="group.internalId + '-permission-' + index + '-allow'" />
 									</div>
 								</div>
 								<div class="col col-2 text-center">
-									<div class="radio">
+									<div class="radio" :disabled="!canEditGroup">
 										<input type="radio" :id="group.internalId + '-permission-' + index + '-inherit'" :name="group.internalId + '-permission-' + index" value="Inherit" v-model="group.permissions[key]">
 										<label :for="group.internalId + '-permission-' + index + '-inherit'" />
 									</div>
 								</div>
 								<div class="col col-2 text-center">
-									<div class="radio">
+									<div class="radio" :disabled="!canEditGroup">
 										<input type="radio" :id="group.internalId + '-permission-' + index + '-deny'" :name="group.internalId + '-permission-' + index" value="Deny" v-model="group.permissions[key]">
 										<label :for="group.internalId + '-permission-' + index + '-deny'" />
 									</div>
 								</div>
 								<div class="col col-1" style="align-items: center; display: flex; justify-content: flex-end">
-									<button @click="deletePermission(group, key)" style="margin: 0"><i class="icon delete"></i></button>
+									<button :disabled="!canEditGroup" @click="deletePermission(group, key)" style="margin: 0"><i class="icon delete"></i></button>
 								</div>
 							</div>
 						</template>
 
 						<p class="text-label" style="margin-top: 24px">Neue Berechtigung hinzufügen</p>
 						<p class="detail-text-label">Berechtigungen einer Gruppe, die nicht explizit definiert wurden, werden automatisch von Gruppen mit niedrigerer Wertigkeit übernommen.<br />Wenn keine Gruppe mit niedrigerer Wertigkeit die Berechtigung definiert, gilt sie in diesen Gruppen als verweigert.</p>
-						<metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" /><button @click="addPermission(group)">Hinzufügen</button>
+						<metro-auto-suggest v-model="permissionToAdd" placeholder="Berechtigungs-ID" :data="knownPermissionsKeys" :disabled="!canEditGroup" />
+						<button :disabled="!canEditGroup" @click="addPermission(group)">Hinzufügen</button>
 
-						<button @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
+						<button :disabled="!canEditGroup" @click="saveSettings('group', group)" style="margin-top: 48px">Einstellungen speichern</button>
 					</div>
 				</template>
 			</template>
@@ -249,6 +262,7 @@
 <script>
 import Vue from "vue";
 
+import { PermissionService } from '@/scripts/PermissionService'
 import { SocketService } from '@/scripts/SocketService'
 import PackageType from '@/scripts/PackageType'
 
@@ -265,12 +279,25 @@ export default {
 		}
 	},
 	mounted() {
-		this.openSettings('server');
-		this.$refs["settingsView"].navigate("server_settings_general");
-
 		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
+		pageShow() {
+			SocketService.$on("package", this.onPackage);
+
+			if (this.canEditServer) {
+				this.$refs["settingsView"].navigate("server_settings_general");
+			} else {
+				this.$refs["settingsView"].navigate("info");
+			}
+		},
+		pageHide() {
+			SocketService.$off("package", this.onPackage);
+		},
+		serverSettingsShow() {
+			this.openSettings('server');
+			console.log("test")
+		},
 		onPackage(packageObj) {
 			switch (packageObj.type) {
 				case PackageType.OpenSettingsResponse:
@@ -361,6 +388,7 @@ export default {
 				{
 					title: "Gruppe hinzufügen",
 					icon: "add",
+					disabled: !this.canCreateGroup,
 					action: this.addGroup
 				}
 			]);
@@ -439,9 +467,7 @@ export default {
 				commands: [{ text: "Abbrechen" }, { text: "Löschen", primary: true }]
 			});
 
-			var result = await deleteGroupDialog.showAsync();
-
-			if (result == metroUI.ContentDialogResult.Primary) {
+			if (await deleteGroupDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
 				SocketService.send({
 					type: PackageType.DeleteGroup,
 					content: group.internalId
@@ -528,6 +554,13 @@ export default {
 		}
 	},
 	computed: {
+		canEditServer() { return PermissionService.hasPermission("neo.server.edit", this.$store.state.grantedPermissions); },
+		canCreateGroup() { return PermissionService.hasPermission("neo.group.create", this.$store.state.grantedPermissions); },
+		canEditGroup() { return PermissionService.hasPermission("neo.group.edit", this.$store.state.grantedPermissions); },
+		canDeleteGroup() { return PermissionService.hasPermission("neo.group.delete", this.$store.state.grantedPermissions); },
+		canModerateBan() { return PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions); },
+		canModerateKick() { return PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions); },
+
 		accountList() {
 			return this.$store.state.accountList;
 		},
