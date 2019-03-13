@@ -289,33 +289,7 @@ export default {
 						return;
 					}
 
-					if (packageObj.content.result === "Success") {
-						this.selectedChannel = packageObj.content.channel.internalId;
-
-						let messages = packageObj.content.channel.messages.map(messageObj => {
-							return {
-								author: messageObj.identity.id,
-								displayName: messageObj.identity.name,
-								date: new Date(messageObj.timestamp),
-								text: messageObj.message,
-								type: this.currentIdentity.id === messageObj.identity.id ? "sent" : "received"
-							}
-						});
-
-						if (this.$refs["messageContainer"]) {
-							if (this.canReadMessages) {
-								this.$refs["messageContainer"].setMessages(messages);
-							} else {
-								this.$refs["messageContainer"].setMessages([{
-									text: "Du bist nicht berechtigt, Nachrichten zu lesen",
-									type: "system"
-								}]);
-							}
-                        }
-
-						this.$store.commit("setCurrentChannel", packageObj.content.channel);
-						this.$refs["channelView"].setTitle(this.currentChannel.name);
-					} else {
+					if (packageObj.content.result !== "Success") {
 						new metroUI.ContentDialog({
 							title: "Channel kann nicht betreten werden",
 							content: (() => {
