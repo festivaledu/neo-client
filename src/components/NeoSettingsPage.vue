@@ -278,9 +278,6 @@ export default {
 			packageJson: packageJson
 		}
 	},
-	mounted() {
-		SocketService.$on("package", this.onPackage);
-	},
 	methods: {
 		pageShow() {
 			SocketService.$on("package", this.onPackage);
