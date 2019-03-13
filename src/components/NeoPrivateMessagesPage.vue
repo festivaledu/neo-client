@@ -19,6 +19,9 @@
 						</div>
 					</template>
 				</template>
+                <div v-else>
+                    <p style="color: var(--base-medium); padding: 13px">Du hast keine aktiven Konversationen</p>
+                </div>
 			</template>
 
 			<template slot="pages">
