@@ -342,7 +342,8 @@ export default {
 			});
 
 			if (await signOutDialog.showAsync() == metroUI.ContentDialogResult.Primary) {
-				SocketService.socket.close();
+				//SocketService.socket.close();
+				window.location.reload(true);
 			}
 		},
 	},

@@ -19,16 +19,31 @@
 						</div>
 					</template>
 				</template>
+                <div v-else>
+                    <p style="color: var(--base-medium); padding: 13px">Du hast keine aktiven Konversationen</p>
+                </div>
 			</template>
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages" v-show="this.selectedThread">
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :useTextarea="true" />
 				</div>
 			</template>
 		</metro-navigation-view>
 	</div>
 </template>
+
+<style lang="less">
+.page[data-page-id="private-messages"] {
+	.frame-header {
+		p.title {
+			font-size: 32px;
+			height: 64px;
+		}
+	}
+}
+</style>
+
 
 <script>
 import { NotificationDelegate } from '@/scripts/NotificationDelegate'
@@ -135,7 +150,8 @@ export default {
                             this.$refs["messageContainer"].setMessages(messages);
                         }
 
-                        this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$refs["messagesView"].setTitle(this.getPartner(this.conversations.find(_ => _.channel.internalId === packageObj.content.channel.internalId)).identity.name);
                     }
                     break;
             default: break;
@@ -164,6 +180,7 @@ export default {
 						}
 
 						this.$store.commit("setCurrentChannel", packageObj.content.channel);
+						this.$refs["messagesView"].setTitle(this.getPartner(this.conversations.find(_ => _.channel.internalId === packageObj.content.channel.internalId)).identity.name);
 					}
 
 					break;
@@ -250,6 +267,9 @@ export default {
                         ]
                     }
 				});
+				
+				this.$refs["messagesView"]._data._currentPage.hide();
+				this.$refs["messagesView"].setTitle("");
 			}
 		},
 
@@ -263,6 +283,7 @@ export default {
 		},
 
 		sendMessage(text) {
+			this.$refs["emojiPicker"].hide();
 			SocketService.send({
 				type: PackageType.Input,
 				content: {

@@ -1,5 +1,5 @@
 /*
- * metroUI 4.0 (4.0.1175.1_winkit_internal_dev.190311-1116)
+ * metroUI 4.0 (4.0.1175.10_winkit_internal_dev.190314-1007)
  * HTML framework to create UWP-like web applications
  * © 2014-2019 FESTIVAL Development
  */
@@ -21,7 +21,7 @@ body {
   color: var(--base-high);
 }
 .metro-ui-version-string:after {
-  content: "metroUI 4.0\A Build 4.0.1175.1_winkit_internal_dev.190311-1116";
+  content: "metroUI 4.0\A Build 4.0.1175.10_winkit_internal_dev.190314-1007";
   white-space: pre;
 }
 a {
@@ -3768,7 +3768,8 @@ input[type="password"],
 input[type="search"],
 input[type="tel"],
 input[type="text"],
-input[type="url"] {
+input[type="url"],
+textarea {
   display: block;
   appearance: none;
   -webkit-appearance: none;
@@ -3781,6 +3782,7 @@ input[type="url"] {
   background-color: var(--alt-high);
   box-shadow: inset 0 0 0 2px var(--chrome-disabled-low);
   border-radius: 0;
+  resize: none;
 }
 @media all and (min-width: 641px) {
   input[type="email"],
@@ -3789,7 +3791,8 @@ input[type="url"] {
   input[type="search"],
   input[type="tel"],
   input[type="text"],
-  input[type="url"] {
+  input[type="url"],
+  textarea {
     max-width: 296px;
   }
 }
@@ -3799,7 +3802,8 @@ input[type="password"]::placeholder,
 input[type="search"]::placeholder,
 input[type="tel"]::placeholder,
 input[type="text"]::placeholder,
-input[type="url"]::placeholder {
+input[type="url"]::placeholder,
+textarea::placeholder {
   color: var(--base-medium);
 }
 input[type="email"]:not(:focus),
@@ -3808,7 +3812,8 @@ input[type="password"]:not(:focus),
 input[type="search"]:not(:focus),
 input[type="tel"]:not(:focus),
 input[type="text"]:not(:focus),
-input[type="url"]:not(:focus) {
+input[type="url"]:not(:focus),
+textarea:not(:focus) {
   color: var(--base-high);
 }
 input[type="email"]:focus,
@@ -3817,7 +3822,8 @@ input[type="password"]:focus,
 input[type="search"]:focus,
 input[type="tel"]:focus,
 input[type="text"]:focus,
-input[type="url"]:focus {
+input[type="url"]:focus,
+textarea:focus {
   background-color: #FFFFFF !important;
   box-shadow: inset 0 0 0 2px var(--system-accent-color);
 }
@@ -3827,7 +3833,8 @@ input[type="password"]:focus::placeholder,
 input[type="search"]:focus::placeholder,
 input[type="tel"]:focus::placeholder,
 input[type="text"]:focus::placeholder,
-input[type="url"]:focus::placeholder {
+input[type="url"]:focus::placeholder,
+textarea:focus::placeholder {
   color: var(--base-medium-low);
 }
 input[type="email"][disabled],
@@ -3836,7 +3843,8 @@ input[type="password"][disabled],
 input[type="search"][disabled],
 input[type="tel"][disabled],
 input[type="text"][disabled],
-input[type="url"][disabled] {
+input[type="url"][disabled],
+textarea[disabled] {
   background-color: var(--base-low);
   box-shadow: inset 0 0 0 2px var(--chrome-disabled-high) !important;
 }
@@ -3846,7 +3854,8 @@ input[type="password"][disabled]::placeholder,
 input[type="search"][disabled]::placeholder,
 input[type="tel"][disabled]::placeholder,
 input[type="text"][disabled]::placeholder,
-input[type="url"][disabled]::placeholder {
+input[type="url"][disabled]::placeholder,
+textarea[disabled]::placeholder {
   color: var(--base-low);
 }
 
@@ -4894,12 +4903,15 @@ input[type="url"][disabled]::placeholder {
   animation: dialog-background-out 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
 .content-dialog {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate3d(-50%, -50%, 0);
   min-width: 320px;
   max-width: 548px;
+  max-height: calc(100vh - 48px);
   box-shadow: inset 0 0 0 1px var(--system-accent-color);
   padding: 18px 24px 24px;
   z-index: 1100;
@@ -4911,10 +4923,13 @@ input[type="url"][disabled]::placeholder {
   }
 }
 .content-dialog.animate-in {
-  animation: dialog-in 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  animation: dialog-in 300ms cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 .content-dialog.animate-out {
   animation: dialog-out 300ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+.content-dialog .content {
+  overflow: scroll;
 }
 .content-dialog .content h4 {
   margin: 0 0 12px;
@@ -4925,6 +4940,7 @@ input[type="url"][disabled]::placeholder {
 .content-dialog .commands {
   display: flex;
   margin-top: 24px;
+  min-height: 36px;
 }
 .content-dialog .commands button {
   flex: 1;
@@ -5015,7 +5031,7 @@ input[type="url"][disabled]::placeholder {
   flex-direction: column;
   justify-content: flex-end;
   margin: 0 auto;
-  padding-bottom: 54px;
+  padding-bottom: 52px;
   min-height: 100%;
   overflow-x: hidden;
 }
@@ -5108,12 +5124,16 @@ input[type="url"][disabled]::placeholder {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 48px;
+  min-height: 48px;
+  align-items: flex-end;
   background-color: var(--alt-high);
 }
-.messages-container .messages-input input[type="text"] {
+.messages-container .messages-input input[type="text"],
+.messages-container .messages-input textarea {
+  height: 30px;
   max-width: initial;
   margin: 9px 0;
+  line-height: 18px;
 }
 .messages-container .messages-input .emoji-selector,
 .messages-container .messages-input .send-message {

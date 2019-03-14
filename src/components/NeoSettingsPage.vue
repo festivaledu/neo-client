@@ -67,6 +67,10 @@
 
 					<h4>metroUI-Informationen</h4>
 					<p class="metro-ui-version-string" />
+					
+					<h4>Weiteres</h4>
+					<button @click="showCredits">Mitwirkende</button>
+					<button v-if="canShowSuperspesh" @click="showSuperspesh">Danksagungen</button>
 				</div>
 
 				<template v-if="canEditGroup || canDeleteGroup">
@@ -252,6 +256,75 @@
 	}
 }
 
+
+	.credits-item {
+		position: relative;
+		width: 100%;
+		height: 64px;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		cursor: default;
+
+		.credits-item-icon {
+			position: absolute;
+			width: 48px;
+			height: 64px;
+
+			i.icon {
+				margin: 10px 14px;
+			}
+
+			& + .credits-item-content {
+				left: 48px;
+				padding-left: 0;
+			}
+
+			.person-picture {
+				width: 32px;
+				height: 32px;
+				margin: 16px 8px;
+
+				&:before {
+					width: 32px;
+					height: 32px;
+				}
+
+				.initials {
+					font-size: 16px;
+					line-height: 14px;
+					padding: 9px 0;
+				}
+			}
+		}
+
+		.credits-item-content {
+			position: absolute;
+			top: 10px;
+			left: 0;
+			right: 0;
+			bottom: 10px;
+			padding-left: 16px;
+            padding-right: 8px;
+
+			span {
+				display: block;
+				line-height: 22px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.text-label {
+				font-weight: 600;
+			}
+			.detail-text-label {
+				color: var(--base-medium);
+			}
+		}
+	}
+
+
 .list-view-item.single-line {
 	span.text-label {
 		font-weight: 400 !important;
@@ -267,6 +340,7 @@ import { SocketService } from '@/scripts/SocketService'
 import PackageType from '@/scripts/PackageType'
 
 import packageJson from '@/../package.json'
+import creditsJson from '@/scripts/credits.json'
 
 export default {
 	name: "NeoSettingsPage",
@@ -277,9 +351,6 @@ export default {
 			settingsTitles: {},
 			packageJson: packageJson
 		}
-	},
-	mounted() {
-		SocketService.$on("package", this.onPackage);
 	},
 	methods: {
 		pageShow() {
@@ -551,6 +622,37 @@ export default {
 
 			this.$delete(group.permissions, permission);
 			this.$set(this.sortedGroupList, index, group);
+		},
+		
+		showCredits() {
+			new metroUI.ContentDialog({
+				title: "Mitwirkende",
+				content: (() => {
+					return (
+						<div>
+							{creditsJson.map(item => {
+								return (
+									<div class="credits-item">
+										<div class="credits-item-icon">
+											<metro-person-picture displayName={item.name} />
+										</div>
+										<div class="credits-item-content">
+											<p class="title-label">{item.name}</p>
+											<p class="detail-text-label">{item.subtitle}</p>
+										</div>
+									</div>
+								)
+							})}
+						</div>
+					)
+				})(),
+				commands: [{ text: "Ok", primary: true }]
+			}).show();
+		},
+		showSuperspesh() {
+			if (!this.canShowSuperspesh) {
+				return;
+			}
 		}
 	},
 	computed: {
@@ -560,6 +662,7 @@ export default {
 		canDeleteGroup() { return PermissionService.hasPermission("neo.group.delete", this.$store.state.grantedPermissions); },
 		canModerateBan() { return PermissionService.hasPermission("neo.moderate.ban", this.$store.state.grantedPermissions); },
 		canModerateKick() { return PermissionService.hasPermission("neo.moderate.kick", this.$store.state.grantedPermissions); },
+		canShowSuperspesh() { return PermissionService.hasPermission("neo.credits.superspesh", this.$store.state.grantedPermissions); },
 
 		accountList() {
 			return this.$store.state.accountList;

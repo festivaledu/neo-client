@@ -159,6 +159,10 @@ export default {
 				}
 
 				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
+			} else {
+				this.knownServers.splice(this.knownServers.indexOf(this.serverAddress), 1);
+				this.knownServers.push(this.serverAddress);
+				localStorage.setItem("known-servers", JSON.stringify(this.knownServers));
 			}
 
 			this.$store.commit("setServerAddress", this.serverAddress);
