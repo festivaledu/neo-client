@@ -25,7 +25,7 @@
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages">
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :disabled="!this.canWriteMessages" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :useTextarea="true" :disabled="!this.canWriteMessages" />
 				</div>
 
 				<metro-list-view class="user-list" acrylic="acrylic-80">

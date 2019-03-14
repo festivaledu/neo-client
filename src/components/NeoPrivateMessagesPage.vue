@@ -26,7 +26,7 @@
 
 			<template slot="pages">
 				<div class="page" data-page-id="messages" v-show="this.selectedThread">
-					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" />
+					<metro-messages ref="messageContainer" @messageSent="sendMessage" @emojiPickerRequested="emojiPickerRequested" :useTextarea="true" />
 				</div>
 			</template>
 		</metro-navigation-view>

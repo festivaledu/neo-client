@@ -1570,11 +1570,12 @@ var ListViewMenuSeparator = {
  */
 var Messages = {
 	name: "metro-messages",
-	props: ["inputDisabled", "placeholder"],
+	props: ["useTextarea", "inputDisabled", "placeholder"],
 	data() {
 		return {
 			messages: [],
 			messageText: "",
+			_useTextarea: this.$props.useTextarea || false,
 			_inputDisabled: this.$props.inputDisabled || false,
 			_placeholder: this.$props.placeholder || "Type a text message"
 		}
@@ -1583,7 +1584,7 @@ var Messages = {
 		return (
 			<div class="messages-container">
 				<div class="messages-scroll-container" ref="scrollContainer">
-					<div class="messages-wrapper">
+					<div class="messages-wrapper" ref="wrapper">
 						{this.$data.messages.map(item => {
 							return (
 								<div class={{ "message": item.type != "system", [`message-${item.type}`]: true, "message-tail": item.hasTail, "message-first": item.isFirst }}>
@@ -1610,7 +1611,15 @@ var Messages = {
 
 				<div class="messages-input">
 					<button class="emoji-selector" onClick={this._showEmojiSelector} disabled={this.$data._inputDisabled}><i class="icon emoji2"></i></button>
-					<input type="text" placeholder={this.$data._placeholder} value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown}  disabled={this.$data._inputDisabled} ref="input" />
+					
+					{this.$data._useTextarea && 
+						<textarea placeholder={this.$data._placeholder} value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} disabled={this.$data._inputDisabled} ref="input" />
+					}
+					
+					{!this.$data._useTextarea &&
+						<input type="text" placeholder={this.$data._placeholder} value={this.$data.messageText} onInput={this._onInput} onKeydown={this._onKeyDown} disabled={this.$data._inputDisabled} ref="input" />
+					}
+					
 					<button class="send-message" onClick={this._sendMessage} disabled={!this.$data.messageText.length || this.$data._inputDisabled}><i class="icon send"></i></button>
 				</div>
 			</div>
@@ -1622,9 +1631,24 @@ var Messages = {
 		},
 		_onInput(e) {
 			this.$data.messageText = e.target.value;
+			
+			if (e.target.tagName.toLowerCase() == "textarea") {
+				e.target.style.height = null;
+				
+
+				e.target.style.height = `${Math.min(66, e.target.scrollHeight)}px`;
+				this.$refs["wrapper"].style.paddingBottom = `${e.target.parentElement.clientHeight}px`;
+				
+				this._scrollToBottom();
+			}
 		},
 		_onKeyDown(e) {
-			if (e.keyCode == 13) {
+			if (e.target.tagName.toLowerCase() == "textarea") {
+				if (e.keyCode == 13 && e.shiftKey) {
+					this._sendMessage();
+					e.preventDefault();
+				}
+			} else if (e.keyCode == 13) {
 				this._sendMessage();
 			}
 		},
@@ -1636,11 +1660,15 @@ var Messages = {
 
 			this.$emit("messageSent", this.$data.messageText);
 			this.$data.messageText = "";
+			this.$refs["input"].value = null;
+			
+			this.$refs["input"].style.height = null;
+			this.$refs["wrapper"].style.paddingBottom = `${this.$refs["input"].parentElement.clientHeight}px`;
 		},
 		_renderMessage(messageText) {
 			messageText = messageText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
 				return '&#'+i.charCodeAt(0)+';';
-			 });
+			 }).replace(/\n/g, "<br>");
 
 			 if (typeof this.onMessageRender === "function") {
 				messageText = this.onMessageRender(messageText);
