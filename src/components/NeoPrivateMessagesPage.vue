@@ -283,6 +283,7 @@ export default {
 		},
 
 		sendMessage(text) {
+			this.$refs["emojiPicker"].hide();
 			SocketService.send({
 				type: PackageType.Input,
 				content: {

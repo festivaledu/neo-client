@@ -660,6 +660,7 @@ export default {
 			this.$refs["messageContainer"].$refs["input"].focus();
 		},
 		sendMessage(text) {
+			this.$refs["emojiPicker"].hide();
 			SocketService.send({
 				type: PackageType.Input,
 				content: {
