@@ -1644,7 +1644,7 @@ var Messages = {
 		},
 		_onKeyDown(e) {
 			if (e.target.tagName.toLowerCase() == "textarea") {
-				if (e.keyCode == 13 && e.shiftKey) {
+				if (e.keyCode == 13 && !e.shiftKey) {
 					this._sendMessage();
 					e.preventDefault();
 				}
