@@ -341,6 +341,7 @@ import PackageType from '@/scripts/PackageType'
 
 import packageJson from '@/../package.json'
 import creditsJson from '@/scripts/credits.json'
+import superspesh from '@/scripts/superspesh'
 
 export default {
 	name: "NeoSettingsPage",
@@ -367,7 +368,6 @@ export default {
 		},
 		serverSettingsShow() {
 			this.openSettings('server');
-			console.log("test")
 		},
 		onPackage(packageObj) {
 			switch (packageObj.type) {
@@ -653,6 +653,28 @@ export default {
 			if (!this.canShowSuperspesh) {
 				return;
 			}
+			
+			new metroUI.ContentDialog({
+				title: "Danksagungen",
+				content: (() => {
+					return (
+						<div>
+							{JSON.parse(Buffer.from(superspesh, "base64").toString("utf-8")).map(item => {
+								return (
+									<div class="credits-item">
+
+										<div class="credits-item-content">
+											<p class="title-label">{item.name}</p>
+											<p class="detail-text-label">{item.subtitle}</p>
+										</div>
+									</div>
+								)
+							})}
+						</div>
+					)
+				})(),
+				commands: [{ text: "Ok", primary: true }]
+			}).show();
 		}
 	},
 	computed: {
