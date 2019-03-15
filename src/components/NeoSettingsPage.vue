@@ -276,8 +276,8 @@
 			}
 
 			& + .credits-item-content {
-				left: 48px;
-				padding-left: 0;
+				// left: 48px;
+				padding-left: 48px;
 			}
 
 			.person-picture {
@@ -299,7 +299,7 @@
 		}
 
 		.credits-item-content {
-			position: absolute;
+			position: relative;
 			top: 10px;
 			left: 0;
 			right: 0;
